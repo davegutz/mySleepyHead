@@ -53,6 +53,12 @@ void Sensors::filter(const boolean reset)
         o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
 
+    // Mahony Tracking Filter
+    t_filter->updateIMU(x_raw*gyroScale, y_raw*gyroScale, z_raw*gyroScale, a_raw, b_raw, c_raw, T_acc_);
+    roll_raw = t_filter->getRoll();
+    pitch_raw = t_filter->getPitch();
+    yaw_raw = t_filter->getYaw();
+
 }
 
 // Print publish
@@ -229,12 +235,6 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     }
     else rot_available_ = false;
     T_rot_ = double(time_now_ms - time_rot_last_) / 1000.;
-
-    // Tracking Filter
-    t_filter->updateIMU(x_raw*gyroScale, y_raw*gyroScale, z_raw*gyroScale, a_raw, b_raw, c_raw);
-    roll_raw = t_filter->getRoll();
-    pitch_raw = t_filter->getPitch();
-    yaw_raw = t_filter->getYaw();
 
     // Time stamp
     t_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
