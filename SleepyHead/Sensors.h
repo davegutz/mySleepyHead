@@ -33,6 +33,8 @@
   #include "application.h"  // Particle
 #endif
 
+#include "MahonyAHRS.h"
+
 #include "myFilters.h"
 extern int debug;
 
@@ -46,13 +48,15 @@ public:
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(0ULL), time_rot_last_(0ULL),
-      o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true)
+      o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
+      roll_raw(0), pitch_raw(0), yaw_raw(0)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT ): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_rot_last_(time_now),
-      o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true)
+      o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
+      roll_raw(0), pitch_raw(0), yaw_raw(0)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -72,6 +76,7 @@ public:
         GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
         GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
+        t_filter = new Mahony();
     };
     unsigned long long millis;
     ~Sensors(){};
@@ -117,6 +122,9 @@ public:
     float g_filt;
     float g_qrate;
     float g_quiet;
+    float roll_raw;
+    float pitch_raw;
+    float yaw_raw;
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter
@@ -132,6 +140,7 @@ protected:
     General2_Pole *GQuietFilt; // Quiet detector
     RateLagExp *GQuietRate;    // Quiet detector
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
+    Mahony *t_filter;   // Mahony tracking filter
     unsigned long long time_acc_last_;
     unsigned long long time_rot_last_;
     double T_acc_;

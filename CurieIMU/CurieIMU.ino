@@ -6,8 +6,8 @@
 // For graphical display, this Processing sketch works:
 // https://www.arduino.cc/en/Tutorial/Genuino101CurieIMUOrientationVisualiser
 
-#include <CurieIMU.h>
-#include <MahonyAHRS.h>
+//#include <CurieIMU.h>
+#include "MahonyAHRS.h"
 #include <Wire.h>
 
 Mahony filter;
