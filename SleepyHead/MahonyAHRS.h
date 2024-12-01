@@ -10,8 +10,8 @@
 // 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
 //
 //=============================================================================================
-#ifndef MahonyAHRS_h
-#define MahonyAHRS_h
+#pragma once
+
 #include <math.h>
 
 //--------------------------------------------------------------------------------------------
@@ -60,5 +60,3 @@ public:
 		return yaw;
 	}
 };
-
-#endif

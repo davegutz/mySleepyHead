@@ -54,7 +54,7 @@ void Sensors::filter(const boolean reset)
     }
 
     // Mahony Tracking Filter
-    t_filter->updateIMU(x_raw*gyroScale, y_raw*gyroScale, z_raw*gyroScale, a_raw, b_raw, c_raw, T_acc_);
+    t_filter->updateIMU(x_raw, y_raw, z_raw, a_raw, b_raw, c_raw, T_acc_);
     roll_raw = t_filter->getRoll();
     pitch_raw = t_filter->getPitch();
     yaw_raw = t_filter->getYaw();
@@ -113,6 +113,19 @@ void Sensors::plot_all_rot()  // pa2
   Serial.print("\to_filt:"); Serial.print(o_filt, 3);
   Serial.print("\to_is_quiet-4:"); Serial.print(o_q, 3);
   Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s, 3);
+}
+
+// pa7
+void Sensors::plot_all_rpy()  // pa7
+{
+  float g_q = -2.;
+  float g_q_s = -2.; 
+  if ( g_is_quiet_ ) g_q = -1;
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
+  Serial.print("\troll_raw:"); Serial.print(roll_raw, 3);
+  Serial.print("\tpitch_raw:"); Serial.print(pitch_raw, 3);
+  Serial.print("\tyaw_raw:"); Serial.println(yaw_raw, 3);
 }
 
 // pa0

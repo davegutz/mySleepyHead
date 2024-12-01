@@ -21,9 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef _MY_SENSORS_H
-#define _MY_SENSORS_H
-
+#pragma once
 
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
@@ -89,6 +87,7 @@ public:
     void plot_all();
     void plot_all_acc();
     void plot_all_rot();
+    void plot_all_rpy();
     void plot_all_sum();
     void plot_quiet();
     void plot_quiet_raw();
@@ -152,5 +151,3 @@ protected:
     boolean g_is_quiet_;
     boolean g_is_quiet_sure_;
 };
-
-#endif

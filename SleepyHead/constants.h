@@ -26,8 +26,7 @@
 
 */
 
-#ifndef CONSTANTS_H_
-#define CONSTANTS_H_
+#pragma once
 
 #undef USE_ARDUINO
 #define SAVE_RAW
@@ -38,7 +37,6 @@
 
 const double NOM_DT = 0.01;
 const float deg_to_rps = 0.0174533;
-const float gyroScale = 0.001;  // TODO: the filter updates too fast
   
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS        86400000UL// Number of milliseconds in one day (24*60*60*1000)
@@ -75,5 +73,3 @@ const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
 const float T_SCL = (32000./T_MAX);     // Rotational int16_t scale factor
 const uint8_t NREG = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
-
-#endif

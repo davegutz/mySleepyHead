@@ -9,9 +9,9 @@
   09-Feb-2021   Dave Gutz   RateLagExp, LagExp, General2_Pole
  ****************************************************/
 
-#ifndef _myFilters_H
-#define _myFilters_H
-  #define USE_ARDUINO
+#pragma once
+
+#define USE_ARDUINO
 
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
@@ -524,5 +524,3 @@ struct PID
     cont = max(min(integ + prop, dyn_max), dyn_min);
   }
 };
-
-#endif
