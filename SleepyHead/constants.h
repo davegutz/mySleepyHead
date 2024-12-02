@@ -68,6 +68,9 @@ const float deg_to_rps = 0.0174533;
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 
+const float t_kp_def = 1.0;             // Proportional gain Kp (1.0)
+const float t_ki_def = 0.0;             // Integral gain Ki (0.0)
+
 const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec 
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor

@@ -27,9 +27,6 @@
 //-------------------------------------------------------------------------------------------
 // Definitions
 
-#define twoKpDef	(2.0f * 0.5f)	// 2 * proportional gain
-#define twoKiDef	(2.0f * 0.0f)	// 2 * integral gain
-
 
 //============================================================================================
 // Functions
@@ -37,10 +34,10 @@
 //-------------------------------------------------------------------------------------------
 // AHRS algorithm update
 
-Mahony::Mahony()
+Mahony::Mahony(const float t_kp, const float t_ki)
 {
-	twoKp = twoKpDef;	// 2 * proportional gain (Kp)
-	twoKi = twoKiDef;	// 2 * integral gain (Ki)
+	twoKp = t_kp;	// 2 * proportional gain (Kp)
+	twoKi = t_ki;	// 2 * integral gain (Ki)
 	q0 = 1.0f;
 	q1 = 0.0f;
 	q2 = 0.0f;

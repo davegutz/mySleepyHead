@@ -80,7 +80,6 @@ unsigned long long last_sync = millis();   // Timekeeping
 
 extern int debug;
 int debug = 0;
-
 boolean print_mem = false;
 
 // Setup
@@ -139,7 +138,7 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT));
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def);
   static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
@@ -342,12 +341,66 @@ void loop()
       char letter_1 = '\0';
       letter_0 = input_str.charAt(0);
       letter_1 = input_str.charAt(1);
+      Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.print(letter_1);
       int i_value = -1;  // default value is not something used, so it stops plots
       input_str.substring(input_str, 2).toInt(i_value);
-      Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.print(letter_1); Serial.print(" i_value: "); Serial.println(i_value);
+      Serial.print("input_str: "); Serial.println(input_str);
+      float f_value = 0.;
+      input_str.substring(input_str, 2).toFloat(f_value);
+      Serial.print("input_str: "); Serial.println(input_str);
+      Serial.print(" i_value: "); Serial.print(i_value); Serial.print(" f_value: "); Serial.println(f_value);
       switch ( letter_0 )
       {
-        case ( 'p' ):
+        case ( 'a' ):  // a - adjust
+          switch ( letter_1 )
+          {
+            case ( 'p' ):  // proportional gain
+              Serial.print("Mahony prop gain from "); Serial.print(Sen->t_filter->getKp(), 3);
+              Sen->t_filter->setKp(f_value);
+              Serial.print(" to "); Serial.println(Sen->t_filter->getKp(), 3);
+              break;
+            case ( 'i' ):  // integral gain
+              Serial.print("Mahony int gain from "); Serial.print(Sen->t_filter->getKi(), 3);
+              Sen->t_filter->setKp(f_value);
+              Serial.print(" to "); Serial.println(Sen->t_filter->getKi(), 3);
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
+        case ( 'h' ):  // h  - help
+          plotting_all = false;
+          monitoring = false;
+          Serial.println("aXX <val> - adjust");
+          Serial.println("\t p = Mahony proportional gain (Kp)");
+          Serial.println("\t i = Mahony integral gain (Ki)");
+          Serial.println("h - this help");
+          Serial.println("HELP");
+          Serial.println("ppX - plot all version X");
+          Serial.println("\t X=blank - stop plotting");
+          Serial.println("\t X=0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
+          Serial.println("\t X=1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
+          Serial.println("\t X=2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
+          Serial.println("\t X=3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
+          Serial.println("\t X=4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
+          Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
+          Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
+          Serial.println("\t X=7 - roll-pitch-yaw");
+          Serial.println("\t X=8 - summary for plot");
+          Serial.println("ph - print history");
+          Serial.println("pr - print registers");
+          Serial.println("m  - print all");
+          Serial.println("s  - print sizes for all (will vary depending on history of collision)");
+          Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
+          Serial.println("vvX  - verbosity debug level");
+          Serial.println("  vv9  - time trace in Sensors");
+          break;
+        case ( 'm' ):  // m  - print all
+          plotting_all = false;
+          monitoring = !monitoring;
+          break;
+        case ( 'p' ):  // p - plot
           switch ( letter_1 )
           {
             case ( 'p' ):  // pa - plot all filtered
@@ -376,33 +429,6 @@ void loop()
               Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
               break;
           }
-          break;
-        case ( 'm' ):  // m  - print all
-          plotting_all = false;
-          monitoring = !monitoring;
-          break;
-        case ( 'h' ):  // h  - help
-          plotting_all = false;
-          monitoring = false;
-          Serial.println("h - this help");
-          Serial.println("HELP");
-          Serial.println("ppX - plot all version X");
-          Serial.println("\t X=blank - stop plotting");
-          Serial.println("\t X=0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
-          Serial.println("\t X=1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
-          Serial.println("\t X=2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
-          Serial.println("\t X=3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
-          Serial.println("\t X=4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
-          Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
-          Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
-          Serial.println("\t X=7 - summary for plot");
-          Serial.println("ph - print history");
-          Serial.println("pr - print registers");
-          Serial.println("m  - print all");
-          Serial.println("s  - print sizes for all (will vary depending on history of collision)");
-          Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
-          Serial.println("vvX  - verbosity debug level");
-          Serial.println("  vv9  - time trace in Sensors");
           break;
         case ( 's' ):  // s - sizes for all
           print_mem = true;

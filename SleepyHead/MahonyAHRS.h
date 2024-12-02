@@ -32,7 +32,11 @@ private:
 // Function declarations
 
 public:
-	Mahony();
+	Mahony(const float t_kp, const float t_ki);
+	float getKi() { return twoKi; }
+	float getKp() { return twoKp; }
+	void setKi(const float inp) { twoKi = inp; }
+	void setKp(const float inp) { twoKp = inp; }
 	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float invSampleFreq);
 	void updateIMU(float gx, float gy, float gz, float ax, float ay, float az, float invSampleFreq);
 	float getRoll() {

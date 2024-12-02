@@ -62,8 +62,8 @@ void Sensors::filter(const boolean reset)
 }
 
 // Print publish
-// plot pa3
-void Sensors::plot_all()  // pa3
+// plot pp3
+void Sensors::plot_all()  // plot pp3
 {
   float g_q = -2.;
   float g_q_s = -2.; 
@@ -83,8 +83,8 @@ void Sensors::plot_all()  // pa3
   Serial.print("\to_filt:"); Serial.println(o_filt, 3);
 }
 
-// plot pa1
-void Sensors::plot_all_acc()  // pa1
+// plot pp1
+void Sensors::plot_all_acc()  // plot pp1
 {
   float g_q = -2.;
   float g_q_s = -2.; 
@@ -99,8 +99,8 @@ void Sensors::plot_all_acc()  // pa1
   Serial.print("\tg_is_quiet_sure-2:"); Serial.println(g_q_s, 3);
 }
 
-// plot pa2
-void Sensors::plot_all_rot()  // pa2
+// plot pp2
+void Sensors::plot_all_rot()  // plot pp2
 {
   float o_q = -4.;
   float o_q_s = -4.; 
@@ -115,21 +115,24 @@ void Sensors::plot_all_rot()  // pa2
   Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s, 3);
 }
 
-// pa7
-void Sensors::plot_all_rpy()  // pa7
+// plot pp7
+void Sensors::plot_all_rpy()  // plot pp7
 {
   float g_q = -2.;
   float g_q_s = -2.; 
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
   Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
+  Serial.print("\tx_filt:"); Serial.print(x_filt, 3);
+  Serial.print("\ty_filt:"); Serial.print(y_filt, 3);
+  Serial.print("\tz_filt:"); Serial.print(z_filt, 3);
   Serial.print("\troll_raw:"); Serial.print(roll_raw, 3);
   Serial.print("\tpitch_raw:"); Serial.print(pitch_raw, 3);
   Serial.print("\tyaw_raw:"); Serial.println(yaw_raw, 3);
 }
 
-// pa0
-void Sensors::plot_all_sum()  // pa0
+// plot pp0
+void Sensors::plot_all_sum()  // plot pp0
 {
   float g_q_s = -2.; 
   if ( g_is_quiet_sure_ ) g_q_s = -1;
@@ -145,8 +148,8 @@ void Sensors::plot_all_sum()  // pa0
   Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s, 3);
 }
 
-// Print publish
-void Sensors::plot_quiet()
+// plot pp4
+void Sensors::plot_quiet()  // plot pp4
 {
   float o_q = -4.;
   float o_q_s = -4.; 
