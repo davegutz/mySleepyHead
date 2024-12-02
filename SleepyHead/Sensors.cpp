@@ -54,7 +54,7 @@ void Sensors::filter(const boolean reset)
     }
 
     // Mahony Tracking Filter
-    t_filter->updateIMU(x_raw, y_raw, z_raw, a_raw, b_raw, c_raw, T_acc_);
+    t_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_);
     roll_raw = t_filter->getRoll();
     pitch_raw = t_filter->getPitch();
     yaw_raw = t_filter->getYaw();
@@ -126,9 +126,9 @@ void Sensors::plot_all_rpy()  // plot pp7
   Serial.print("\tx_filt:"); Serial.print(x_filt, 3);
   Serial.print("\ty_filt:"); Serial.print(y_filt, 3);
   Serial.print("\tz_filt:"); Serial.print(z_filt, 3);
-  Serial.print("\troll_raw:"); Serial.print(roll_raw, 3);
-  Serial.print("\tpitch_raw:"); Serial.print(pitch_raw, 3);
-  Serial.print("\tyaw_raw:"); Serial.println(yaw_raw, 3);
+  Serial.print("\troll_raw:"); Serial.print(roll_raw, 5);
+  Serial.print("\tpitch_raw:"); Serial.print(pitch_raw, 5);
+  Serial.print("\tyaw_raw:"); Serial.println(yaw_raw, 5);
 }
 
 // plot pp0

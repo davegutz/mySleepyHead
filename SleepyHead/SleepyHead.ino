@@ -336,18 +336,15 @@ void loop()
     if ( input_str.length() )
     {
       // Now we know the letters
-      Serial.print("input_str: "); Serial.print(input_str);
+      Serial.print("input_str: "); Serial.println(input_str);
       char letter_0 = '\0';
       char letter_1 = '\0';
       letter_0 = input_str.charAt(0);
       letter_1 = input_str.charAt(1);
-      Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.print(letter_1);
-      int i_value = -1;  // default value is not something used, so it stops plots
-      input_str.substring(input_str, 2).toInt(i_value);
-      Serial.print("input_str: "); Serial.println(input_str);
+      Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.println(letter_1);
       float f_value = 0.;
       input_str.substring(input_str, 2).toFloat(f_value);
-      Serial.print("input_str: "); Serial.println(input_str);
+      int i_value = int(f_value);
       Serial.print(" i_value: "); Serial.print(i_value); Serial.print(" f_value: "); Serial.println(f_value);
       switch ( letter_0 )
       {
@@ -361,7 +358,7 @@ void loop()
               break;
             case ( 'i' ):  // integral gain
               Serial.print("Mahony int gain from "); Serial.print(Sen->t_filter->getKi(), 3);
-              Sen->t_filter->setKp(f_value);
+              Sen->t_filter->setKi(f_value);
               Serial.print(" to "); Serial.println(Sen->t_filter->getKi(), 3);
               break;
            default:
