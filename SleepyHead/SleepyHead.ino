@@ -233,7 +233,7 @@ void loop()
       }
       else if ( plotting_all && plot_num==8 )
       {
-        L->plot_latest_ram();  // pa8
+        L->plot_latest_ram();  // pp8
       }
     }
     else if ( logging )
@@ -282,7 +282,7 @@ void loop()
       case 8:
         break;
       default:
-        Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), pa3 (all), pa4 (quiet), pa5 (quiet raw), pa6 (total), pa7 (roll-pitch-yaw) or pa8 (sum plot)");
+        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw) or pp8 (sum plot)");
         break;
       }
     }
@@ -388,6 +388,7 @@ void loop()
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");
+          Serial.println("r  - reset cmd toggle");
           Serial.println("s  - print sizes for all (will vary depending on history of collision)");
           Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
           Serial.println("vvX  - verbosity debug level");
@@ -400,7 +401,7 @@ void loop()
         case ( 'p' ):  // p - plot
           switch ( letter_1 )
           {
-            case ( 'p' ):  // pa - plot all filtered
+            case ( 'p' ):  // pp - plot all filtered
               switch ( i_value )
               {
                 case 0 ... 8:
@@ -409,7 +410,7 @@ void loop()
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pa0 (sum), pa1 (acc), pa2 (rot), pa3 (all), pa4 (quiet), pa5 (quiet raw), pa6 (total) or pa7 (sum plot)");
+                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total) or pp7 (sum plot)");
                   plotting_all = false;
                   break;
               }
@@ -426,6 +427,9 @@ void loop()
               Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
               break;
           }
+          break;
+        case ( 'r' ):  // r - reset command toggles
+          reset = true;
           break;
         case ( 's' ):  // s - sizes for all
           print_mem = true;

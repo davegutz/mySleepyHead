@@ -123,9 +123,6 @@ void Sensors::plot_all_rpy()  // plot pp7
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
   Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
-  Serial.print("\tx_filt:"); Serial.print(x_filt, 3);
-  Serial.print("\ty_filt:"); Serial.print(y_filt, 3);
-  Serial.print("\tz_filt:"); Serial.print(z_filt, 3);
   Serial.print("\troll_raw:"); Serial.print(roll_raw, 5);
   Serial.print("\tpitch_raw:"); Serial.print(pitch_raw, 5);
   Serial.print("\tyaw_raw:"); Serial.println(yaw_raw, 5);
