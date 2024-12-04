@@ -256,6 +256,7 @@ float Mahony::invSqrt(float x)
 
 //-------------------------------------------------------------------------------------------
 
+
 void Mahony::computeAngles()
 {
 	roll = atan2f(q0*q1 + q2*q3, 0.5f - q1*q1 - q2*q2);
