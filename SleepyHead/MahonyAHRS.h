@@ -11,8 +11,16 @@
 //
 //=============================================================================================
 #pragma once
-
+#include "constants.h"
 #include <math.h>
+#ifdef USE_ARDUINO
+  #include <Arduino.h> //needed for Serial.println
+  #include <Arduino_LSM6DS3.h>
+#else
+  #error "Only Arduino nano 33 iot has built in IMU"
+  #include "application.h"  // Particle
+#endif
+
 
 //--------------------------------------------------------------------------------------------
 // Variable declaration
@@ -40,8 +48,10 @@ public:
 	float getKp() { return twoKp_; }
 	void setKi(const float inp) { twoKi_ = inp; }
 	void setKp(const float inp) { twoKp_ = inp; }
-	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float invSampleFreq);
-	void updateIMU(float gx, float gy, float gz, float ax, float ay, float az, float invSampleFreq);
+	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float invSampleFreq,
+	 	const boolean reset);
+	void updateIMU(const float gx, const float gy, const float gz, const float ax, const float ay, const float az,
+		const float invSampleFreq, const boolean reset);
 	float getRoll() {
 		if (!anglesComputed_) computeQuaternionToAngles();
 		return roll_ * 57.29578f;

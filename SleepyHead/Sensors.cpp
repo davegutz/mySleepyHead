@@ -54,7 +54,7 @@ void Sensors::filter(const boolean reset)
     }
 
     // Mahony Tracking Filter
-    t_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_);
+    t_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
     roll_raw = t_filter->getRoll();
     pitch_raw = t_filter->getPitch();
     yaw_raw = t_filter->getYaw();

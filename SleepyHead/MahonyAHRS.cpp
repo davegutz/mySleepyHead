@@ -49,7 +49,7 @@ Mahony::Mahony(const float t_kp, const float t_ki)
 }
 
 void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz,
-	float invSampleFreq)
+	float invSampleFreq, const boolean reset)
 {
 	float recipNorm;
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
@@ -71,7 +71,7 @@ void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, 
 	// Use IMU algorithm if magnetometer measurement invalid
 	// (avoids NaN in magnetometer normalisation)
 	if((mx_ == 0.0f) && (my_ == 0.0f) && (mz_ == 0.0f)) {
-		updateIMU(gx_, gy_, gz_, ax_, ay_, az_, invSampleFreq);
+		updateIMU(gx_, gy_, gz_, ax_, ay_, az_, invSampleFreq, reset);
 		return;
 	}
 
@@ -173,7 +173,8 @@ void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, 
 //-------------------------------------------------------------------------------------------
 // IMU algorithm update
 
-void Mahony::updateIMU(float gx, float gy, float gz, float ax, float ay, float az, float invSampleFreq)
+void Mahony::updateIMU(const float gx, const float gy, const float gz, const float ax, const float ay, const float az,
+					   const float invSampleFreq, const boolean reset)
 {
 	float recipNorm;
 	float halfvx, halfvy, halfvz;
@@ -195,6 +196,13 @@ void Mahony::updateIMU(float gx, float gy, float gz, float ax, float ay, float a
 	// Compute feedback only if accelerometer measurement valid
 	// (avoids NaN in accelerometer normalisation)
 	if(!((ax_ == 0.0f) && (ay_ == 0.0f) && (az_ == 0.0f))) {
+
+		// Initialization logic
+		if(init)
+		{
+			computeAccelToAngles();
+			computeAnglesToQuaternion();
+		}
 
 		// Normalise accelerometer measurement
 		recipNorm = invSqrt(ax_*ax_ + ay_*ay_ + az_*az_);
