@@ -370,8 +370,8 @@ void loop()
           plotting_all = false;
           monitoring = false;
           Serial.println("aXX <val> - adjust");
-          Serial.println("\t p = Mahony proportional gain (Kp)");
-          Serial.println("\t i = Mahony integral gain (Ki)");
+          Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->t_filter->getKp(), 3);Serial.println(")");
+          Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->t_filter->getKi(), 3);Serial.println(")");
           Serial.println("h - this help");
           Serial.println("HELP");
           Serial.println("ppX - plot all version X");
@@ -392,7 +392,7 @@ void loop()
           Serial.println("s  - print sizes for all (will vary depending on history of collision)");
           Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
           Serial.println("vvX  - verbosity debug level");
-          Serial.println("  vv9  - time trace in Sensors");
+          Serial.println("\t X=9  - time trace in Sensors");
           break;
         case ( 'm' ):  // m  - print all
           plotting_all = false;
