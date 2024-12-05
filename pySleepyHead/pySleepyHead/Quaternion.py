@@ -58,12 +58,13 @@ def quaternion_to_angles(quaternion):
 
     roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y);
     pitch = np.arcsin(-2.0 * (x*z - w*y))
-    yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z);
+    # yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z);
+    yaw = 0.;
 
     return np.array([roll, pitch, yaw])
 
 def main():
-    g_vec = np.array([-1, 1, 1])
+    g_vec = np.array([1, 1, 1])
     angles_vec = g_to_angles(g_vec)
     quat = angles_to_quaternion(angles_vec)
     angles_vec_check_deg = quaternion_to_angles(quat) * 180. / np.pi
