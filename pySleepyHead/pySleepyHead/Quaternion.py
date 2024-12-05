@@ -1,7 +1,6 @@
 import math
 import numpy as np
 
-
 def angles_to_quaternion(euler_angles):
     """
     Converts Euler angles  to a quaternion.
