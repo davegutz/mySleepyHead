@@ -27,13 +27,17 @@
 
 class Mahony {
 private:
-	float twoKp_;		// 2 * proportional gain (Kp)
-	float twoKi_;		// 2 * integral gain (Ki)
-	float q0_, q1_, q2_, q3_;	// quaternion of sensor frame relative to auxiliary frame
-	float gx_, gy_, gz_, ax_, ay_, az_, mx_, my_, mz_;  // IMU data
-	float integralFBx_, integralFBy_, integralFBz_;  // integral error terms scaled by Ki
-	float roll_, pitch_, yaw_;  // euler angle. radians
 	char anglesComputed_;
+	float acc_x_, acc_y_, acc_z_;		// accelerometer data
+	float gyr_x_, gyr_y_, gyr_z_;  		// gyroscope data
+	float halfex_, halfey_, halfez_;  	// track filter errors
+	float halfvx_, halfvy_, halfvz_; 	// estimated gravity directions
+	float integralFBx_, integralFBy_, integralFBz_;  // integral error terms scaled by Ki
+	float mx_, my_, mz_;  				// magnetometer data (not for 6dof, 9dof only)
+	float q0_, q1_, q2_, q3_;			// quaternion of sensor frame relative to auxiliary frame
+	float roll_, pitch_, yaw_;  		// euler angle. radians
+	float twoKp_;						// 2 * track filter proportional gain (Kp)
+	float twoKi_;						// 2 * track filter integral gain (Ki)
 	static float invSqrt(float x);
 	void computeAccelToAngles();
 	void computeAnglesToQuaternion();
@@ -52,6 +56,9 @@ public:
 	 	const boolean reset);
 	void updateIMU(const float gx, const float gy, const float gz, const float ax, const float ay, const float az,
 		const float invSampleFreq, const boolean reset);
+	float getHalfex() { return halfex_; }
+	float getHalfey() { return halfey_; }
+	float getHalfez() { return halfez_; }
 	float getRoll() {
 		if (!anglesComputed_) computeQuaternionToAngles();
 		return roll_ * 57.29578f;
@@ -76,12 +83,12 @@ public:
 		if (!anglesComputed_) computeQuaternionToAngles();
 		return yaw_;
 	}
-	float ax() { return ax_; }
-	float ay() { return ay_; }
-	float az() { return az_; }
-	float gx() { return gx_; }
-	float gy() { return gy_; }
-	float gz() { return gz_; }
+	float ax() { return acc_x_; }
+	float ay() { return acc_y_; }
+	float az() { return acc_z_; }
+	float gx() { return gyr_x_; }
+	float gy() { return gyr_y_; }
+	float gz() { return gyr_z_; }
 	float q0() { return q0_; }
 	float q1() { return q1_; }
 	float q2() { return q2_; }

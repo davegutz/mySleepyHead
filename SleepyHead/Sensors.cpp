@@ -55,7 +55,7 @@ void Sensors::filter(const boolean reset)
 
     // Mahony Tracking Filter
     // t_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
-    t_filter->updateIMU(0, 0, 0, 1, 1, 1, T_acc_, reset);
+    t_filter->updateIMU(0, 0, 0, .57735, .57735, .57735, T_acc_, reset);
     roll_filt = t_filter->getRoll();
     pitch_filt = t_filter->getPitch();
     yaw_filt = t_filter->getYaw();
@@ -139,6 +139,9 @@ void Sensors::plot_all_rpy()  // plot pp7
   Serial.print("\troll_filt:"); Serial.print(t_filter->getRoll(), 3);
   Serial.print("\tpitch_filt:"); Serial.print(t_filter->getPitch(), 3);
   Serial.print("\tyaw_filt:"); Serial.print(t_filter->getYaw(), 3);
+  // Serial.print("\thalfex:"); Serial.print(t_filter->getHalfex(), 3);
+  // Serial.print("\thalfey:"); Serial.print(t_filter->getHalfey(), 3);
+  // Serial.print("\thalfez:"); Serial.println(t_filter->getHalfez(), 3);
   Serial.print("\tq0:"); Serial.print(t_filter->q0(), 5);
   Serial.print("\tq1:"); Serial.print(t_filter->q1(), 5);
   Serial.print("\tq2:"); Serial.print(t_filter->q2(), 5);
@@ -247,6 +250,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     if ( !reset && IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
+        y_raw *= -1.0;
         acc_available_ = true;
         g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
@@ -257,9 +261,9 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     if ( !reset && IMU.gyroscopeAvailable() )
     {
         IMU.readGyroscope(a_raw, b_raw, c_raw);
-        a_raw *= deg_to_rps;
+        a_raw *= -deg_to_rps;
         b_raw *= deg_to_rps;
-        c_raw *= deg_to_rps;
+        c_raw *= -deg_to_rps;
         rot_available_ = true;
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
