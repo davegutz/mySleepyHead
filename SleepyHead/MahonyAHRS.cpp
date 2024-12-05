@@ -197,23 +197,26 @@ void Mahony::updateIMU(const float gx, const float gy, const float gz, const flo
 	// (avoids NaN in accelerometer normalisation)
 	if(!((ax_ == 0.0f) && (ay_ == 0.0f) && (az_ == 0.0f))) {
 
-		// Initialization logic
-		if(init)
-		{
-			computeAccelToAngles();
-			computeAnglesToQuaternion();
-		}
-
 		// Normalise accelerometer measurement
 		recipNorm = invSqrt(ax_*ax_ + ay_*ay_ + az_*az_);
 		ax_ *= recipNorm;
 		ay_ *= recipNorm;
 		az_ *= recipNorm;
 
+		// Initialization logic
+		if(reset)
+		{
+			computeAccelToAngles();
+			computeAnglesToQuaternion();
+			Serial.print("ax_ = "); Serial.print(ax_); Serial.print("\tay_ = "); Serial.print(ay_); Serial.print("\taz_ = "); Serial.print(az_);
+			Serial.print("\troll_init = "); Serial.print(getRoll()); Serial.print("\tpitch_init = "); Serial.print(getPitch()); Serial.print("\tyaw_init = "); Serial.print(getYaw());
+			Serial.print("\tq0_init = "); Serial.print(q0_, 5); Serial.print("\tq1_init = "); Serial.print(q1_, 5); Serial.print("\tq2_init = "); Serial.print(q2_, 5); Serial.print("\tq3_init = "); Serial.println(q3_, 5);
+		}
+
 		// Estimated direction of gravity
 		halfvx = q1_*q3_ - q0_*q2_;
 		halfvy = q0_*q1_ + q2_*q3_;
-		halfvz = q0_*q0_ - 0.5f + q3_*q3_;
+		halfvz = q0_*q0_ + q3_*q3_ - 0.5f ;
 
 		// Error is sum of cross product between estimated
 		// and measured direction of gravity
@@ -292,8 +295,8 @@ void Mahony::computeQuaternionToAngles()
 
 void Mahony::computeAccelToAngles()
 {
-	roll_ = -atan2f(ay_, az_);
-	pitch_ = atan2f(ax_, az_);
+	roll_ =  atan2f(ay_, az_);
+	pitch_ = -atan2f(ax_, az_);
 }
 
 void Mahony::computeAnglesToQuaternion()

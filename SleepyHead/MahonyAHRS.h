@@ -32,7 +32,7 @@ private:
 	float q0_, q1_, q2_, q3_;	// quaternion of sensor frame relative to auxiliary frame
 	float gx_, gy_, gz_, ax_, ay_, az_, mx_, my_, mz_;  // IMU data
 	float integralFBx_, integralFBy_, integralFBz_;  // integral error terms scaled by Ki
-	float roll_, pitch_, yaw_;
+	float roll_, pitch_, yaw_;  // euler angle. radians
 	char anglesComputed_;
 	static float invSqrt(float x);
 	void computeAccelToAngles();
@@ -76,4 +76,14 @@ public:
 		if (!anglesComputed_) computeQuaternionToAngles();
 		return yaw_;
 	}
+	float ax() { return ax_; }
+	float ay() { return ay_; }
+	float az() { return az_; }
+	float gx() { return gx_; }
+	float gy() { return gy_; }
+	float gz() { return gz_; }
+	float q0() { return q0_; }
+	float q1() { return q1_; }
+	float q2() { return q2_; }
+	float q3() { return q3_; }
 };
