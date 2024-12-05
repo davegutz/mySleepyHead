@@ -8,7 +8,7 @@ def angles_to_quaternion(euler_angles):
     Args: euler_angles = [roll, pitch, yaw]
 
     Returns:
-        list: A quaternion represented as [x, y, z, w].
+        list: A quaternion represented as [w, x, y, z].
     """
 
     roll, pitch, yaw = euler_angles
@@ -20,12 +20,12 @@ def angles_to_quaternion(euler_angles):
     cy = math.cos(yaw / 2)
     sy = math.sin(yaw / 2)
 
+    w = cr * cp * cy + sr * sp * sy
     x = sr * cp * cy - cr * sp * sy
     y = cr * sp * cy + sr * cp * sy
     z = cr * cp * sy - sr * sp * cy
-    w = cr * cp * cy + sr * sp * sy
 
-    return [x, y, z, w]
+    return [w, x, y, z]
 
 def g_to_angles(g_vector):
     """
@@ -54,11 +54,11 @@ def quaternion_to_angles(quaternion):
     Returns:
         list: euler_angles = [roll, pitch, yaw]
     """
-    x, y, z, w = quaternion
+    w, x, y, z = quaternion
 
-    roll = np.arctan2(x*y + z*w, 0.5 - x*x - y*y);
-    pitch = np.arcsin(-2.0 * (y*w - x*z))
-    yaw = np.arctan2(y*z + x*z, 0.5 - z*z - w*w);
+    roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y);
+    pitch = np.arcsin(-2.0 * (x*z - w*y))
+    yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z);
 
     return np.array([roll, pitch, yaw])
 
@@ -66,8 +66,7 @@ def main():
     g_vec = np.array([-1, 1, 1])
     angles_vec = g_to_angles(g_vec)
     quat = angles_to_quaternion(angles_vec)
-    angles_vec_check = quaternion_to_angles(quat)
-    angles_vec_check_deg = angles_vec_check * 180. / np.pi
+    angles_vec_check_deg = quaternion_to_angles(quat) * 180. / np.pi
     angles_vec_deg = angles_vec * 180. / np.pi
     print(f"{g_vec=} {angles_vec=} {quat=} \n{angles_vec_deg=} \n{angles_vec_check_deg=}")
 
