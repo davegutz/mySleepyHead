@@ -245,12 +245,18 @@ def main():
     angles_vec_check_deg = np.array(quaternion_to_angles(quat)) * 180. / np.pi
     angles_vec_deg = angles_vec * 180. / np.pi
     pp7(accel_vec, quat, sample_period=sample_time)
-    print(f"steady state check {accel_vec=} {angles_vec=} {quat=} \n\t{angles_vec_deg=} \n\t{angles_vec_check_deg=}")
+    print("")
 
-    for i in range(5):
+    for i in range(10):
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         track_filter.pp7()
+        track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
+        track_filter_mathworks.pp7()
+        print("")
         init = False
+
+    pp7(accel_vec, quat, sample_period=sample_time)
+
 
 # import cProfile
 # if __name__ == '__main__':
