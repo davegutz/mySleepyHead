@@ -74,6 +74,8 @@ classdef MahonyAHRS < handle
             q = q + qDot * obj.SamplePeriod;
             obj.Quaternion = q / norm(q); % normalise quaternion
         end
+
+
         function obj = UpdateIMU(obj, Gyroscope, Accelerometer)
             q = obj.Quaternion; % short name local variable for readability
 

@@ -1,63 +1,35 @@
 
 import numpy as np
 from pyquaternion import Quaternion as Qu
-import  math
 
+from MahonyAHRS_Mathworks import MahonyAHRS_MW, angles_to_quaternion, quaternion_to_angles, g_to_angles
 
-def quaternion_to_angles(quaternion):
-    """
-    Converts quaternion to Euler angles
-        arg: A quaternion represented as [x, y, z, w].
-    Returns:
-        list: euler_angles = [roll, pitch, yaw]
-    """
-    w, x, y, z = quaternion
-    roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y)
-    pitch = np.arcsin(-2.0 * (x*z - w*y))
-    # yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z)
-    yaw = 0.
-    return np.array([roll, pitch, yaw])
-
-
-def g_to_angles(g_vector):
-    """
-   Converts a g-force vector to Euler angles (roll, pitch, yaw) using a ZYX sequence.
-    Args:
-        g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z).
-    Returns:
-        A numpy array containing the Euler angles (roll, pitch, yaw) in radians.
-    """
-    g_norm = np.linalg.norm(g_vector)
-    g_vector_norm = g_vector / g_norm
-    g_x, g_y, g_z = g_vector_norm
-    # Extract Euler angles from rotation matrix (ZYX sequence)
-    roll =  np.arctan2(g_y, g_z )
-    pitch = -np.arctan2(g_x, g_z )
-    yaw = 0.
-    return np.array([roll, pitch, yaw])
-
-def angles_to_quaternion(angles):
-    """
-    Converts Euler angles  to a quaternion.
-    Args: euler_angles = [roll, pitch, yaw]
-
-    Returns:
-        list: A quaternion represented as [w, x, y, z].
-    """
-    roll, pitch, yaw = angles
-    cr = math.cos(roll / 2.)
-    sr = math.sin(roll / 2.)
-    cp = math.cos(pitch / 2.)
-    sp = math.sin(pitch / 2.)
-    cy = math.cos(yaw / 2.)
-    sy = math.sin(yaw / 2.)
-    quat = Qu([0., 0., 0., 0.])
-    quat[0] = cr * cp * cy + sr * sp * sy
-    quat[1] = sr * cp * cy - cr * sp * sy
-    quat[2] = cr * sp * cy + sr * cp * sy
-    quat[3] = cr * cp * sy - sr * sp * cy
-    return quat
-
+def pp7(accelerometer, quat, sample_period=None ):
+    angles_vec_deg = quaternion_to_angles(quat) * np.array(180.) / np.pi
+    # print(f"pp7 Mahony AHRS {g_vec=} {angles_vec=} {quat=} {angles_vec_deg=}")
+    print(f"pp7 local  AHRS T_acc*100: {(sample_period * 100.):.3g}", end='')
+    print(f"\tx_raw: {accelerometer[0]:.3g}", end='')
+    print(f"\ty_raw: {accelerometer[1]:.3g}", end='')
+    print(f"\tz_raw: {accelerometer[2]:.3g}", end='')
+    # print(f"\tx_raw*200:"); print(x_raw*200+200, 3);
+    # print(f"\ty_raw*200:"); print(y_raw*200+200, 3);
+    # print(f"\tz_raw*200:"); print(z_raw*200+200, 3);
+    # print(f"\ta_raw*200:"); print(a_raw*200+200, 3);
+    # print(f"\tb_raw*200:"); print(b_raw*200+200, 3);
+    # print(f"\tc_raw*200:"); print(c_raw*200+200, 3);
+    # print(f"\troll_filt:"); print(roll_filt, 3);
+    # print(f"\tpitch_filt:"); print(pitch_filt, 3);
+    # print(f"\tyaw_filt:"); println(yaw_filt, 3);
+    print(f"\troll_filt: {angles_vec_deg[0]:.3g}", end='')
+    print(f"\tpitch_filt: {angles_vec_deg[1]:.3g}", end='')
+    print(f"\tyaw_filt: {angles_vec_deg[2]:.3g}", end='')
+    # print(f"\tex:"); print(e[0], 3)
+    # print(f"\tey:"); print(e[1], 3)
+    # print(f"\tez:"); print(e[2], 3)
+    print(f"\tq0: {quat[0]:.3g}", end='')
+    print(f"\tq1: {quat[1]:.3g}", end='')
+    print(f"\tq2: {quat[2]:.3g}", end='')
+    print(f"\tq3: {quat[3]:.3g}")
 
 class MahonyAHRS:
     """#MAYHONYAHRS Madgwick's implementation of Mayhony's AHRS algorithm
@@ -114,12 +86,12 @@ class MahonyAHRS:
         # Normalise accelerometer measurement
         if np.linalg.norm(accelerometer) == 0:
             return  # handle NaN
-        accelerometer = accelerometer / np.linalg.norm(accelerometer)    # normalise magnitude
+        accelerometer /= np.linalg.norm(accelerometer)    # normalize magnitude
 
         # Normalise magnetometer measurement
         if np.linalg.norm(magnetometer) == 0:
             return  # handle NaN
-        magnetometer = magnetometer / np.linalg.norm(magnetometer)   # normalise magnitude
+        magnetometer /= np.linalg.norm(magnetometer)   # normalise magnitude
 
         # Reference direction of Earth's magnetic field
         h = q * Qu([0., magnetometer]) * q.conjugate
@@ -151,7 +123,7 @@ class MahonyAHRS:
         q = q + qDot * self.sample_period
         self.quat = q / np.linalg.norm(q) # normalise quaternion
 
-    def update_imu(self, gyroscope, accelerometer, reset=False, sample_time=None):
+    def update_imu(self, gyroscope, accelerometer, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
         self.gyr_x_ = gyroscope[0]
@@ -227,10 +199,10 @@ class MahonyAHRS:
         self.angles_computed = False
         
     def pp7(self):
-        g_vec = np.array([self.acc_x_, self.acc_y_, self.acc_z_])
-        angles_vec = np.array([self.roll_, self.pitch_, self.yaw_])
-        quat = np.array([ self.quat[0], self.quat[1], self.quat[2], self.quat[3] ])
-        self.angles_vec_deg = quaternion_to_angles(self.quat) * 180. / np.pi
+        # g_vec = np.array([self.acc_x_, self.acc_y_, self.acc_z_])
+        # angles_vec = np.array([self.roll_, self.pitch_, self.yaw_])
+        # quat = np.array([ self.quat[0], self.quat[1], self.quat[2], self.quat[3] ])
+        self.angles_vec_deg = quaternion_to_angles(self.quat) * np.array(180.) / np.pi
         # print(f"pp7 Mahony AHRS {g_vec=} {angles_vec=} {quat=} {self.angles_vec_deg=}")
         print(f"pp7 Mahony AHRS T_acc*100: {(self.sample_period*100.):.3g}", end='')
         print(f"\tx_raw: {self.acc_x_:.3g}", end='')
@@ -258,21 +230,28 @@ class MahonyAHRS:
 
 
 def main():
+    sample_time = 0.1
     accel_vec = np.array([1., 1., 1.])
     gyro_vec = np.array([0., 0., 0.])
     track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
+    track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
+    init = True
+    track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
     track_filter.pp7()
+    track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    track_filter_mathworks.pp7()
 
     angles_vec = g_to_angles(accel_vec)
     quat = angles_to_quaternion(angles_vec)
     angles_vec_check_deg = np.array(quaternion_to_angles(quat)) * 180. / np.pi
     angles_vec_deg = angles_vec * 180. / np.pi
+    pp7(accel_vec, quat, sample_period=sample_time)
     print(f"steady state check {accel_vec=} {angles_vec=} {quat=} \n\t{angles_vec_deg=} \n\t{angles_vec_check_deg=}")
 
     for i in range(5):
-        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1)
+        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         track_filter.pp7()
-
+        init = False
 
 # import cProfile
 # if __name__ == '__main__':
