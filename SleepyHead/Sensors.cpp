@@ -54,11 +54,11 @@ void Sensors::filter(const boolean reset)
     }
 
     // Mahony Tracking Filter
-    // t_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
-    t_filter->updateIMU(0, 0, 0, .57735, .57735, .57735, T_acc_, reset);
-    roll_filt = t_filter->getRoll();
-    pitch_filt = t_filter->getPitch();
-    yaw_filt = t_filter->getYaw();
+    // track_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
+    track_filter->updateIMU(0, 0, 0, .57735, .57735, .57735, T_acc_, reset);
+    roll_filt = track_filter->getRoll();
+    pitch_filt = track_filter->getPitch();
+    yaw_filt = track_filter->getYaw();
 
 }
 
@@ -124,9 +124,9 @@ void Sensors::plot_all_rpy()  // plot pp7
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
   Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
-  Serial.print("\tx_raw:"); Serial.print(t_filter->ax(), 3);
-  Serial.print("\ty_raw:"); Serial.print(t_filter->ay(), 3);
-  Serial.print("\tz_raw:"); Serial.print(t_filter->az(), 3);
+  Serial.print("\tx_raw:"); Serial.print(track_filter->ax(), 3);
+  Serial.print("\ty_raw:"); Serial.print(track_filter->ay(), 3);
+  Serial.print("\tz_raw:"); Serial.print(track_filter->az(), 3);
   // Serial.print("\tx_raw*200:"); Serial.print(x_raw*200+200, 3);
   // Serial.print("\ty_raw*200:"); Serial.print(y_raw*200+200, 3);
   // Serial.print("\tz_raw*200:"); Serial.print(z_raw*200+200, 3);
@@ -136,16 +136,16 @@ void Sensors::plot_all_rpy()  // plot pp7
   // Serial.print("\troll_filt:"); Serial.print(roll_filt, 3);
   // Serial.print("\tpitch_filt:"); Serial.print(pitch_filt, 3);
   // Serial.print("\tyaw_filt:"); Serial.println(yaw_filt, 3);
-  Serial.print("\troll_filt:"); Serial.print(t_filter->getRoll(), 3);
-  Serial.print("\tpitch_filt:"); Serial.print(t_filter->getPitch(), 3);
-  Serial.print("\tyaw_filt:"); Serial.print(t_filter->getYaw(), 3);
-  // Serial.print("\thalfex:"); Serial.print(t_filter->getHalfex(), 3);
-  // Serial.print("\thalfey:"); Serial.print(t_filter->getHalfey(), 3);
-  // Serial.print("\thalfez:"); Serial.println(t_filter->getHalfez(), 3);
-  Serial.print("\tq0:"); Serial.print(t_filter->q0(), 5);
-  Serial.print("\tq1:"); Serial.print(t_filter->q1(), 5);
-  Serial.print("\tq2:"); Serial.print(t_filter->q2(), 5);
-  Serial.print("\tq3:"); Serial.println(t_filter->q3(), 5);
+  Serial.print("\troll_filt:"); Serial.print(track_filter->getRoll(), 3);
+  Serial.print("\tpitch_filt:"); Serial.print(track_filter->getPitch(), 3);
+  Serial.print("\tyaw_filt:"); Serial.print(track_filter->getYaw(), 3);
+  // Serial.print("\thalfex:"); Serial.print(track_filter->getHalfex(), 3);
+  // Serial.print("\thalfey:"); Serial.print(track_filter->getHalfey(), 3);
+  // Serial.print("\thalfez:"); Serial.println(track_filter->getHalfez(), 3);
+  Serial.print("\tq0:"); Serial.print(track_filter->q0(), 5);
+  Serial.print("\tq1:"); Serial.print(track_filter->q1(), 5);
+  Serial.print("\tq2:"); Serial.print(track_filter->q2(), 5);
+  Serial.print("\tq3:"); Serial.println(track_filter->q3(), 5);
 }
 
 // plot pp0

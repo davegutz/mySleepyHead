@@ -352,14 +352,14 @@ void loop()
           switch ( letter_1 )
           {
             case ( 'p' ):  // proportional gain
-              Serial.print("Mahony prop gain from "); Serial.print(Sen->t_filter->getKp(), 3);
-              Sen->t_filter->setKp(f_value);
-              Serial.print(" to "); Serial.println(Sen->t_filter->getKp(), 3);
+              Serial.print("Mahony prop gain from "); Serial.print(Sen->track_filter->getKp(), 3);
+              Sen->track_filter->setKp(f_value);
+              Serial.print(" to "); Serial.println(Sen->track_filter->getKp(), 3);
               break;
             case ( 'i' ):  // integral gain
-              Serial.print("Mahony int gain from "); Serial.print(Sen->t_filter->getKi(), 3);
-              Sen->t_filter->setKi(f_value);
-              Serial.print(" to "); Serial.println(Sen->t_filter->getKi(), 3);
+              Serial.print("Mahony int gain from "); Serial.print(Sen->track_filter->getKi(), 3);
+              Sen->track_filter->setKi(f_value);
+              Serial.print(" to "); Serial.println(Sen->track_filter->getKi(), 3);
               break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");
@@ -370,8 +370,8 @@ void loop()
           plotting_all = false;
           monitoring = false;
           Serial.println("aXX <val> - adjust");
-          Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->t_filter->getKp(), 3);Serial.println(")");
-          Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->t_filter->getKi(), 3);Serial.println(")");
+          Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->track_filter->getKp(), 3);Serial.println(")");
+          Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->track_filter->getKi(), 3);Serial.println(")");
           Serial.println("h - this help");
           Serial.println("HELP");
           Serial.println("ppX - plot all version X");

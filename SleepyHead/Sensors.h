@@ -74,7 +74,7 @@ public:
         GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
         GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
-        t_filter = new Mahony(t_kp, t_ki);
+        track_filter = new Mahony(t_kp, t_ki);
     };
     unsigned long long millis;
     ~Sensors(){};
@@ -124,7 +124,7 @@ public:
     float roll_filt;
     float pitch_filt;
     float yaw_filt;
-    Mahony *t_filter;   // Mahony tracking filter
+    Mahony *track_filter;   // Mahony tracking filter
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter
