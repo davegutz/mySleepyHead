@@ -1,8 +1,7 @@
-
 import numpy as np
 from pyquaternion import Quaternion as Qu
-
-from MahonyAHRS_Mathworks import MahonyAHRS_MW, angles_to_quaternion, quaternion_to_angles, g_to_angles
+from MahonyAHRS_Mathworks import MahonyAHRS_MW
+from MahonyAHRS_Utils import angles_to_quaternion, quaternion_to_angles, g_to_angles
 
 def pp7(accelerometer, quat, sample_period=None ):
     angles_vec_deg = quaternion_to_angles(quat) * np.array(180.) / np.pi
