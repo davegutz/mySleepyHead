@@ -231,7 +231,30 @@ class MahonyAHRS:
         angles_vec = np.array([self.roll_, self.pitch_, self.yaw_])
         quat = np.array([ self.quat[0], self.quat[1], self.quat[2], self.quat[3] ])
         self.angles_vec_deg = quaternion_to_angles(self.quat) * 180. / np.pi
-        print(f"{g_vec=} {angles_vec=} {quat=} {self.angles_vec_deg=}")
+        # print(f"pp7 Mahony AHRS {g_vec=} {angles_vec=} {quat=} {self.angles_vec_deg=}")
+        print(f"pp7 Mahony AHRS T_acc*100: {(self.sample_period*100.):.3g}", end='')
+        print(f"\tx_raw: {self.acc_x_:.3g}", end='')
+        print(f"\ty_raw: {self.acc_y_:.3g}", end='')
+        print(f"\tz_raw: {self.acc_z_:.3g}", end='')
+        # print(f"\tx_raw*200:"); print(x_raw*200+200, 3);
+        # print(f"\ty_raw*200:"); print(y_raw*200+200, 3);
+        #print(f"\tz_raw*200:"); print(z_raw*200+200, 3);
+        # print(f"\ta_raw*200:"); print(a_raw*200+200, 3);
+        # print(f"\tb_raw*200:"); print(b_raw*200+200, 3);
+        # print(f"\tc_raw*200:"); print(c_raw*200+200, 3);
+        # print(f"\troll_filt:"); print(roll_filt, 3);
+        # print(f"\tpitch_filt:"); print(pitch_filt, 3);
+        # print(f"\tyaw_filt:"); println(yaw_filt, 3);
+        print(f"\troll_filt: {self.roll_:.3g}", end='')
+        print(f"\tpitch_filt: {self.pitch_:.3g}", end='')
+        print(f"\tyaw_filt: {self.yaw_:.3g}", end='')
+        # print(f"\thalfex:"); print(track_filter->getHalfex(), 3);
+        # print(f"\thalfey:"); print(track_filter->getHalfey(), 3);
+        # print(f"\thalfez:"); println(track_filter->getHalfez(), 3);
+        print(f"\tq0: {self.quat[0]:.3g}", end='')
+        print(f"\tq1: {self.quat[1]:.3g}", end='')
+        print(f"\tq2: {self.quat[2]:.3g}", end='')
+        print(f"\tq3: {self.quat[3]:.3g}")
 
 
 def main():
@@ -244,9 +267,9 @@ def main():
     quat = angles_to_quaternion(angles_vec)
     angles_vec_check_deg = np.array(quaternion_to_angles(quat)) * 180. / np.pi
     angles_vec_deg = angles_vec * 180. / np.pi
-    print(f"{accel_vec=} {angles_vec=} {quat=} \n{angles_vec_deg=} \n{angles_vec_check_deg=}")
+    print(f"steady state check {accel_vec=} {angles_vec=} {quat=} \n\t{angles_vec_deg=} \n\t{angles_vec_check_deg=}")
 
-    for i in range(10):
+    for i in range(5):
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1)
         track_filter.pp7()
 
