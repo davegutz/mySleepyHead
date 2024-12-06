@@ -48,6 +48,7 @@ void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, 
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
 	float hx, hy, bx, bz;
 	float halfwx, halfwy, halfwz;
+	float qa, qb, qc;
 
 	gyr_x_ = gx;
 	gyr_y_ = gy;
@@ -168,7 +169,6 @@ void Mahony::updateIMU(const float gx, const float gy, const float gz, const flo
 					   const float invSampleFreq, const boolean reset)
 {
 	float recipNorm;
-	float qa, qb, qc;
 
 	gyr_x_ = gx;
 	gyr_y_ = gy;
@@ -176,6 +176,7 @@ void Mahony::updateIMU(const float gx, const float gy, const float gz, const flo
 	acc_x_ = ax;
 	acc_y_ = ay;
 	acc_z_ = az;
+	float qa, qb, qc;
 
 	// Convert gyroscope degrees/sec to radians/sec
 	gyr_x_ *= 0.0174533f;
