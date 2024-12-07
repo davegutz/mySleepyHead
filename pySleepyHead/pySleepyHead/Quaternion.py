@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-def euler321_to_quaternion(euler_angles):
+def euler321_to_quaternion(euler321_angles):
     """
     Converts Euler angles  to a quaternion.
     Args: euler321_angles = [roll, pitch, yaw]
@@ -57,7 +57,7 @@ def quaternion_to_euler321(quaternion):
 
     roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y)
     pitch = np.arcsin(-2.0 * (x*z - w*y))
-    yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z);
+    yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z)
     # yaw = 0.
 
     return np.array([roll, pitch, yaw])

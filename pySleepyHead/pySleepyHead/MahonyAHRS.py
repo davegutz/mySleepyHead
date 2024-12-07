@@ -31,11 +31,11 @@ class MahonyAHRS:
             self.Ki = 0.  # algorithm integral gain
         else:
             self.Ki = ki
-        self.integralFB_ = np.array([0., 0., 0.])  # integral error
+        self.integralFB_ = np.zeros(3)  # integral error
         self.euler321_vec = None
         self.euler321_vec_check_deg = None
         self.euler321_vec_deg = None
-        self.accel_vec = np.array([0., 0., 0.])
+        self.accel_vec = np.zeros(3)
         self.halfv = 0.
         self.halfe = 0.
         self.halfex_ = 0.
@@ -87,7 +87,7 @@ class MahonyAHRS:
         if self.Ki > 0:
             self.integralFB_ = self.integralFB_ + e * self.sample_period
         else:
-            self.integralFB_ = np.array([0., 0., 0.])
+            self.integralFB_ = np.zeros(3)
 
         # Apply feedback terms
         gyroscope = gyroscope + self.Kp * e + self.Ki * self.integralFB_
@@ -144,11 +144,11 @@ class MahonyAHRS:
             self.halfey_ = (self.acc_z_*self.halfvx_ - self.acc_x_*self.halfvz_)
             self.halfez_ = (self.acc_x_*self.halfvy_ - self.acc_y_*self.halfvx_)
 
-            if self.Ki > 0:
+            if self.Ki > 0 and not reset:
                 self.integralFB_ += self.Ki * 2. * self.halfe * self.sample_period
                 gyroscope += self.integralFB_
             else:
-                self.integralFB_ = np.array([0., 0., 0.])
+                self.integralFB_ = np.zeros(3)
 
             # Apply proportional feedback
             self.gyr_x_ += 2. * self.Kp * self.halfex_
@@ -156,21 +156,22 @@ class MahonyAHRS:
             self.gyr_z_ += 2. * self.Kp * self.halfez_
 
         # Integrate quaternion
-        self.gyr_x_ *= 0.5 * self.sample_period
-        self.gyr_y_ *= 0.5 * self.sample_period
-        self.gyr_z_ *= 0.5 * self.sample_period
-        qa = q[0]
-        qb = q[1]
-        qc = q[2]
-        q[0] += (-qb * self.gyr_x_ - qc * self.gyr_y_ - q[3] * self.gyr_z_)
-        q[1] += ( qa * self.gyr_x_ + qc * self.gyr_z_ - q[3] * self.gyr_y_)
-        q[2] += ( qa * self.gyr_y_ - qb * self.gyr_z_ + q[3] * self.gyr_x_)
-        q[3] += ( qa * self.gyr_z_ + qb * self.gyr_y_ - qc * self.gyr_x_)
-        recipNorm = 1. / np.sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3])
-        q[0] *= recipNorm
-        q[1] *= recipNorm
-        q[2] *= recipNorm
-        q[3] *= recipNorm
+        if not reset:
+            self.gyr_x_ *= 0.5 * self.sample_period
+            self.gyr_y_ *= 0.5 * self.sample_period
+            self.gyr_z_ *= 0.5 * self.sample_period
+            qa = q[0]
+            qb = q[1]
+            qc = q[2]
+            q[0] += (-qb * self.gyr_x_ - qc * self.gyr_y_ - q[3] * self.gyr_z_)
+            q[1] += ( qa * self.gyr_x_ + qc * self.gyr_z_ - q[3] * self.gyr_y_)
+            q[2] += ( qa * self.gyr_y_ - qb * self.gyr_z_ + q[3] * self.gyr_x_)
+            q[3] += ( qa * self.gyr_z_ + qb * self.gyr_y_ - qc * self.gyr_x_)
+            recipNorm = 1. / np.sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3])
+            q[0] *= recipNorm
+            q[1] *= recipNorm
+            q[2] *= recipNorm
+            q[3] *= recipNorm
         self.euler321_vec_check_deg = np.array(quaternion_to_euler321(self.quat)) * 180. / np.pi
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
         self.euler321_computed = False
@@ -179,9 +180,12 @@ class MahonyAHRS:
 def main():
     sample_time = 0.1
     q = [0.8535534, 0.3535534, 0.3535534, 0.1464466]  # https://www.andre-gaschler.com/rotationconverter/ with 45, 45, 0 euler 3-2-1 degrees
+    q = [.70710680, 0.00000, -.70710676, 0.00000]
     euler321_angles = quaternion_to_euler321(q)
     accel_vec = euler321_to_g(euler321_angles)
-    gyro_vec = np.array([0., 0., 0.])
+    # accel_vec = np.array([ 1., -1e-32, 0.])
+
+    gyro_vec = np.zeros(3)
     track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
     track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
     init = True
@@ -191,15 +195,15 @@ def main():
     pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
 
     # Local steady state check
-    euler321_vec = g_to_euler321(accel_vec)
-    quat = euler321_to_quaternion(euler321_vec)
-
-    euler321_vec_check_deg = np.array(quaternion_to_euler321(quat)) * 180. / np.pi
-    euler321_vec_deg = euler321_vec * 180. / np.pi
-    pp7(accel_vec / np.linalg.norm(accel_vec), quat, sample_period=sample_time, label="pp7 local AHRS ")
+    euler321_vec_ss = g_to_euler321(accel_vec)
+    quat_ss = euler321_to_quaternion(euler321_vec_ss)
+    pp7(accel_vec / np.linalg.norm(accel_vec), quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
     print("")
 
-    for i in range(4):
+    # euler321_vec_check_deg = np.array(quaternion_to_euler321(quat)) * 180. / np.pi
+    # euler321_vec_deg = euler321_vec * 180. / np.pi
+
+    for i in range(3):
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         pp7(track_filter.accel_vec, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
@@ -207,7 +211,7 @@ def main():
         print("")
         init = False
 
-    pp7(accel_vec, quat, sample_period=sample_time, label="pp7 local AHRS ")
+    pp7(accel_vec, quat_ss, sample_period=sample_time, label="pp7 local AHRS ")
 
 
 # import cProfile

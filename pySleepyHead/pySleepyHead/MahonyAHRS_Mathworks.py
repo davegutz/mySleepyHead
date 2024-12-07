@@ -30,16 +30,16 @@ class MahonyAHRS_MW:
             self.Ki = 0.  # algorithm integral gain
         else:
             self.Ki = ki
-        self.integralFB_ = np.array([0., 0., 0.])  # integral error
-        self.e = np.array([0., 0., 0.]) # error
+        self.integralFB_ = np.zeros(3)  # integral error
+        self.e = np.zeros(3) # error
         self.roll_ = 0.
         self.pitch_ = 0.
         self.yaw_ = 0.
-        self.accel_vec = np.array([0., 0., 0.])  # saved g-load inputs
-        self.gyroscope = np.array([0., 0., 0.])  # saved gyro rate inputs
-        self.euler321_vec_check_deg = np.array([0., 0., 0.])
-        self.euler321_vec_deg = np.array([0., 0., 0.])
-        self.accel_vec = np.array([0., 0., 0.])  # integral error
+        self.accel_vec = np.zeros(3)  # saved g-load inputs
+        self.gyroscope = np.zeros(3)  # saved gyro rate inputs
+        self.euler321_vec_check_deg = np.zeros(3)
+        self.euler321_vec_deg = np.zeros(3)
+        self.accel_vec = np.zeros(3)  # integral error
         self.label = "pp7 Mathwo AHRS"
 
 
@@ -76,7 +76,7 @@ class MahonyAHRS_MW:
         if self.Ki > 0:
             self.integralFB_ = self.integralFB_ + self.e * self.sample_period
         else:
-            self.integralFB_ = np.array([0., 0., 0.])
+            self.integralFB_ = np.zeros(3)
 
         # Apply feedback terms
         gyroscope = gyroscope + self.Kp * self.e + self.Ki * self.integralFB_
@@ -88,14 +88,17 @@ class MahonyAHRS_MW:
         q = q + qDot * self.sample_period
         self.quat = q / np.linalg.norm(q) # normalise quaternion
 
-    def update_imu(self, gyroscope, accelerometer, sample_time, reset):
-        self.accel_vec = accelerometer / np.linalg.norm(accelerometer)
-        self.gyroscope = gyroscope / np.linalg.norm(gyroscope)
-        self.sample_period = sample_time
-
-        # Check valid input
-        if np.linalg.norm(self.accel_vec) == 0:
+    def update_imu(self, accelerometer, gyroscope, sample_time, reset):
+        # Check inputs
+        accelerometer_norm = np.linalg.norm(accelerometer)
+        if accelerometer_norm == 0:
+            print("norm 0 in MW update_imu")
             return # handle NaN
+        self.accel_vec = accelerometer / accelerometer_norm
+        gyro_norm = np.linalg.norm(gyroscope)
+        if gyro_norm != 0.:
+            self.gyroscope = gyroscope / gyro_norm
+        self.sample_period = sample_time
 
         if reset:
             euler321_vec = g_to_euler321(accelerometer)
@@ -115,15 +118,17 @@ class MahonyAHRS_MW:
         if self.Ki > 0:
             self.integralFB_ += self.Ki * self.e * self.sample_period
         else:
-            self.integralFB_ = np.array([0., 0., 0.])
+            self.integralFB_ = np.zeros(3)
 
         # Apply feedback terms
-        self.gyroscope += self.Kp * self.e + self.Ki * self.integralFB_
+        if not reset:
+            self.gyroscope += self.Kp * self.e + self.Ki * self.integralFB_
 
         # Compute rate of change of quaternion
         qDot = Qu(0.5) * q * Qu([ 0., self.gyroscope[0], self.gyroscope[1], self.gyroscope[2] ])
 
         # Integrate to yield quaternion
-        q += qDot * self.sample_period
+        if not reset:
+            q += qDot * self.sample_period
         self.quat = q / q.norm # normalise quaternion
         self.euler321_vec_deg = quaternion_to_euler321(self.quat)

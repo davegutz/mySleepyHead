@@ -48,7 +48,8 @@ def g_to_euler321(g_vector):
     fZg = g_vector[2] / 2.
     roll = math.atan2(fYg, fZg)
     pitch = -math.atan2(fXg, math.sqrt(fYg * fYg + fZg * fZg))
-    yaw = math.atan(fZg / math.sqrt(fXg * fXg + fZg * fZg))
+    # yaw = math.atan(fZg / math.sqrt(fXg * fXg + fZg * fZg))
+    yaw = 0.
     return np.array([roll, pitch, yaw])
 
 def pp7(accelerometer, quat, sample_period=None, label=""):
