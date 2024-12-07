@@ -56,49 +56,6 @@ class MahonyAHRS:
         self.acc_z_= 0.
         self.label = "pp7 Mahony AHRS"
 
-    def update(self, gyroscope, accelerometer, magnetometer):
-        q = self.quat # short name local variable for readability
-
-        # Normalise accelerometer measurement
-        if np.linalg.norm(accelerometer) == 0:
-            return  # handle NaN
-        accelerometer /= np.linalg.norm(accelerometer)    # normalize magnitude
-
-        # Normalise magnetometer measurement
-        if np.linalg.norm(magnetometer) == 0:
-            return  # handle NaN
-        magnetometer /= np.linalg.norm(magnetometer)   # normalise magnitude
-
-        # Reference direction of Earth's magnetic field
-        h = q * Qu([0., magnetometer]) * q.conjugate
-        norm_short_h = np.linalg.norm(h[1], h[2])
-        b = Qu([0., norm_short_h, 0., h[3]])
-
-        # Estimated direction of gravity and magnetic field
-        v = np.array([  2*(q[1]*q[3] - q[0]*q[2]),
-                        2*(q[0]*q[1] + q[2]*q[3]),
-                        q[0]^2 - q[1]^2 - q[2]^2 + q[3]^2  ])
-        w = np.array([  2*b[1]*(0.5 - q[2]^2 - q[3]^2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
-                        2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
-                        2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]^2 - q[2]^2) ])
-
-        # Error is sum of cross product between estimated direction and measured direction of fields
-        e = np.linalg.cross(accelerometer, v) + np.linalg.cross(magnetometer, w)
-        if self.Ki > 0:
-            self.integralFB_ = self.integralFB_ + e * self.sample_period
-        else:
-            self.integralFB_ = np.zeros(3)
-
-        # Apply feedback terms
-        gyroscope = gyroscope + self.Kp * e + self.Ki * self.integralFB_
-
-        # Compute rate of change of quaternion
-        qDot = 0.5 * q * Qu([0., gyroscope(1), gyroscope(2), gyroscope(3)])
-
-        # Integrate to yield quaternion
-        q = q + qDot * self.sample_period
-        self.quat = q / np.linalg.norm(q) # normalise quaternion
-
     def update_imu(self, gyroscope, accelerometer, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
@@ -172,10 +129,54 @@ class MahonyAHRS:
             q[1] *= recipNorm
             q[2] *= recipNorm
             q[3] *= recipNorm
+
         self.euler321_vec_check_deg = np.array(quaternion_to_euler321(self.quat)) * 180. / np.pi
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
         self.euler321_computed = False
         
+    # def update(self, gyroscope, accelerometer, magnetometer):
+    #     q = self.quat # short name local variable for readability
+    #
+    #     # Normalise accelerometer measurement
+    #     if np.linalg.norm(accelerometer) == 0:
+    #         return  # handle NaN
+    #     accelerometer /= np.linalg.norm(accelerometer)    # normalize magnitude
+    #
+    #     # Normalise magnetometer measurement
+    #     if np.linalg.norm(magnetometer) == 0:
+    #         return  # handle NaN
+    #     magnetometer /= np.linalg.norm(magnetometer)   # normalise magnitude
+    #
+    #     # Reference direction of Earth's magnetic field
+    #     h = q * Qu([0., magnetometer]) * q.conjugate
+    #     norm_short_h = np.linalg.norm(h[1], h[2])
+    #     b = Qu([0., norm_short_h, 0., h[3]])
+    #
+    #     # Estimated direction of gravity and magnetic field
+    #     v = np.array([  2*(q[1]*q[3] - q[0]*q[2]),
+    #                     2*(q[0]*q[1] + q[2]*q[3]),
+    #                     q[0]^2 - q[1]^2 - q[2]^2 + q[3]^2  ])
+    #     w = np.array([  2*b[1]*(0.5 - q[2]^2 - q[3]^2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
+    #                     2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
+    #                     2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]^2 - q[2]^2) ])
+    #
+    #     # Error is sum of cross product between estimated direction and measured direction of fields
+    #     e = np.linalg.cross(accelerometer, v) + np.linalg.cross(magnetometer, w)
+    #     if self.Ki > 0:
+    #         self.integralFB_ = self.integralFB_ + e * self.sample_period
+    #     else:
+    #         self.integralFB_ = np.zeros(3)
+    #
+    #     # Apply feedback terms
+    #     gyroscope = gyroscope + self.Kp * e + self.Ki * self.integralFB_
+    #
+    #     # Compute rate of change of quaternion
+    #     qDot = 0.5 * q * Qu([0., gyroscope(1), gyroscope(2), gyroscope(3)])
+    #
+    #     # Integrate to yield quaternion
+    #     q = q + qDot * self.sample_period
+    #     self.quat = q / np.linalg.norm(q) # normalise quaternion
+
 
 def main():
     sample_time = 0.1
