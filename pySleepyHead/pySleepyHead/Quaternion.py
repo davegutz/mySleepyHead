@@ -1,16 +1,16 @@
 import math
 import numpy as np
 
-def euler_to_quaternion(euler_angles):
+def euler321_to_quaternion(euler_angles):
     """
     Converts Euler angles  to a quaternion.
-    Args: euler_angles = [roll, pitch, yaw]
+    Args: euler321_angles = [roll, pitch, yaw]
 
     Returns:
         list: A quaternion represented as [w, x, y, z].
     """
 
-    roll, pitch, yaw = euler_angles
+    roll, pitch, yaw = euler321_angles
 
     cr = math.cos(roll / 2)
     sr = math.sin(roll / 2)
@@ -26,7 +26,7 @@ def euler_to_quaternion(euler_angles):
 
     return [w, x, y, z]
 
-def g_to_euler(g_vector):
+def g_to_euler321(g_vector):
     """
    Converts a g-force vector to Euler angles (roll, pitch, yaw) using a ZYX sequence.
     Args:
@@ -45,13 +45,13 @@ def g_to_euler(g_vector):
 
     return np.array([roll, pitch, yaw])
 
-def quaternion_to_euler(quaternion):
+def quaternion_to_euler321(quaternion):
     """
     Converts quaternion to Euler angles
         arg: A quaternion represented as [x, y, z, w].
 
     Returns:
-        list: euler_angles = [roll, pitch, yaw]
+        list: euler321_angles = [roll, pitch, yaw]
     """
     w, x, y, z = quaternion
 
@@ -64,11 +64,11 @@ def quaternion_to_euler(quaternion):
 
 def main():
     g_vec = np.array([1, 1, 1])
-    euler_vec = g_to_euler(g_vec)
-    quat = euler_to_quaternion(euler_vec)
-    euler_vec_check_deg = np.array(quaternion_to_euler(quat)) * 180. / np.pi
-    euler_vec_deg = euler_vec * 180. / np.pi
-    print(f"{g_vec=} {euler_vec=} {quat=} \n{euler_vec_deg=} \n{euler_vec_check_deg=}")
+    euler321_vec = g_to_euler321(g_vec)
+    quat = euler321_to_quaternion(euler321_vec)
+    euler321_vec_check_deg = np.array(quaternion_to_euler321(quat)) * 180. / np.pi
+    euler321_vec_deg = euler321_vec * 180. / np.pi
+    print(f"{g_vec=} {euler321_vec=} {quat=} \n{euler321_vec_deg=} \n{euler321_vec_check_deg=}")
 
 
 # import cProfile
