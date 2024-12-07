@@ -180,11 +180,16 @@ class MahonyAHRS:
 
 def main():
     sample_time = 0.1
-    q = [0.8535534, 0.3535534, 0.3535534, 0.1464466]  # https://www.andre-gaschler.com/rotationconverter/ with 45, 45, 0 euler 3-2-1 degrees
-    q = [.70710680, 0.00000, -.70710676, 0.00000]
+    # https://www.andre-gaschler.com/rotationconverter/
+    q = [0.85355340, 0.35355340, 0.35355340, -0.14644660]  # ZYX angles = (45, 45, 0) accel = (-0.577, 0.577, 0.577)
+    # q = [0.70710680, 0.00000000,-0.70710676,  0.00000000]  # ZYX angles = ( 0,-90, 0) accel = (1,      0,     0)
+    # q = [0.70710680, 0.70710676, 0.00000000,  0.00000000]  # ZYX angles = (90,  0, 0) accel = (0,      1,     0)
+    # q = [0.70710680, 0.00000000, 0.00000000,  0.70710680]  # ZYX angles = ( 0,  0, 0) accel = (0,      0    , 1)
     euler321_angles = quaternion_to_euler321(q)
+    euler321_angles_deg = euler321_angles * 180. / np.pi
     accel_vec = euler321_to_g(euler321_angles)
-    # accel_vec = np.array([ 1., -1e-32, 0.])
+    # accel_vec = np.array([ 1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180., -90, 180.)
+    accel_vec = np.array([-0.7071068, 0.7071068, 0.50000 ])   # ZYX angles = ( 45.,  45.,  0.)
 
     gyro_vec = np.zeros(3)
     track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)

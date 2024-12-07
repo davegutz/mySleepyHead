@@ -56,7 +56,13 @@ def quaternion_to_euler321(quaternion):
     w, x, y, z = quaternion
 
     roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y)
-    pitch = np.arcsin(-2.0 * (x*z - w*y))
+    sp = -2.0 * (x*z - w*y)
+    if sp == 1.0:
+        pitch = np.pi / 2.
+    elif sp == -1.0:
+        pitch = -np.pi / 2.
+    else:
+        pitch = np.arcsin(sp)
     yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z)
     # yaw = 0.
 
