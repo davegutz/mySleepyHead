@@ -1,6 +1,6 @@
 import numpy as np
 from pyquaternion import Quaternion as Qu
-from MahonyAHRS_Utils import angles_to_quaternion, quaternion_to_angles, g_to_angles
+from MahonyAHRS_Utils import euler_to_quaternion, quaternion_to_euler, g_to_euler
 
 
 class MahonyAHRS_MW:
@@ -37,8 +37,8 @@ class MahonyAHRS_MW:
         self.yaw_ = 0.
         self.accel_vec = np.array([0., 0., 0.])  # saved g-load inputs
         self.gyroscope = np.array([0., 0., 0.])  # saved gyro rate inputs
-        self.angles_vec_check_deg = np.array([0., 0., 0.])
-        self.angles_vec_deg = np.array([0., 0., 0.])
+        self.euler_vec_check_deg = np.array([0., 0., 0.])
+        self.euler_vec_deg = np.array([0., 0., 0.])
         self.accel_vec = np.array([0., 0., 0.])  # integral error
         self.label = "pp7 Mathwo AHRS"
 
@@ -98,10 +98,10 @@ class MahonyAHRS_MW:
             return # handle NaN
 
         if reset:
-            angles_vec = g_to_angles(accelerometer)
-            self.quat = angles_to_quaternion(angles_vec)
-            self.angles_vec_check_deg = np.array(quaternion_to_angles(self.quat)) * 180. / np.pi
-            self.angles_vec_deg = angles_vec * 180. / np.pi
+            euler_vec = g_to_euler(accelerometer)
+            self.quat = euler_to_quaternion(euler_vec)
+            self.euler_vec_check_deg = np.array(quaternion_to_euler(self.quat)) * 180. / np.pi
+            self.euler_vec_deg = euler_vec * 180. / np.pi
 
         q = self.quat # short name local variable for readability
 
@@ -126,4 +126,4 @@ class MahonyAHRS_MW:
         # Integrate to yield quaternion
         q += qDot * self.sample_period
         self.quat = q / q.norm # normalise quaternion
-        self.angles_vec_deg = quaternion_to_angles(self.quat)
+        self.euler_vec_deg = quaternion_to_euler(self.quat)

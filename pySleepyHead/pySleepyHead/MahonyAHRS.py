@@ -1,7 +1,7 @@
 import numpy as np
 from pyquaternion import Quaternion as Qu
 from MahonyAHRS_Mathworks import MahonyAHRS_MW
-from MahonyAHRS_Utils import angles_to_quaternion, quaternion_to_angles, g_to_angles, pp7
+from MahonyAHRS_Utils import euler_to_quaternion, quaternion_to_euler, g_to_euler, pp7, euler_to_g
 
 
 class MahonyAHRS:
@@ -32,9 +32,9 @@ class MahonyAHRS:
         else:
             self.Ki = ki
         self.integralFB_ = np.array([0., 0., 0.])  # integral error
-        self.angles_vec = None
-        self.angles_vec_check_deg = None
-        self.angles_vec_deg = None
+        self.euler_vec = None
+        self.euler_vec_check_deg = None
+        self.euler_vec_deg = None
         self.accel_vec = np.array([0., 0., 0.])
         self.halfv = 0.
         self.halfe = 0.
@@ -44,7 +44,7 @@ class MahonyAHRS:
         self.halfvx_ = 0.
         self.halfvy_ = 0.
         self.halfvz_ = 0.
-        self.angles_computed = True
+        self.euler_computed = True
         self.roll_ = 0.
         self.pitch_ = 0.
         self.yaw_ = 0.
@@ -124,8 +124,8 @@ class MahonyAHRS:
 
             if reset:
                 g_vec = np.array([self.acc_x_, self.acc_y_, self.acc_z_])
-                self.angles_vec = g_to_angles(g_vec)
-                self.quat = angles_to_quaternion(self.angles_vec)
+                self.euler_vec = g_to_euler(g_vec)
+                self.quat = euler_to_quaternion(self.euler_vec)
 
             q = self.quat # short name local variable for readability
 
@@ -171,14 +171,16 @@ class MahonyAHRS:
         q[1] *= recipNorm
         q[2] *= recipNorm
         q[3] *= recipNorm
-        self.angles_vec_check_deg = np.array(quaternion_to_angles(self.quat)) * 180. / np.pi
-        self.angles_vec_deg = self.angles_vec * 180. / np.pi
-        self.angles_computed = False
+        self.euler_vec_check_deg = np.array(quaternion_to_euler(self.quat)) * 180. / np.pi
+        self.euler_vec_deg = self.euler_vec * 180. / np.pi
+        self.euler_computed = False
         
 
 def main():
     sample_time = 0.1
-    accel_vec = np.array([1., 1., 1.])
+    q = [0.8535534, 0.3535534, 0.3535534, 0.1464466]  # https://www.andre-gaschler.com/rotationconverter/ with 45, 45, 0 degrees
+    angles = quaternion_to_euler(q)
+    accel_vec = euler_to_g(angles)
     gyro_vec = np.array([0., 0., 0.])
     track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
     track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
@@ -189,14 +191,15 @@ def main():
     pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
 
     # Local steady state check
-    angles_vec = g_to_angles(accel_vec)
-    quat = angles_to_quaternion(angles_vec)
-    angles_vec_check_deg = np.array(quaternion_to_angles(quat)) * 180. / np.pi
-    angles_vec_deg = angles_vec * 180. / np.pi
+    euler_vec = g_to_euler(accel_vec)
+    quat = euler_to_quaternion(euler_vec)
+
+    euler_vec_check_deg = np.array(quaternion_to_euler(quat)) * 180. / np.pi
+    euler_vec_deg = euler_vec * 180. / np.pi
     pp7(accel_vec / np.linalg.norm(accel_vec), quat, sample_period=sample_time, label="pp7 local AHRS ")
     print("")
 
-    for i in range(20):
+    for i in range(4):
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         pp7(track_filter.accel_vec, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)

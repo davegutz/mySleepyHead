@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-def angles_to_quaternion(euler_angles):
+def euler_to_quaternion(euler_angles):
     """
     Converts Euler angles  to a quaternion.
     Args: euler_angles = [roll, pitch, yaw]
@@ -26,7 +26,7 @@ def angles_to_quaternion(euler_angles):
 
     return [w, x, y, z]
 
-def g_to_angles(g_vector):
+def g_to_euler(g_vector):
     """
    Converts a g-force vector to Euler angles (roll, pitch, yaw) using a ZYX sequence.
     Args:
@@ -45,7 +45,7 @@ def g_to_angles(g_vector):
 
     return np.array([roll, pitch, yaw])
 
-def quaternion_to_angles(quaternion):
+def quaternion_to_euler(quaternion):
     """
     Converts quaternion to Euler angles
         arg: A quaternion represented as [x, y, z, w].
@@ -57,18 +57,18 @@ def quaternion_to_angles(quaternion):
 
     roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y)
     pitch = np.arcsin(-2.0 * (x*z - w*y))
-    # yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z);
-    yaw = 0.
+    yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z);
+    # yaw = 0.
 
     return np.array([roll, pitch, yaw])
 
 def main():
     g_vec = np.array([1, 1, 1])
-    angles_vec = g_to_angles(g_vec)
-    quat = angles_to_quaternion(angles_vec)
-    angles_vec_check_deg = np.array(quaternion_to_angles(quat)) * 180. / np.pi
-    angles_vec_deg = angles_vec * 180. / np.pi
-    print(f"{g_vec=} {angles_vec=} {quat=} \n{angles_vec_deg=} \n{angles_vec_check_deg=}")
+    euler_vec = g_to_euler(g_vec)
+    quat = euler_to_quaternion(euler_vec)
+    euler_vec_check_deg = np.array(quaternion_to_euler(quat)) * 180. / np.pi
+    euler_vec_deg = euler_vec * 180. / np.pi
+    print(f"{g_vec=} {euler_vec=} {quat=} \n{euler_vec_deg=} \n{euler_vec_check_deg=}")
 
 
 # import cProfile

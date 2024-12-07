@@ -280,8 +280,8 @@ void Mahony::computeQuaternionToAngles()
 {
 	roll_ = atan2f(q0_*q1_ + q2_*q3_, 0.5f - q1_*q1_ - q2_*q2_);
 	pitch_ = asinf(-2.0f * (q1_*q3_ - q0_*q2_));
-	// yaw_ = atan2f(q1_*q2_ + q0_*q3_, 0.5f - q2_*q2_ - q3_*q3_);
-	yaw_ = 0;
+	yaw_ = atan2f(q1_*q2_ + q0_*q3_, 0.5f - q2_*q2_ - q3_*q3_);
+	// yaw_ = 0;
 	anglesComputed_ = 1;
 }
 
