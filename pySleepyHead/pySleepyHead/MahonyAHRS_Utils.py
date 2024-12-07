@@ -43,14 +43,43 @@ def g_to_euler321(g_vector):
     Returns:
         A numpy array containing the Euler 3-2-1 angles (roll, pitch, yaw) in radians.
     """
-    fXg = g_vector[0] / 2.
-    fYg = g_vector[1] / 2.
-    fZg = g_vector[2] / 2.
-    roll = math.atan2(fYg, fZg)
-    pitch = -math.atan2(fXg, math.sqrt(fYg * fYg + fZg * fZg))
-    # yaw = math.atan(fZg / math.sqrt(fXg * fXg + fZg * fZg))
-    yaw = 0.
-    return np.array([roll, pitch, yaw])
+    norm_g = np.linalg.norm(g_vector)
+    if norm_g > 1e-6:
+        g_vector /= norm_g
+    else:
+        print("norm error in g_to_quaternion")
+        exit(1)
+    q = g_to_quaternion(g_vector)
+    angles_euler321 = quaternion_to_euler321(q)
+    rpy = angles_euler321 * 180. /  np.pi
+    return angles_euler321
+
+def g_to_quaternion(g_vector):
+    """
+   Converts a g-force vector to quaternion
+    Args:
+        g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z).
+    Returns:
+        quaternion
+    """
+    norm_g = np.linalg.norm(g_vector)
+    if norm_g > 1e-6:
+        g_vector /= norm_g
+    else:
+        print("norm error in g_to_quaternion")
+        exit(1)
+    gx, gy, gz = g_vector
+    cos_theta = 1.0 * gz
+
+    # half_cos = np.sqrt(0.5*(1.0 + cos_theta))
+    half_cos = 0.7071*np.sqrt(1.0 + cos_theta)
+    q0 = half_cos
+    # temp = 1/(2.0*half_cos)
+    temp = 0.5 / half_cos
+    q1 = gy * temp
+    q2 = -gx * temp
+    q3 = 0.0
+    return Qu([q0, q1, q2, q3])
 
 def pp7(accelerometer, quat, sample_period=None, label=""):
     euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
@@ -88,7 +117,7 @@ def quaternion_to_euler321(quaternion):
     """
     w, x, y, z = quaternion
     roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y)
-    sp = -2.0 * (x*z - w*y)
+    sp = -2.0 * (w*y - x*z)
     if sp >= 1.0:
         pitch = np.pi / 2.
     elif sp <= -1.0:

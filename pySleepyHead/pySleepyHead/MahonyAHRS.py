@@ -1,7 +1,8 @@
 import numpy as np
 from pyquaternion import Quaternion as Qu
 from MahonyAHRS_Mathworks import MahonyAHRS_MW
-from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, euler321_to_g
+from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, euler321_to_g, \
+    g_to_quaternion, quaternion_to_g
 
 
 class MahonyAHRS:
@@ -56,7 +57,7 @@ class MahonyAHRS:
         self.acc_z_= 0.
         self.label = "pp7 Mahony AHRS"
 
-    def update_imu(self, gyroscope, accelerometer, sample_time, reset):
+    def update_imu(self, accelerometer, gyroscope, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
         self.gyr_x_ = gyroscope[0]
@@ -181,15 +182,29 @@ class MahonyAHRS:
 def main():
     sample_time = 0.1
     # https://www.andre-gaschler.com/rotationconverter/
-    q = [0.85355340, 0.35355340, 0.35355340, -0.14644660]  # ZYX angles = (45, 45, 0) accel = (-0.577, 0.577, 0.577)
-    # q = [0.70710680, 0.00000000,-0.70710676,  0.00000000]  # ZYX angles = ( 0,-90, 0) accel = (1,      0,     0)
-    # q = [0.70710680, 0.70710676, 0.00000000,  0.00000000]  # ZYX angles = (90,  0, 0) accel = (0,      1,     0)
-    # q = [0.70710680, 0.00000000, 0.00000000,  0.70710680]  # ZYX angles = ( 0,  0, 0) accel = (0,      0    , 1)
+    q = [0.84971050, 0.37282170, 0.37282170,  0.00000000]  # ZYX angles = (45, 45,  0) accel_vec = (0.536,     0.756,     0.375)
+    q = [0.92387950, 0.38268340, 0.00000000,  0.00000000]  # ZYX angles = (45,  0,  0) accel_vec = (0.0000000, 0.7070000, 0.70700 ) check
+    q = [0.92387950, 0.00000000, 0.38268340,  0.00000000]  # ZYX angles = ( 0, 45,  0) accel_vec = (0.7070000, 0.0000000, 0.70700 )
+    # q = [0.70710680, 0.00000000,-0.70710676,  0.00000000]  # ZYX angles = ( 0, 90, 0) accel = (-1,    0,     0)
+    # q = [0.70710680, 0.70710676, 0.00000000,  0.00000000]  # ZYX angles = (90,  0, 0) accel = (0,     1,     0)
+    # q = [1.00000000, 0.00000000, 0.00000000,  0.00000000]  # ZYX angles = ( 0,  0, 0) accel = (0,     0    , 1)
     euler321_angles = quaternion_to_euler321(q)
     euler321_angles_deg = euler321_angles * 180. / np.pi
     accel_vec = euler321_to_g(euler321_angles)
+
+
     # accel_vec = np.array([ 1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180., -90, 180.)
-    accel_vec = np.array([-0.7071068, 0.7071068, 0.50000 ])   # ZYX angles = ( 45.,  45.,  0.)
+    # accel_vec = np.array([-1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180.,  90, 180.)
+    # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
+    # accel_vec = np.array([ 0.0000000, 0.7070000, 0.70700 ])   # ZYX angles = ( 45.,  0.0,  0.)  check
+    accel_vec = np.array([ 0.7070000, 0.0000000, 0.70700 ])   # ZYX angles = (  0.,  45.,  0.)  check
+    euler321_angles = g_to_euler321(accel_vec)
+
+    # euler321_angles_deg = np.array([ 45., 0., 0.])
+    # euler321_angles = euler321_angles_deg * np.pi / 180.
+    # q = euler321_to_quaternion(euler321_angles)
+    # accel_vec = quaternion_to_g(q)
+
 
     gyro_vec = np.zeros(3)
     track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
