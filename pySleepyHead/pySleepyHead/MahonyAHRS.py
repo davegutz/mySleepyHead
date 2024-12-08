@@ -197,13 +197,18 @@ def main():
     # accel_vec = np.array([-1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180.,  90, 180.)
     # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
     # accel_vec = np.array([ 0.0000000, 0.7070000, 0.70700 ])   # ZYX angles = ( 45.,  0.0,  0.)  check
-    accel_vec = np.array([ 0.7070000, 0.0000000, 0.70700 ])   # ZYX angles = (  0.,  45.,  0.)  check
+    # accel_vec = np.array([ 0.7070000, 0.0000000, 0.70700 ])   # ZYX angles = (  0.,  45.,  0.)  check
     euler321_angles = g_to_euler321(accel_vec)
 
-    # euler321_angles_deg = np.array([ 45., 0., 0.])
-    # euler321_angles = euler321_angles_deg * np.pi / 180.
-    # q = euler321_to_quaternion(euler321_angles)
-    # accel_vec = quaternion_to_g(q)
+    euler321_angles_deg = np.array([ 45., -45., 0.])
+    # euler321_angles_deg = np.array([ 45.,  0., 0.])
+    # euler321_angles_deg = np.array([ 0.,  0., 0.])  # check
+    # euler321_angles_deg = np.array([ 0.,  -89.99999, 0.])  #
+    euler321_angles = euler321_angles_deg * np.pi / 180.
+    q = euler321_to_quaternion(euler321_angles)
+    accel_vec = quaternion_to_g(q)
+
+    pp7(accel_vec, euler321_angles_deg, q, sample_period=.1, label="prep           ")
 
 
     gyro_vec = np.zeros(3)
@@ -211,14 +216,14 @@ def main():
     track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
     init = True
     track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
-    pp7(track_filter.accel_vec, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
+    pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
     track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
-    pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
+    pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
 
     # Local steady state check
     euler321_vec_ss = g_to_euler321(accel_vec)
     quat_ss = euler321_to_quaternion(euler321_vec_ss)
-    pp7(accel_vec / np.linalg.norm(accel_vec), quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
+    pp7(accel_vec / np.linalg.norm(accel_vec), euler321_vec_ss, quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
     print("")
 
     # euler321_vec_check_deg = np.array(quaternion_to_euler321(quat)) * 180. / np.pi
@@ -226,13 +231,13 @@ def main():
 
     for i in range(3):
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
-        pp7(track_filter.accel_vec, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
+        pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
-        pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
+        pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
         print("")
         init = False
 
-    pp7(accel_vec, quat_ss, sample_period=sample_time, label="pp7 local AHRS ")
+    pp7(accel_vec, euler321_vec_ss*180./np.pi, quat_ss, sample_period=sample_time, label="pp7 local AHRS ")
 
 
 # import cProfile

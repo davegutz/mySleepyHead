@@ -23,16 +23,26 @@ def euler321_to_quaternion(euler321):
         list: A quaternion represented as [w, x, y, z].
     """
     roll, pitch, yaw = euler321
-    cr = math.cos(roll / 2.)
-    sr = math.sin(roll / 2.)
-    cp = math.cos(pitch / 2.)
-    sp = math.sin(pitch / 2.)
-    cy = math.cos(yaw / 2.)
-    sy = math.sin(yaw / 2.)
+    # cr = math.cos(roll / 2.)
+    # sr = math.sin(roll / 2.)
+    # cp = math.cos(pitch / 2.)
+    # sp = math.sin(pitch / 2.)
+    # cy = math.cos(yaw / 2.)
+    # sy = math.sin(yaw / 2.)
+    cr = math.cos(roll)
+    sr = math.sin(roll)
+    cp = math.cos(pitch)
+    sp = math.sin(pitch)
+    cy = math.cos(yaw)
+    sy = math.sin(yaw)
     quat = Qu([ cr*cp*cy + sr*sp*sy,
                 sr*cp*cy - cr*sp*sy,
                 cr*sp*cy + sr*cp*sy,
                 cr*cp*sy - sr*sp*cy ])
+    # quat = Qu([ cr*cp*sy - sr*sp*cy,
+    #             cr*cp*cy + sr*sp*sy,
+    #             sr*cp*cy - cr*sp*sy,
+    #             cr*sp*cy + sr*cp*sy ])
     return quat
 
 def g_to_euler321(g_vector):
@@ -81,13 +91,11 @@ def g_to_quaternion(g_vector):
     q3 = 0.0
     return Qu([q0, q1, q2, q3])
 
-def pp7(accelerometer, quat, sample_period=None, label=""):
-    euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
+def pp7(accelerometer, euler321_vec_deg, quat, sample_period=None, label=""):
+    # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
     # print(f"pp7 Mahony AHRS {g_vec=} {euler321_vec=} {quat=} {euler321_vec_deg=}")
-    print(f"{label} {(sample_period * 100.):.3f}", end='')
-    print(f"\tx_raw: {accelerometer[0]:.3f}", end='')
-    print(f"\ty_raw: {accelerometer[1]:.3f}", end='')
-    print(f"\tz_raw: {accelerometer[2]:.3f}", end='')
+    print(f"{label} {(sample_period * 100.):.3f};  ", end='')
+    print(f"\taccel_raw: [ {accelerometer[0]:6.3f}, {accelerometer[1]:6.3f}, {accelerometer[2]:6.3f} ], g's; ", end='')
     # print(f"\tx_raw*200:"); print(x_raw*200+200, 3);
     # print(f"\ty_raw*200:"); print(y_raw*200+200, 3);
     # print(f"\tz_raw*200:"); print(z_raw*200+200, 3);
@@ -97,16 +105,12 @@ def pp7(accelerometer, quat, sample_period=None, label=""):
     # print(f"\troll_filt:"); print(roll_filt, 3);
     # print(f"\tpitch_filt:"); print(pitch_filt, 3);
     # print(f"\tyaw_filt:"); println(yaw_filt, 3);
-    print(f"\troll_filt: {euler321_vec_deg[0]:.3f}", end='')
-    print(f"\tpitch_filt: {euler321_vec_deg[1]:.3f}", end='')
-    print(f"\tyaw_filt: {euler321_vec_deg[2]:.3f}", end='')
+    print(f"\teuler321_filt: [ {euler321_vec_deg[0]:6.2f}, {euler321_vec_deg[1]:6.2f}, {euler321_vec_deg[2]:6.2f} ], deg; ", end='')
     # print(f"\tex:"); print(e[0], 3)
     # print(f"\tey:"); print(e[1], 3)
     # print(f"\tez:"); print(e[2], 3)
-    print(f"\tq0: {quat[0]:.3f}", end='')
-    print(f"\tq1: {quat[1]:.3f}", end='')
-    print(f"\tq2: {quat[2]:.3f}", end='')
-    print(f"\tq3: {quat[3]:.3f}")
+    print(f"\tquat: [ {quat[0]:6.3f}, {quat[1]:6.3f}, {quat[2]:6.3f}, {quat[3]:6.3f} ]")
+
 
 def quaternion_to_euler321(quaternion):
     """
@@ -115,9 +119,9 @@ def quaternion_to_euler321(quaternion):
     Returns:
         list: euler321_angles = [roll, pitch, yaw]
     """
-    w, x, y, z = quaternion
-    roll = np.arctan2(w*x + y*z, 0.5 - x*x - y*y)
-    sp = -2.0 * (w*y - x*z)
+    q0, q1, q2, q3 = quaternion
+    roll = np.arctan2(2.*(q0*q1 + q2*q3), 1. - 2.*(q1*q1 + q2*q2))
+    sp = -2.0 * (q0*q2 - q1*q3)
     if sp >= 1.0:
         pitch = np.pi / 2.
     elif sp <= -1.0:
@@ -125,7 +129,7 @@ def quaternion_to_euler321(quaternion):
     else:
         pitch = np.arcsin(sp)
 
-    yaw = np.arctan2(x*y + w*z, 0.5 - y*y - z*z)
+    yaw = np.arctan2(2.*(q1*q2 + q0*q3), 1. - 2.*(q2*q2 + q3*q3))
     # yaw = 0.
     return np.array([roll, pitch, yaw])
 
