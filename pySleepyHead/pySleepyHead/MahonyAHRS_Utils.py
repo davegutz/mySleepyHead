@@ -23,26 +23,24 @@ def euler321_to_quaternion(euler321):
         list: A quaternion represented as [w, x, y, z].
     """
     roll, pitch, yaw = euler321
-    # cr = math.cos(roll / 2.)
-    # sr = math.sin(roll / 2.)
-    # cp = math.cos(pitch / 2.)
-    # sp = math.sin(pitch / 2.)
-    # cy = math.cos(yaw / 2.)
-    # sy = math.sin(yaw / 2.)
-    cr = math.cos(roll)
-    sr = math.sin(roll)
-    cp = math.cos(pitch)
-    sp = math.sin(pitch)
-    cy = math.cos(yaw)
-    sy = math.sin(yaw)
+    cr = math.cos(roll / 2.)
+    sr = math.sin(roll / 2.)
+    cp = math.cos(pitch / 2.)
+    sp = math.sin(pitch / 2.)
+    cy = math.cos(yaw / 2.)
+    sy = math.sin(yaw / 2.)
     quat = Qu([ cr*cp*cy + sr*sp*sy,
                 sr*cp*cy - cr*sp*sy,
                 cr*sp*cy + sr*cp*sy,
                 cr*cp*sy - sr*sp*cy ])
-    # quat = Qu([ cr*cp*sy - sr*sp*cy,
-    #             cr*cp*cy + sr*sp*sy,
-    #             sr*cp*cy - cr*sp*sy,
-    #             cr*sp*cy + sr*cp*sy ])
+    # norm adj here doesn't do anything because of sine and cos construction
+    # norm_q = quat.norm
+    # if norm_q > 1e-6:
+    #     quat /= norm_q
+    #     print(f"{norm_q=}")
+    # else:
+    #     print("norm 0 in euler321_to_quaternion")
+    #     return None
     return quat
 
 def g_to_euler321(g_vector):
@@ -111,10 +109,15 @@ def pp7(accelerometer, euler321_vec_deg, quat, sample_period=None, label=""):
     # print(f"\tez:"); print(e[2], 3)
     print(f"\tquat: [ {quat[0]:6.3f}, {quat[1]:6.3f}, {quat[2]:6.3f}, {quat[3]:6.3f} ]")
 
+def ppv3(vec=None, label=''):
+    print(f"\t{label} [ {vec[0]:6.3f}, {vec[1]:6.3f}, {vec[2]:6.3f} ]; ", end='')
+
+def ppv4(vec=None, label=''):
+    print(f"\t{label} [ {vec[0]:6.3f}, {vec[1]:6.3f}, {vec[2]:6.3f}, {vec[3]:6.3f} ]; ", end='')
 
 def quaternion_to_euler321(quaternion):
     """
-    Converts quaternion to Euler 3-2-1 angles
+    Converts quaternion to Euler 3-2-1 angles in downward facing frame
         arg: A quaternion represented as [w, x, y, z].
     Returns:
         list: euler321_angles = [roll, pitch, yaw]
@@ -128,6 +131,7 @@ def quaternion_to_euler321(quaternion):
         pitch = -np.pi / 2.
     else:
         pitch = np.arcsin(sp)
+    pitch *= -1
 
     yaw = np.arctan2(2.*(q1*q2 + q0*q3), 1. - 2.*(q2*q2 + q3*q3))
     # yaw = 0.
@@ -135,7 +139,7 @@ def quaternion_to_euler321(quaternion):
 
 def quaternion_to_g(q):
     """
-    Converts quaternion to Euler 3-2-1 angles
+    Converts quaternion to Euler 3-2-1 angles in downward facing frame
         arg: A quaternion represented as [x, y, z, w].
     Returns:
         g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z)
@@ -143,6 +147,9 @@ def quaternion_to_g(q):
     gx = 2. * (q[1]*q[3] - q[0]*q[2])
     gy = 2. * (q[0]*q[1] - q[2]*q[3])
     gz = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3]
+    # gx = q[1]*q[3] - q[0]*q[2]
+    # gy = q[0]*q[1] - q[2]*q[3]
+    # gz = q[0]*q[0]   -0.5                    + q[3]*q[3]
     g_vec = np.array([ gx, gy, gz])
     norm_g = np.linalg.norm(g_vec)
     if norm_g > 1e-6:

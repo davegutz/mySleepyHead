@@ -2,7 +2,7 @@ import numpy as np
 from pyquaternion import Quaternion as Qu
 from MahonyAHRS_Mathworks import MahonyAHRS_MW
 from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, euler321_to_g, \
-    g_to_quaternion, quaternion_to_g
+    g_to_quaternion, quaternion_to_g, ppv3, ppv4
 
 
 class MahonyAHRS:
@@ -182,15 +182,15 @@ class MahonyAHRS:
 def main():
     sample_time = 0.1
     # https://www.andre-gaschler.com/rotationconverter/
-    q = [0.84971050, 0.37282170, 0.37282170,  0.00000000]  # ZYX angles = (45, 45,  0) accel_vec = (0.536,     0.756,     0.375)
-    q = [0.92387950, 0.38268340, 0.00000000,  0.00000000]  # ZYX angles = (45,  0,  0) accel_vec = (0.0000000, 0.7070000, 0.70700 ) check
-    q = [0.92387950, 0.00000000, 0.38268340,  0.00000000]  # ZYX angles = ( 0, 45,  0) accel_vec = (0.7070000, 0.0000000, 0.70700 )
+    # q = [0.84971050, 0.37282170, 0.37282170,  0.00000000]  # ZYX angles = (45, 45,  0) accel_vec = (0.536,     0.756,     0.375)
+    # q = [0.92387950, 0.38268340, 0.00000000,  0.00000000]  # ZYX angles = (45,  0,  0) accel_vec = (0.0000000, 0.7070000, 0.70700 ) check
+    # q = [0.92387950, 0.00000000, 0.38268340,  0.00000000]  # ZYX angles = ( 0, 45,  0) accel_vec = (0.7070000, 0.0000000, 0.70700 )
     # q = [0.70710680, 0.00000000,-0.70710676,  0.00000000]  # ZYX angles = ( 0, 90, 0) accel = (-1,    0,     0)
     # q = [0.70710680, 0.70710676, 0.00000000,  0.00000000]  # ZYX angles = (90,  0, 0) accel = (0,     1,     0)
     # q = [1.00000000, 0.00000000, 0.00000000,  0.00000000]  # ZYX angles = ( 0,  0, 0) accel = (0,     0    , 1)
-    euler321_angles = quaternion_to_euler321(q)
-    euler321_angles_deg = euler321_angles * 180. / np.pi
-    accel_vec = euler321_to_g(euler321_angles)
+    # euler321_angles = quaternion_to_euler321(q)
+    # euler321_angles_deg = euler321_angles * 180. / np.pi
+    # accel_vec = euler321_to_g(euler321_angles)
 
 
     # accel_vec = np.array([ 1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180., -90, 180.)
@@ -198,15 +198,39 @@ def main():
     # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
     # accel_vec = np.array([ 0.0000000, 0.7070000, 0.70700 ])   # ZYX angles = ( 45.,  0.0,  0.)  check
     # accel_vec = np.array([ 0.7070000, 0.0000000, 0.70700 ])   # ZYX angles = (  0.,  45.,  0.)  check
-    euler321_angles = g_to_euler321(accel_vec)
+    # euler321_angles = g_to_euler321(accel_vec)
 
-    euler321_angles_deg = np.array([ 45., -45., 0.])
-    # euler321_angles_deg = np.array([ 45.,  0., 0.])
+    # euler321_angles_deg = np.array([ 45., -45., 0.])  # check
+    euler321_angles_deg = np.array([ 45., 45., 0.])  # check
+    # euler321_angles_deg = np.array([ 0., -45., 0.])  # check
+    # euler321_angles_deg = np.array([ 45.,  0., 0.])  # check
     # euler321_angles_deg = np.array([ 0.,  0., 0.])  # check
-    # euler321_angles_deg = np.array([ 0.,  -89.99999, 0.])  #
+    # euler321_angles_deg = np.array([ 0.,  -89.99999, 0.])  # check
     euler321_angles = euler321_angles_deg * np.pi / 180.
-    q = euler321_to_quaternion(euler321_angles)
-    accel_vec = quaternion_to_g(q)
+    quat = euler321_to_quaternion(euler321_angles)
+    accel_vec = quaternion_to_g(quat)  # totally fucked
+    ppv3(label='accel_vec:', vec=accel_vec)
+    print("")
+    angles_check = quaternion_to_euler321(quat)
+    quat_check = g_to_quaternion(accel_vec)
+    accel_check = quaternion_to_g(quat_check)
+    angles_check1 = g_to_euler321(accel_vec)
+    quat_check1 = euler321_to_quaternion(angles_check1)
+    accel_check1 = quaternion_to_g(quat_check1)
+    ppv3(label='euler321_angles:', vec=euler321_angles*180./np.pi)
+    ppv4(label='quat:      ', vec=quat)
+    ppv3(label='accel_vec:', vec=accel_vec)
+    print("")
+    ppv3(label='angles check:   ', vec=angles_check*180./np.pi)
+    ppv4(label='quat_check:', vec=quat_check)
+    ppv3(label='accel_check:', vec=accel_check)
+    print("")
+    ppv3(label='angles check1:   ', vec=angles_check1*180./np.pi)
+    ppv4(label='quat_check1:', vec=quat_check1)
+    ppv3(label='accel_check1:', vec=accel_check1)
+    print("")
+
+    exit(0)
 
     print("Initial values")
     pp7(accel_vec, euler321_angles_deg, q, sample_period=.1, label="prep           ")
