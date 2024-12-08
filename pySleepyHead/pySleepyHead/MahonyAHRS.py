@@ -185,7 +185,7 @@ def main():
     accel_vec = None
     euler321_angles = None
     sample_time = 0.1
-    input_type = 2
+    input_type = 1
 
     if input_type == 0:
         # https://www.andre-gaschler.com/rotationconverter/
@@ -212,20 +212,15 @@ def main():
         quat = euler321_to_quaternion(euler321_angles)
         acc_check = quaternion_to_g(quat)
         print("input_type = 1, accel_vec is input")
+        ppv3(label='accel_vec:', vec=accel_vec)
         ppv3(label='euler_angles deg:', vec=euler321_angles*180./np.pi)
         ppv4(label='quat:      ', vec=quat)
-        ppv3(label='accel_vec:', vec=accel_vec)
-        print("")
-        ang_check = g_to_euler321(accel_vec)
-        quat_check = euler321_to_quaternion(g_to_euler321(accel_vec))
-        ppv3(label='acc->ang deg:    ', vec=ang_check*180./np.pi)
-        ppv4(label='acc->quat: ', vec=quat_check)
         print("")
         ang_check = quaternion_to_euler321(quat)
         acc_check = quaternion_to_g(quat)
-        ppv3(label='quat->ang deg:   ', vec=ang_check*180./np.pi)
-        print('\t\t\t\t\t\t\t\t\t\t\t\t\t', end='')
         ppv3(label='quat->acc:', vec=acc_check)
+        ppv3(label='quat->ang deg:   ', vec=ang_check*180./np.pi)
+        print('\t\t\t\t\t""""""\t\t\t\t\t\t\t')
         print("")
 
     elif input_type == 2:
@@ -248,13 +243,40 @@ def main():
         quat_check = euler321_to_quaternion(g_to_euler321(accel_vec))
         ppv3(label='acc->ang deg:    ', vec=ang_check*180./np.pi)
         ppv4(label='acc->quat: ', vec=quat_check)
-        print("")
+        print('\t\t\t\t\t""""""\t\t\t\t\t\t\t')
         ang_check = quaternion_to_euler321(quat)
         acc_check = quaternion_to_g(quat)
         ppv3(label='quat->ang deg:   ', vec=ang_check*180./np.pi)
-        print('\t\t\t\t\t\t\t\t\t\t\t\t\t', end='')
+        print('\t\t\t\t\t""""""\t\t\t\t\t\t\t', end='')
         ppv3(label='quat->acc:', vec=acc_check)
         print("")
+        print("")
+
+    track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
+    track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
+
+    err_tf = 100.
+    count = 0
+    init = True
+    gyro_vec = np.zeros(3)
+    track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    init = False
+    while err_tf > 1e-3 and count < 100:
+        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        err_tf = np.linalg.norm(abs(track_filter.halfe))
+        err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
+        err = err_tf + err_tfmw
+        count += 1
+    if count >= 100:
+        print(f"init iteration timed out, err = {err}, {err_tf=}, {err_tfmw=}")
+
+    ppv3(label='input accel_vec:', vec=accel_vec)
+    print("")
+    pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
+    pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
+
 
     # quat_angles = quaternion_to_euler321(quat)
     # accel_check = quaternion_to_g(quat_check)
@@ -276,9 +298,6 @@ def main():
     pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")
 
 
-    gyro_vec = np.zeros(3)
-    track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
-    track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
     init = True
     track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
