@@ -196,8 +196,8 @@ void Mahony::updateIMU(const float gx, const float gy, const float gz, const flo
 		// Initialization logic
 		if(reset)
 		{
-			computeAccelToAngles();
-			computeAnglesToQuaternion();
+			g_to_euler321();
+			euler321_to_quaternion();
 			Serial.print("acc_x_ = "); Serial.print(acc_x_); Serial.print("\tay_ = "); Serial.print(acc_y_); Serial.print("\taz_ = "); Serial.print(acc_z_);
 			Serial.print("\troll_init = "); Serial.print(getRoll()); Serial.print("\tpitch_init = "); Serial.print(getPitch()); Serial.print("\tyaw_init = "); Serial.print(getYaw());
 			Serial.print("\tq0_init = "); Serial.print(q0_, 5); Serial.print("\tq1_init = "); Serial.print(q1_, 5); Serial.print("\tq2_init = "); Serial.print(q2_, 5); Serial.print("\tq3_init = "); Serial.println(q3_, 5);
@@ -276,7 +276,7 @@ float Mahony::invSqrt(float x)
 //-------------------------------------------------------------------------------------------
 
 
-void Mahony::computeQuaternionToAngles()
+void Mahony::quaternion_to_euler321()
 {
 	roll_ = atan2f(q0_*q1_ + q2_*q3_, 0.5f - q1_*q1_ - q2_*q2_);
 	pitch_ = asinf(-2.0f * (q1_*q3_ - q0_*q2_));
@@ -285,14 +285,14 @@ void Mahony::computeQuaternionToAngles()
 	anglesComputed_ = 1;
 }
 
-void Mahony::computeAccelToAngles()
+void Mahony::g_to_euler321()
 {
 	roll_ =  atan2f(acc_y_, sqrt(acc_x_*acc_x_ + acc_z_*acc_z_));
 	pitch_ = -atan2f(acc_x_, acc_z_);
 }
 
-void Mahony::computeAnglesToQuaternion()
-{computeAccelToAngles
+void Mahony::euler321_to_quaternion()
+{
 	float cr, sr, cp, sp, cy, sy;
 	cr = cos(roll_ / 2.);
 	sr = sin(roll_ / 2.);

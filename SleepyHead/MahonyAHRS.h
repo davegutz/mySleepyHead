@@ -39,9 +39,9 @@ private:
 	float twoKp_;						// 2 * track filter proportional gain (Kp)
 	float twoKi_;						// 2 * track filter integral gain (Ki)
 	static float invSqrt(float x);
-	void computeAccelToAngles();
-	void computeAnglesToQuaternion();
-	void computeQuaternionToAngles();
+	void g_to_euler321();
+	void euler321_to_quaternion();
+	void quaternion_to_euler321();
 
 //-------------------------------------------------------------------------------------------
 // Function declarations
@@ -60,27 +60,27 @@ public:
 	float getHalfey() { return halfey_; }
 	float getHalfez() { return halfez_; }
 	float getRoll() {
-		if (!anglesComputed_) computeQuaternionToAngles();
+		if (!anglesComputed_) quaternion_to_euler321();
 		return roll_ * 57.29578f;
 	}
 	float getPitch() {
-		if (!anglesComputed_) computeQuaternionToAngles();
+		if (!anglesComputed_) quaternion_to_euler321();
 		return pitch_ * 57.29578f;
 	}
 	float getYaw() {
-		if (!anglesComputed_) computeQuaternionToAngles();
+		if (!anglesComputed_) quaternion_to_euler321();
 		return yaw_ * 57.29578f + 180.0f;
 	}
 	float getRollRadians() {
-		if (!anglesComputed_) computeQuaternionToAngles();
+		if (!anglesComputed_) quaternion_to_euler321();
 		return roll_;
 	}
 	float getPitchRadians() {
-		if (!anglesComputed_) computeQuaternionToAngles();
+		if (!anglesComputed_) quaternion_to_euler321();
 		return pitch_;
 	}
 	float getYawRadians() {
-		if (!anglesComputed_) computeQuaternionToAngles();
+		if (!anglesComputed_) quaternion_to_euler321();
 		return yaw_;
 	}
 	float ax() { return acc_x_; }
