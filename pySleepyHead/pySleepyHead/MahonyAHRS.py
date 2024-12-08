@@ -1,8 +1,9 @@
 import numpy as np
+from numpy.ma.core import angle
 from pyquaternion import Quaternion as Qu
 from MahonyAHRS_Mathworks import MahonyAHRS_MW
-from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, euler321_to_g, \
-    g_to_quaternion, quaternion_to_g, ppv3, ppv4
+from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, \
+    quaternion_to_g, ppv3, ppv4
 
 
 class MahonyAHRS:
@@ -180,59 +181,93 @@ class MahonyAHRS:
 
 
 def main():
+    quat = None
+    accel_vec = None
+    euler321_angles = None
     sample_time = 0.1
-    # https://www.andre-gaschler.com/rotationconverter/
-    # quat = [0.84971050, 0.37282170, 0.37282170,  0.00000000]  # ZYX angles = (45, 45,  0) accel_vec = (0.536,     0.756,     0.375)
-    quat = [0.85355340, 0.35355340,-0.35355340,  0.1464466]  # ZYX angles = (45, -45,  0) accel_vec = (0.536,     0.756,     0.375)
-    # quat = [0.92387950, 0.38268340, 0.00000000,  0.00000000]  # ZYX angles = (45,  0,  0) accel_vec = (0.0000000, 0.7070000, 0.70700 ) check
-    # quat = [0.92387950, 0.00000000, 0.38268340,  0.00000000]  # ZYX angles = ( 0, 45,  0) accel_vec = (0.7070000, 0.0000000, 0.70700 )
-    # quat = [0.70710680, 0.00000000,-0.70710676,  0.00000000]  # ZYX angles = ( 0, 90, 0) accel = (-1,    0,     0)
-    # quat = [0.70710680, 0.70710676, 0.00000000,  0.00000000]  # ZYX angles = (90,  0, 0) accel = (0,     1,     0)
-    # quat = [1.00000000, 0.00000000, 0.00000000,  0.00000000]  # ZYX angles = ( 0,  0, 0) accel = (0,     0    , 1)
-    # euler321_angles = quaternion_to_euler321(quat)
-    # euler321_angles_deg = euler321_angles * 180. / np.pi
-    # accel_vec = euler321_to_g(euler321_angles)
+    input_type = 2
+
+    if input_type == 0:
+        # https://www.andre-gaschler.com/rotationconverter/
+        # quat = [0.84971050, 0.37282170, 0.37282170,  0.00000000]  # ZYX angles = (45, 45,  0) accel_vec = (0.536,     0.756,     0.375)
+        quat = [ 0.854,  0.354, -0.354,  0.146 ]  # ZYX angles = (45, -45,  0) accel_vec = (0.536,     0.756,     0.375)
+        # quat = [0.92387950, 0.38268340, 0.00000000,  0.00000000]  # ZYX angles = (45,  0,  0) accel_vec = (0.0000000, 0.7070000, 0.70700 ) check
+        # quat = [0.92387950, 0.00000000, 0.38268340,  0.00000000]  # ZYX angles = ( 0, 45,  0) accel_vec = (0.7070000, 0.0000000, 0.70700 )
+        # quat = [0.70710680, 0.00000000,-0.70710676,  0.00000000]  # ZYX angles = ( 0, 90, 0) accel = (-1,    0,     0)
+        # quat = [0.70710680, 0.70710676, 0.00000000,  0.00000000]  # ZYX angles = (90,  0, 0) accel = (0,     1,     0)
+        # quat = [1.00000000, 0.00000000, 0.00000000,  0.00000000]  # ZYX angles = ( 0,  0, 0) accel = (0,     0    , 1)
+        euler321_angles = quaternion_to_euler321(quat)
+        accel_vec = quaternion_to_g(quat)
 
 
-    # accel_vec = np.array([ 1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180., -90, 180.)
-    # accel_vec = np.array([-1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180.,  90, 180.)
-    # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
-    accel_vec = np.array([ 0.632,     0.632,     0.447 ])     # ZYX angles = ( 45.,  -45.,  0.)
-    # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
-    # accel_vec = np.array([ 0.0000000, 0.7070000, 0.70700 ])   # ZYX angles = ( 45.,  0.0,  0.)  check
-    # accel_vec = np.array([ 0.7070000, 0.0000000, 0.70700 ])   # ZYX angles = (  0.,  45.,  0.)  check
-    euler321_angles = g_to_euler321(accel_vec)   ###### crap
-    quat = euler321_to_quaternion(euler321_angles)   # check
+    elif input_type == 1:
+        # accel_vec = np.array([ 1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180., -90, 180.)
+        # accel_vec = np.array([-1.0000000, 0.0000000, 0.00000 ])   # ZYX angles = (180.,  90, 180.)
+        # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
+        accel_vec = np.array([ 0.632,  0.632,  0.447 ])     # ZYX angles = ( 45.,  -45.,  0.)
+        # accel_vec = np.array([ 0.5360000, 0.7560000, 0.37500 ])   # ZYX angles = ( 45.,  45.,  0.)
+        # accel_vec = np.array([ 0.0000000, 0.7070000, 0.70700 ])   # ZYX angles = ( 45.,  0.0,  0.)  check
+        # accel_vec = np.array([ 0.7070000, 0.0000000, 0.70700 ])   # ZYX angles = (  0.,  45.,  0.)  check
+        euler321_angles = g_to_euler321(accel_vec)
+        quat = euler321_to_quaternion(euler321_angles)
+        acc_check = quaternion_to_g(quat)
+        print("input_type = 1, accel_vec is input")
+        ppv3(label='euler_angles deg:', vec=euler321_angles*180./np.pi)
+        ppv4(label='quat:      ', vec=quat)
+        ppv3(label='accel_vec:', vec=accel_vec)
+        print("")
+        ang_check = g_to_euler321(accel_vec)
+        quat_check = euler321_to_quaternion(g_to_euler321(accel_vec))
+        ppv3(label='acc->ang deg:    ', vec=ang_check*180./np.pi)
+        ppv4(label='acc->quat: ', vec=quat_check)
+        print("")
+        ang_check = quaternion_to_euler321(quat)
+        acc_check = quaternion_to_g(quat)
+        ppv3(label='quat->ang deg:   ', vec=ang_check*180./np.pi)
+        print('\t\t\t\t\t\t\t\t\t\t\t\t\t', end='')
+        ppv3(label='quat->acc:', vec=acc_check)
+        print("")
 
-    # euler321_angles_deg = np.array([ 0., -45., 0.])  # check
-    # euler321_angles_deg = np.array([ 45.,  0., 0.])  # check
-    # euler321_angles_deg = np.array([ 0.,  45., 0.])  # check
-    # euler321_angles_deg = np.array([ 45., -45., 0.])  # check  angles check1 bad
-    # euler321_angles_deg = np.array([ 45., 45., 0.])  # check
-    # euler321_angles_deg = np.array([ 0.,  0., 0.])  # check
-    # euler321_angles_deg = np.array([ 0.,  -89.99999, 0.])  # check
-    # euler321_angles = euler321_angles_deg * np.pi / 180.
-    # quat = euler321_to_quaternion(euler321_angles)   # check
-    # accel_vec = quaternion_to_g(quat)  # totally fucked for multi rotations
+    elif input_type == 2:
+        # euler321_angles_deg = np.array([ 0., -45., 0.])  # check
+        # euler321_angles_deg = np.array([ 45.,  0., 0.])  # check
+        # euler321_angles_deg = np.array([ 0.,  45., 0.])  # check
+        euler321_angles_deg = np.array([ 45., -45., 0.])  # check  angles check1 bad
+        # euler321_angles_deg = np.array([ 45., 45., 0.])  # check
+        # euler321_angles_deg = np.array([ 0.,  0., 0.])  # check
+        # euler321_angles_deg = np.array([ 0.,  -89.99999, 0.])  # check
+        euler321_angles = euler321_angles_deg * np.pi / 180.
+        quat = euler321_to_quaternion(euler321_angles)   # check
+        accel_vec = quaternion_to_g(quat)  # totally fucked for multi rotations
+        print("input_type = 2, euler321_angles is input")
+        ppv3(label='euler_angles deg:', vec=euler321_angles*180./np.pi)
+        ppv4(label='quat:      ', vec=quat)
+        ppv3(label='accel_vec:', vec=accel_vec)
+        print("")
+        ang_check = g_to_euler321(accel_vec)
+        quat_check = euler321_to_quaternion(g_to_euler321(accel_vec))
+        ppv3(label='acc->ang deg:    ', vec=ang_check*180./np.pi)
+        ppv4(label='acc->quat: ', vec=quat_check)
+        print("")
+        ang_check = quaternion_to_euler321(quat)
+        acc_check = quaternion_to_g(quat)
+        ppv3(label='quat->ang deg:   ', vec=ang_check*180./np.pi)
+        print('\t\t\t\t\t\t\t\t\t\t\t\t\t', end='')
+        ppv3(label='quat->acc:', vec=acc_check)
+        print("")
 
-
-    angles_check = quaternion_to_euler321(quat)
-    quat_check = g_to_quaternion(accel_vec)
-    accel_check = quaternion_to_g(quat_check)
-    angles_check1 = g_to_euler321(accel_vec)
-    quat_check1 = euler321_to_quaternion(angles_check1)
-    accel_check1 = quaternion_to_g(quat_check1)
-    ppv3(label='euler_angles deg:', vec=euler321_angles*180./np.pi)
-    ppv4(label='quat:      ', vec=quat)
-    ppv3(label='accel_vec:', vec=accel_vec)
-    print("")
-    ppv3(label='angles check:    ', vec=angles_check*180./np.pi)
-    ppv4(label='quat_check:', vec=quat_check)
-    ppv3(label='accel_check:', vec=accel_check)
-    print("")
-    ppv3(label='angles check1:   ', vec=angles_check1*180./np.pi)
-    ppv4(label='qut_check1:', vec=quat_check1)
-    ppv3(label='accel_check1:', vec=accel_check1)
+    # quat_angles = quaternion_to_euler321(quat)
+    # accel_check = quaternion_to_g(quat_check)
+    # grav_angles = g_to_euler321(accel_vec)
+    # grav_quat = euler321_to_quaternion(grav_angles)
+    # accel_check1 = quaternion_to_g(grav_quat)
+    # ppv3(label='quat->angles:    ', vec=quat_angles*180./np.pi)
+    # ppv4(label='quat_check:', vec=quat_check)
+    # ppv3(label='accel_check:', vec=accel_check)
+    # print("")
+    # ppv3(label='grav->angles:   ', vec=grav_angles*180./np.pi)
+    # ppv4(label='grav->quat:', vec=grav_quat)
+    # ppv3(label='accel_check1:', vec=accel_check1)
     print("")
 
     exit(0)

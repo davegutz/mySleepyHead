@@ -2,17 +2,17 @@ import math
 import numpy as np
 from pyquaternion import Quaternion as Qu
 
-def euler321_to_g(euler321):
-    """
-    Converts Euler 3-2-1 angles in radians  to a g.
-    Args: euler321_angles = [roll, pitch, yaw], radians
-
-    Returns:
-        list: A vector accelerometer represented as [gx, gy, gz]
-    """
-    q = euler321_to_quaternion(euler321)
-    g = quaternion_to_g(q)
-    return g
+# def euler321_to_g(euler321):
+#     """
+#     Converts Euler 3-2-1 angles in radians  to a g.
+#     Args: euler321_angles = [roll, pitch, yaw], radians
+#
+#     Returns:
+#         list: A vector accelerometer represented as [gx, gy, gz]
+#     """
+#     q = euler321_to_quaternion(euler321)
+#     g = quaternion_to_g(q)
+#     return g
 
 def euler321_to_quaternion(euler321):
     """
@@ -57,35 +57,38 @@ def g_to_euler321(g_vector):
     else:
         print("norm error in g_to_quaternion")
         exit(1)
-    q = g_to_quaternion(g_vector)
-    angles_euler321 = quaternion_to_euler321(q)
+    gx, gy, gz = g_vector
+    roll = np.arctan2(gx, gz)
+    pitch = np.arctan2(-gx, np.sqrt(gy*gy + gz*gz))
+    yaw = 0.
+    angles_euler321 = np.array([ roll, pitch, yaw ])
     return angles_euler321
 
-def g_to_quaternion(g_vector):
-    """
-   Converts a g-force vector to quaternion
-    Args:
-        g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z).
-    Returns:
-        quaternion
-    """
-    norm_g = np.linalg.norm(g_vector)
-    if norm_g > 1e-6:
-        g_vector /= norm_g
-    else:
-        print("norm error in g_to_quaternion")
-        exit(1)
-
-    ax, ay, az = g_vector
-    cos_theta = 1.0 * az
-
-    half_cos = np.sqrt(0.5*(1.0 + cos_theta))
-    q0 = half_cos
-    temp = 1. / (2.0*half_cos)
-    q1 = ay * temp
-    q2 = -ax * temp
-    q3 = 0.0  # this is causing trouble.  arbitrary
-    return Qu([q0, q1, q2, q3])
+# def g_to_quaternion(g_vector):
+#     """
+#    Converts a g-force vector to quaternion
+#     Args:
+#         g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z).
+#     Returns:
+#         quaternion
+#     """
+#     norm_g = np.linalg.norm(g_vector)
+#     if norm_g > 1e-6:
+#         g_vector /= norm_g
+#     else:
+#         print("norm error in g_to_quaternion")
+#         exit(1)
+#
+#     ax, ay, az = g_vector
+#     cos_theta = 1.0 * az
+#
+#     half_cos = np.sqrt(0.5*(1.0 + cos_theta))
+#     q0 = half_cos
+#     temp = 1. / (2.0*half_cos)
+#     q1 = ay * temp
+#     q2 = -ax * temp
+#     q3 = 0.0  # this is causing trouble.  arbitrary
+#     return Qu([q0, q1, q2, q3])
 
 def pp7(accelerometer, euler321_vec_deg, quat, sample_period=None, label=""):
     # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
