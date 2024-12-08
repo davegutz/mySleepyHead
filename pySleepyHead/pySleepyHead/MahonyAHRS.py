@@ -208,6 +208,7 @@ def main():
     q = euler321_to_quaternion(euler321_angles)
     accel_vec = quaternion_to_g(q)
 
+    print("Initial values")
     pp7(accel_vec, euler321_angles_deg, q, sample_period=.1, label="prep           ")
 
 
@@ -237,7 +238,9 @@ def main():
         print("")
         init = False
 
-    pp7(accel_vec, euler321_vec_ss*180./np.pi, quat_ss, sample_period=sample_time, label="pp7 local AHRS ")
+    print("initial value for reference")
+    pp7(accel_vec, euler321_angles_deg, q, sample_period=.1, label="prep           ")
+    # pp7(accel_vec, euler321_vec_ss*180./np.pi, quat_ss, sample_period=sample_time, label="pp7 local AHRS ")
 
 
 # import cProfile

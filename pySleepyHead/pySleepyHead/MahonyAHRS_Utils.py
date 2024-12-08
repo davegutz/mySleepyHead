@@ -143,5 +143,12 @@ def quaternion_to_g(q):
     gx = 2. * (q[1]*q[3] - q[0]*q[2])
     gy = 2. * (q[0]*q[1] - q[2]*q[3])
     gz = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3]
+    g_vec = np.array([ gx, gy, gz])
+    norm_g = np.linalg.norm(g_vec)
+    if norm_g > 1e-6:
+        g_vec /= norm_g
+    else:
+        print("ERROR in quaternion_to_g, 0 norm")
+        return None  # handle NaN
 
-    return np.array([gx, gy, gz])
+    return g_vec
