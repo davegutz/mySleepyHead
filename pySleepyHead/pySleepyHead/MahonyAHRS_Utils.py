@@ -59,7 +59,6 @@ def g_to_euler321(g_vector):
         exit(1)
     q = g_to_quaternion(g_vector)
     angles_euler321 = quaternion_to_euler321(q)
-    rpy = angles_euler321 * 180. /  np.pi
     return angles_euler321
 
 def g_to_quaternion(g_vector):
@@ -76,17 +75,16 @@ def g_to_quaternion(g_vector):
     else:
         print("norm error in g_to_quaternion")
         exit(1)
-    gx, gy, gz = g_vector
-    cos_theta = 1.0 * gz
 
-    # half_cos = np.sqrt(0.5*(1.0 + cos_theta))
-    half_cos = 0.7071*np.sqrt(1.0 + cos_theta)
+    ax, ay, az = g_vector
+    cos_theta = 1.0 * az
+
+    half_cos = np.sqrt(0.5*(1.0 + cos_theta))
     q0 = half_cos
-    # temp = 1/(2.0*half_cos)
-    temp = 0.5 / half_cos
-    q1 = gy * temp
-    q2 = -gx * temp
-    q3 = 0.0
+    temp = 1. / (2.0*half_cos)
+    q1 = ay * temp
+    q2 = -ax * temp
+    q3 = 0.0  # this is causing trouble.  arbitrary
     return Qu([q0, q1, q2, q3])
 
 def pp7(accelerometer, euler321_vec_deg, quat, sample_period=None, label=""):
