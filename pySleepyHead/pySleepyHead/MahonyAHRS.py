@@ -185,7 +185,7 @@ def main():
     accel_vec = None
     euler321_angles = None
     sample_time = 0.1
-    input_type = 1
+    input_type = 2
 
     if input_type == 0:
         # https://www.andre-gaschler.com/rotationconverter/
@@ -272,7 +272,7 @@ def main():
     if count >= 100:
         print(f"init iteration timed out, err = {err}, {err_tf=}, {err_tfmw=}")
 
-    ppv3(label='input accel_vec:', vec=accel_vec)
+    ppv3(label='iterative input accel_vec:', vec=accel_vec)
     print("")
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
     pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
@@ -292,9 +292,8 @@ def main():
     # ppv3(label='accel_check1:', vec=accel_check1)
     print("")
 
-    exit(0)
-
     print("Initial values")
+    euler321_angles_deg = euler321_angles * 180. / np.pi
     pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")
 
 

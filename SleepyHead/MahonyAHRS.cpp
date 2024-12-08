@@ -287,12 +287,12 @@ void Mahony::computeQuaternionToAngles()
 
 void Mahony::computeAccelToAngles()
 {
-	roll_ =  atan2f(acc_y_, acc_z_);
+	roll_ =  atan2f(acc_y_, sqrt(acc_x_*acc_x_ + acc_z_*acc_z_));
 	pitch_ = -atan2f(acc_x_, acc_z_);
 }
 
 void Mahony::computeAnglesToQuaternion()
-{
+{computeAccelToAngles
 	float cr, sr, cp, sp, cy, sy;
 	cr = cos(roll_ / 2.);
 	sr = sin(roll_ / 2.);

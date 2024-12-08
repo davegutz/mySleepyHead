@@ -33,14 +33,6 @@ def euler321_to_quaternion(euler321):
                 sr*cp*cy - cr*sp*sy,
                 cr*sp*cy + sr*cp*sy,
                 cr*cp*sy - sr*sp*cy ])
-    # norm adj here doesn't do anything because of sine and cos construction
-    # norm_q = quat.norm
-    # if norm_q > 1e-6:
-    #     quat /= norm_q
-    #     print(f"{norm_q=}")
-    # else:
-    #     print("norm 0 in euler321_to_quaternion")
-    #     return None
     return quat
 
 def g_to_euler321(g_vector):
@@ -58,37 +50,11 @@ def g_to_euler321(g_vector):
         print("norm error in g_to_quaternion")
         exit(1)
     gx, gy, gz = g_vector
-    roll = np.arctan2(gx, gz)
-    pitch = np.arctan2(-gx, np.sqrt(gy*gy + gz*gz))
+    roll = np.arctan2(gy, np.sqrt(gx*gx + gz*gz))
+    pitch = np.arctan2(-gx, gz)
     yaw = 0.
     angles_euler321 = np.array([ roll, pitch, yaw ])
     return angles_euler321
-
-# def g_to_quaternion(g_vector):
-#     """
-#    Converts a g-force vector to quaternion
-#     Args:
-#         g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z).
-#     Returns:
-#         quaternion
-#     """
-#     norm_g = np.linalg.norm(g_vector)
-#     if norm_g > 1e-6:
-#         g_vector /= norm_g
-#     else:
-#         print("norm error in g_to_quaternion")
-#         exit(1)
-#
-#     ax, ay, az = g_vector
-#     cos_theta = 1.0 * az
-#
-#     half_cos = np.sqrt(0.5*(1.0 + cos_theta))
-#     q0 = half_cos
-#     temp = 1. / (2.0*half_cos)
-#     q1 = ay * temp
-#     q2 = -ax * temp
-#     q3 = 0.0  # this is causing trouble.  arbitrary
-#     return Qu([q0, q1, q2, q3])
 
 def pp7(accelerometer, euler321_vec_deg, quat, sample_period=None, label=""):
     # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
@@ -140,7 +106,7 @@ def quaternion_to_euler321(quaternion):
 
 def quaternion_to_g(q):
     """
-    Converts quaternion to Euler 3-2-1 angles in downward facing frame
+    Converts quaternion to measurement direction
         arg: A quaternion represented as [x, y, z, w].
     Returns:
         g_vector: A numpy array representing the g-force vector (g_x, g_y, g_z)
