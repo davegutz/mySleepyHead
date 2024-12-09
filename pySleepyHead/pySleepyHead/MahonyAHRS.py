@@ -61,25 +61,18 @@ class MahonyAHRS:
     def update_imu(self, accelerometer, gyroscope, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
-        self.gyr_x_ = gyroscope[0]
-        self.gyr_y_ = gyroscope[1]
-        self.gyr_z_ = gyroscope[2]
-        self.acc_x_ = accelerometer[0]
-        self.acc_y_ = accelerometer[1]
-        self.acc_z_ = accelerometer[2]
-        self.accel_vec = [self.acc_x_, self.acc_y_, self.acc_z_]
-        self.accel_vec /= np.linalg.norm(self.accel_vec)
+        # Normalise accelerometer measurement
+        norm_acc = np.linalg.norm(accelerometer)
+        if norm_acc == 0:
+            return  # handle NaN
+        self.accel_vec = accelerometer / norm_acc
         if sample_time is not None:
             self.sample_period = sample_time
 
         if not ( self.acc_x_==0. and self.acc_y_==0. and self.acc_z_==0. ):
-            # Normalise accelerometer measurement
-            if np.linalg.norm(accelerometer) == 0:
-                return # handle NaN
-            recipNorm = 1. / np.linalg.norm(accelerometer)
-            self.acc_x_ *= recipNorm
-            self.acc_y_ *= recipNorm
-            self.acc_z_ *= recipNorm
+            self.acc_x_ = self.accel_vec[0]
+            self.acc_y_ = self.accel_vec[1]
+            self.acc_z_ = self.accel_vec[2]
 
             if reset:
                 g_vec = np.array([self.acc_x_, self.acc_y_, self.acc_z_])
@@ -106,6 +99,9 @@ class MahonyAHRS:
             if self.Ki > 0 and not reset:
                 self.integralFB_ += self.Ki * 2. * self.halfe * self.sample_period
                 gyroscope += self.integralFB_
+                self.gyr_x_ = gyroscope[0]
+                self.gyr_y_ = gyroscope[1]
+                self.gyr_z_ = gyroscope[2]
             else:
                 self.integralFB_ = np.zeros(3)
 
@@ -132,7 +128,7 @@ class MahonyAHRS:
             q[2] *= recipNorm
             q[3] *= recipNorm
 
-        self.euler321_vec_check_deg = np.array(quaternion_to_euler321(self.quat)) * 180. / np.pi
+        self.euler321_vec = quaternion_to_euler321(self.quat)
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
         self.euler321_computed = False
         
@@ -231,6 +227,8 @@ def main():
         # euler321_angles_deg = np.array([ 45., 45., 0.])  # check
         # euler321_angles_deg = np.array([ 0.,  0., 0.])  # check
         # euler321_angles_deg = np.array([ 0.,  -89.99999, 0.])  # check
+        # euler321_angles_deg = np.array([ 5., -45., 0.])  # check  angles check1 bad
+        # euler321_angles_deg = np.array([ 45., -5., 0.])  # check  angles check1 bad
         euler321_angles = euler321_angles_deg * np.pi / 180.
         quat = euler321_to_quaternion(euler321_angles)   # check
         accel_vec = quaternion_to_g(quat)  # totally fucked for multi rotations

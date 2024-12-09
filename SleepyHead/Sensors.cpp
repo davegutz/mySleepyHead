@@ -55,7 +55,9 @@ void Sensors::filter(const boolean reset)
 
     // Mahony Tracking Filter
     track_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
-    // track_filter->updateIMU(0, 0, 0, .57735, .57735, .57735, T_acc_, reset);
+    // track_filter->updateIMU(0, 0, 0, 0.632,  0.632,  0.447, T_acc_, reset);
+    // track_filter->updateIMU(0, 0, 0,0.087,  0.706,  0.703, T_acc_, reset);
+    // track_filter->updateIMU(0, 0, 0,0.706,  0.087,  0.703, T_acc_, reset);
     // track_filter->updateIMU(0, 0, 0, -.70, .53, .53, T_acc_, reset);
     roll_filt = track_filter->getRoll();
     pitch_filt = track_filter->getPitch();
