@@ -46,7 +46,6 @@ class MahonyAHRS:
         self.halfvx_ = 0.
         self.halfvy_ = 0.
         self.halfvz_ = 0.
-        self.euler321_computed = False
         self.roll_ = 0.
         self.pitch_ = 0.
         self.yaw_ = 0.
@@ -66,6 +65,7 @@ class MahonyAHRS:
         if norm_acc == 0:
             return  # handle NaN
         self.accel_vec = accelerometer / norm_acc
+        # print(f"enter:  {self.accel_vec=} exit: ", end='')
         self.acc_x_ = self.accel_vec[0]
         self.acc_y_ = self.accel_vec[1]
         self.acc_z_ = self.accel_vec[2]
@@ -130,8 +130,8 @@ class MahonyAHRS:
 
         self.euler321_vec = quaternion_to_euler321(self.quat)
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
-        self.euler321_computed = False
-        
+        # print(f"{self.accel_vec=}")
+
 
 def main():
     quat = None
@@ -210,54 +210,65 @@ def main():
     track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
     track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
 
+    # Local steady state check
+    print('Local steady state check:')
+    euler321_vec_ss = g_to_euler321(accel_vec)
+    quat_ss = euler321_to_quaternion(euler321_vec_ss)
+    pp7(accel_vec / np.linalg.norm(accel_vec), euler321_vec_ss*180./np.pi, quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
+    print("")
+
+    # Iterative init
+    print('iterative initial values:')
     err_tf = 100.
     count = 0
     init = True
     gyro_vec = np.zeros(3)
     track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
-    track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
     init = False
     while err_tf > 1e-3 and count < 100:
+        gyro_vec = np.zeros(3)
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
-        track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        # pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         err_tf = np.linalg.norm(abs(track_filter.halfe))
         err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
         err = err_tf + err_tfmw
         count += 1
     if count >= 100:
         print(f"init iteration timed out, err = {err}, {err_tf=}, {err_tfmw=}")
-
-    ppv3(label='iterative input accel_vec:', vec=accel_vec)
-    print("")
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
-    pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
+    print("")
 
-    print("Initial values")
-    euler321_angles_deg = euler321_angles * 180. / np.pi
-    pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")
+    print('Transient')
+    num_its = 200
+    err_tf = 100.
+    count = 0
     init = True
+    accel_vec = np.array([0., 0., 1.])
+    gyro_vec = np.zeros(3)
     track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    init = False
+    while err_tf > 1e-3 and count < 100:
+        gyro_vec = np.zeros(3)
+        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        # pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
+        err_tf = np.linalg.norm(abs(track_filter.halfe))
+        err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
+        err = err_tf + err_tfmw
+        count += 1
+    if count >= 100:
+        print(f"init iteration timed out, err = {err}, {err_tf=}, {err_tfmw=}")
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
-    track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
-    pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
-
-    # Local steady state check
-    euler321_vec_ss = g_to_euler321(accel_vec)
-    quat_ss = euler321_to_quaternion(euler321_vec_ss)
-    pp7(accel_vec / np.linalg.norm(accel_vec), euler321_vec_ss*180./np.pi, quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
-    print("")
-
     init = False
     # Loop
-    for i in range(20):
-        if i == 2:
+    for i in range(num_its):
+        if i == 4:
+            accel_vec = np.zeros(3) + np.array([0., 0., 1.])
             accel_vec += np.array([.1, -.05, -.05])
             accel_vec /= np.linalg.norm(accel_vec)
+        gyro_vec = np.zeros(3)
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
-        track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
-        pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
-        print("")
+        # print("")
 
     print("initial value for reference")
     pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")
