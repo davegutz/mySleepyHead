@@ -57,6 +57,14 @@ class MahonyAHRS:
         self.acc_z_= 0.
         self.label = "pp7 Mahony AHRS"
 
+    def pp8(self):
+            # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
+            # print(f"pp7 Mahony AHRS {g_vec=} {euler321_vec=} {quat=} {euler321_vec_deg=}")
+            print(f"  pp8: {(self.sample_period * 100.):.3f};  ", end='')
+            print(f"\taccel_raw: [ {self.accel_vec[0]:6.3f}, {self.accel_vec[1]:6.3f}, {self.accel_vec[2]:6.3f} ], g's; ", end='')
+            print(f"\thalfe: [ {self.halfe[0]:6.3f}, {self.halfe[1]:6.3f}, {self.halfe[2]:6.3f} ],", end='')
+            print(f"\tquat: [ {self.quat[0]:6.3f}, {self.quat[1]:6.3f}, {self.quat[2]:6.3f}, {self.quat[3]:6.3f} ]")
+
     def update_imu(self, accelerometer, gyroscope, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
@@ -207,7 +215,7 @@ def main():
         print("")
         print("")
 
-    track_filter = MahonyAHRS(sample_period=0.1, kp=10., ki=1.)
+    track_filter = MahonyAHRS(sample_period=0.1, kp=5., ki=8.)  # Kp=5, Ki=8
     track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
 
     # Local steady state check
@@ -239,7 +247,6 @@ def main():
     print("")
 
     print('Transient')
-    num_its = 200
     err_tf = 100.
     count = 0
     init = True
@@ -260,15 +267,19 @@ def main():
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
     init = False
     # Loop
+    num_its = 100
     for i in range(num_its):
         if i == 4:
             accel_vec = np.zeros(3) + np.array([0., 0., 1.])
-            accel_vec += np.array([.1, -.05, -.05])
+            accel_vec += np.array([-.707, .707, -.707])
             accel_vec /= np.linalg.norm(accel_vec)
+        if i == 24:
+            accel_vec = np.zeros(3) + np.array([0., 0., 1.])
         gyro_vec = np.zeros(3)
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
+        print(f"{i:3d}\t", end='')
+        # track_filter.pp8()
         pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
-        # print("")
 
     print("initial value for reference")
     pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")

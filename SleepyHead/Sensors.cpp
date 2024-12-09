@@ -27,10 +27,13 @@
 #include "TimeLib.h"
 #include "CollDatum.h"
 
+extern boolean run;
 
 // Filter noise
 void Sensors::filter(const boolean reset)
 {
+    static int count = 0;
+    static boolean turn = false;
 
     if ( reset || acc_available_ )
     {
@@ -54,11 +57,20 @@ void Sensors::filter(const boolean reset)
     }
 
     // Mahony Tracking Filter
-    track_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
-    // track_filter->updateIMU(0, 0, 0, 0.632,  0.632,  0.447, T_acc_, reset);
-    // track_filter->updateIMU(0, 0, 0,0.087,  0.706,  0.703, T_acc_, reset);
-    // track_filter->updateIMU(0, 0, 0,0.706,  0.087,  0.703, T_acc_, reset);
-    // track_filter->updateIMU(0, 0, 0, -.70, .53, .53, T_acc_, reset);
+    if ( run )
+      track_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
+    else
+    {
+      if ( turn )
+      {
+        track_filter->updateIMU(0, 0, 0, -0.679,  0.679,  0.281, T_acc_, reset);
+      }
+      else
+        track_filter->updateIMU(0, 0, 0, 0, 0, 1, T_acc_, reset);
+      if ( ++count > 400 ) count = 0;
+      if ( count == 0 ) turn = !turn;
+    }
+
     roll_filt = track_filter->getRoll();
     pitch_filt = track_filter->getPitch();
     yaw_filt = track_filter->getYaw();

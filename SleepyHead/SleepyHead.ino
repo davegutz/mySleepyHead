@@ -72,6 +72,7 @@ cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting_all = false;
+boolean run = true;
 uint8_t plot_num = 0;
 boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
@@ -79,6 +80,7 @@ unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
 
 extern int debug;
+extern boolean run;
 int debug = 0;
 boolean print_mem = false;
 const int buzzerPin = 9;     // Pin connected to the buzzer
@@ -138,7 +140,7 @@ void loop()
   static Sync *ActiveSync = new Sync(ACTIVE_DELAY);
   unsigned long long elapsed = 0;
   static boolean reset = true;
-  static unsigned long long time_start = millis();
+    static unsigned long long time_start = millis();
   boolean gyro_ready = false;
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
@@ -406,6 +408,7 @@ void loop()
           Serial.println("s  - print sizes for all (will vary depending on history of collision)");
           Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
           Serial.println("vvX  - verbosity debug level");
+          Serial.println("x  - play toggle ( true = real time, false = pulse )");
           Serial.println("\t X=9  - time trace in Sensors");
           break;
         case ( 'm' ):  // m  - print all
@@ -474,6 +477,9 @@ void loop()
               Serial.print(letter_1); Serial.println(" unknown");
               break;
           }
+          break;
+        case ( 'x' ):  // x - play command toggles
+          run = !run;
           break;
         default:
           Serial.print(letter_0); Serial.println(" unknown");
