@@ -46,7 +46,7 @@ class MahonyAHRS:
         self.halfvx_ = 0.
         self.halfvy_ = 0.
         self.halfvz_ = 0.
-        self.euler321_computed = True
+        self.euler321_computed = False
         self.roll_ = 0.
         self.pitch_ = 0.
         self.yaw_ = 0.
@@ -66,14 +66,14 @@ class MahonyAHRS:
         if norm_acc == 0:
             return  # handle NaN
         self.accel_vec = accelerometer / norm_acc
+        self.acc_x_ = self.accel_vec[0]
+        self.acc_y_ = self.accel_vec[1]
+        self.acc_z_ = self.accel_vec[2]
+
         if sample_time is not None:
             self.sample_period = sample_time
 
         if not ( self.acc_x_==0. and self.acc_y_==0. and self.acc_z_==0. ):
-            self.acc_x_ = self.accel_vec[0]
-            self.acc_y_ = self.accel_vec[1]
-            self.acc_z_ = self.accel_vec[2]
-
             if reset:
                 g_vec = np.array([self.acc_x_, self.acc_y_, self.acc_z_])
                 self.euler321_vec = g_to_euler321(g_vec)
@@ -91,7 +91,7 @@ class MahonyAHRS:
             self.halfvz_ = self.halfv[2]
 
             # Error is sum of cross product between estimated direction and measured direction of field
-            self.halfe = np.linalg.cross(accelerometer, self.halfv)
+            self.halfe = np.linalg.cross(self.accel_vec, self.halfv)
             self.halfex_ = (self.acc_y_*self.halfvz_ - self.acc_z_*self.halfvy_)
             self.halfey_ = (self.acc_z_*self.halfvx_ - self.acc_x_*self.halfvz_)
             self.halfez_ = (self.acc_x_*self.halfvy_ - self.acc_y_*self.halfvx_)
@@ -132,49 +132,6 @@ class MahonyAHRS:
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
         self.euler321_computed = False
         
-    # def update(self, gyroscope, accelerometer, magnetometer):
-    #     q = self.quat # short name local variable for readability
-    #
-    #     # Normalise accelerometer measurement
-    #     if np.linalg.norm(accelerometer) == 0:
-    #         return  # handle NaN
-    #     accelerometer /= np.linalg.norm(accelerometer)    # normalize magnitude
-    #
-    #     # Normalise magnetometer measurement
-    #     if np.linalg.norm(magnetometer) == 0:
-    #         return  # handle NaN
-    #     magnetometer /= np.linalg.norm(magnetometer)   # normalise magnitude
-    #
-    #     # Reference direction of Earth's magnetic field
-    #     h = q * Qu([0., magnetometer]) * q.conjugate
-    #     norm_short_h = np.linalg.norm(h[1], h[2])
-    #     b = Qu([0., norm_short_h, 0., h[3]])
-    #
-    #     # Estimated direction of gravity and magnetic field
-    #     v = np.array([  2*(q[1]*q[3] - q[0]*q[2]),
-    #                     2*(q[0]*q[1] + q[2]*q[3]),
-    #                     q[0]^2 - q[1]^2 - q[2]^2 + q[3]^2  ])
-    #     w = np.array([  2*b[1]*(0.5 - q[2]^2 - q[3]^2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
-    #                     2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
-    #                     2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]^2 - q[2]^2) ])
-    #
-    #     # Error is sum of cross product between estimated direction and measured direction of fields
-    #     e = np.linalg.cross(accelerometer, v) + np.linalg.cross(magnetometer, w)
-    #     if self.Ki > 0:
-    #         self.integralFB_ = self.integralFB_ + e * self.sample_period
-    #     else:
-    #         self.integralFB_ = np.zeros(3)
-    #
-    #     # Apply feedback terms
-    #     gyroscope = gyroscope + self.Kp * e + self.Ki * self.integralFB_
-    #
-    #     # Compute rate of change of quaternion
-    #     qDot = 0.5 * q * Qu([0., gyroscope(1), gyroscope(2), gyroscope(3)])
-    #
-    #     # Integrate to yield quaternion
-    #     q = q + qDot * self.sample_period
-    #     self.quat = q / np.linalg.norm(q) # normalise quaternion
-
 
 def main():
     quat = None
@@ -275,26 +232,9 @@ def main():
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
     pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
 
-
-    # quat_angles = quaternion_to_euler321(quat)
-    # accel_check = quaternion_to_g(quat_check)
-    # grav_angles = g_to_euler321(accel_vec)
-    # grav_quat = euler321_to_quaternion(grav_angles)
-    # accel_check1 = quaternion_to_g(grav_quat)
-    # ppv3(label='quat->angles:    ', vec=quat_angles*180./np.pi)
-    # ppv4(label='quat_check:', vec=quat_check)
-    # ppv3(label='accel_check:', vec=accel_check)
-    # print("")
-    # ppv3(label='grav->angles:   ', vec=grav_angles*180./np.pi)
-    # ppv4(label='grav->quat:', vec=grav_quat)
-    # ppv3(label='accel_check1:', vec=accel_check1)
-    print("")
-
     print("Initial values")
     euler321_angles_deg = euler321_angles * 180. / np.pi
     pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")
-
-
     init = True
     track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
     pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
@@ -304,19 +244,20 @@ def main():
     # Local steady state check
     euler321_vec_ss = g_to_euler321(accel_vec)
     quat_ss = euler321_to_quaternion(euler321_vec_ss)
-    pp7(accel_vec / np.linalg.norm(accel_vec), euler321_vec_ss, quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
+    pp7(accel_vec / np.linalg.norm(accel_vec), euler321_vec_ss*180./np.pi, quat_ss, sample_period=sample_time, label="pp7 ss    AHRS ")
     print("")
 
-    # euler321_vec_check_deg = np.array(quaternion_to_euler321(quat)) * 180. / np.pi
-    # euler321_vec_deg = euler321_vec * 180. / np.pi
-
-    for i in range(3):
+    init = False
+    # Loop
+    for i in range(20):
+        if i == 2:
+            accel_vec += np.array([.1, -.05, -.05])
+            accel_vec /= np.linalg.norm(accel_vec)
         track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         track_filter_mathworks.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         pp7(track_filter_mathworks.accel_vec, track_filter_mathworks.euler321_vec_deg, track_filter_mathworks.quat, sample_period=track_filter_mathworks.sample_period, label=track_filter_mathworks.label)
         print("")
-        init = False
 
     print("initial value for reference")
     pp7(accel_vec, euler321_angles_deg, quat, sample_period=.1, label="prep           ")
