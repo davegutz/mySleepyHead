@@ -81,6 +81,7 @@ unsigned long long last_sync = millis();   // Timekeeping
 extern int debug;
 int debug = 0;
 boolean print_mem = false;
+const int buzzerPin = 9;     // Pin connected to the buzzer
 
 // Setup
 void setup() {
@@ -105,6 +106,10 @@ void setup() {
     while (1);
   }
 
+  // Buzzer
+  pinMode(buzzerPin, OUTPUT);  // Set buzzerPin as an OUTPUT
+  digitalWrite(buzzerPin, LOW);
+ 
   // Time to start serial monitor not Arduino IDE
   delay(5);
 
@@ -244,6 +249,15 @@ void loop()
     logging_past = logging;
 
   }  // end read
+
+  // Control
+  if ( control )
+  {
+    if ( abs(Sen->track_filter->getPitch()) > pitch_thr_def )
+      digitalWrite(buzzerPin, HIGH);
+    else
+      digitalWrite(buzzerPin, HIGH);
+  }
 
   // Publish
   if ( publishing )
