@@ -255,10 +255,16 @@ void loop()
   // Control
   if ( control )
   {
-    if ( abs(Sen->track_filter->getPitch()) > pitch_thr_def )
+    if ( abs(Sen->track_filter->getPitch()) > pitch_thr_def || abs(Sen->track_filter->getRoll()) > roll_thr_def)
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
       digitalWrite(buzzerPin, HIGH);
+    }
     else
-      digitalWrite(buzzerPin, HIGH);
+    {
+      digitalWrite(LED_BUILTIN, LOW);
+      digitalWrite(buzzerPin, LOW);
+    }
   }
 
   // Publish
