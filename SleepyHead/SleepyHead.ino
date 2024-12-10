@@ -261,10 +261,11 @@ void loop()
   // Control
   if ( control )
   {
-    if ( abs(Sen->track_filter->getPitch()) > pitch_thr_def || abs(Sen->track_filter->getRoll()) > roll_thr_def)
+    float max_tip = max( abs(Sen->track_filter->getPitch()), abs(Sen->track_filter->getRoll()) ) - roll_thr_def;
+    if ( max_tip > 0 )
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      setBuzzerVolume(127);
+      setBuzzerVolume( int(255. * max_tip / (90. - roll_thr_def)) );
     }
     else
     {
