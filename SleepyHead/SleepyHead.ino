@@ -85,6 +85,12 @@ int debug = 0;
 boolean print_mem = false;
 const int buzzerPin = 9;     // Pin connected to the buzzer
 
+// Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
+void setBuzzerVolume(int volume)
+{
+  analogWrite(buzzerPin, volume);
+}
+
 // Setup
 void setup() {
 
@@ -258,12 +264,12 @@ void loop()
     if ( abs(Sen->track_filter->getPitch()) > pitch_thr_def || abs(Sen->track_filter->getRoll()) > roll_thr_def)
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      digitalWrite(buzzerPin, HIGH);
+      setBuzzerVolume(127);
     }
     else
     {
       digitalWrite(LED_BUILTIN, LOW);
-      digitalWrite(buzzerPin, LOW);
+      setBuzzerVolume(0);
     }
   }
 
