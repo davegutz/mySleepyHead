@@ -78,12 +78,14 @@ boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
+const int sensorPin = 2;     // Pin connected to the IR sensor (or eye detection sensor)
 
 extern int debug;
 extern boolean run;
 int debug = 0;
 boolean print_mem = false;
 const int buzzerPin = 9;     // Pin connected to the buzzer
+
 
 // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
 void setBuzzerVolume(int volume)
@@ -117,6 +119,9 @@ void setup() {
   // Buzzer
   pinMode(buzzerPin, OUTPUT);  // Set buzzerPin as an OUTPUT
   digitalWrite(buzzerPin, LOW);
+
+  // IR
+  pinMode(sensorPin, INPUT);   // Set sensorPin as an INPUT
  
   // Time to start serial monitor not Arduino IDE
   delay(5);
@@ -151,12 +156,13 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def);
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin);
   static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
   static uint16_t log_size = 0;
   boolean plotting = false;
+  static boolean eye_closed = false;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -261,13 +267,23 @@ void loop()
   // Control
   if ( control )
   {
-    float max_tip = max( abs(Sen->track_filter->getPitch()), abs(Sen->track_filter->getRoll()) ) - roll_thr_def;
-    if ( max_tip > 0 )
+    float max_nod = max( abs(Sen->TrackFilter->getPitch()), abs(Sen->TrackFilter->getRoll()) ) - roll_thr_def;
+    if ( Sen->eye_closed_sure() )
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      setBuzzerVolume( int(255. * max_tip / (90. - roll_thr_def)) );
+      setBuzzerVolume( int(208) );
     }
     else
+    {
+      digitalWrite(LED_BUILTIN, LOW);
+      setBuzzerVolume(0);
+    }
+    if ( max_nod > 0 && !Sen->eye_closed_sure() )
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
+      setBuzzerVolume( min(208, int(208. * (min(max_nod, 45.) -roll_thr_def) / (45. - roll_thr_def))) );
+    }
+    if ( !Sen->eye_closed_sure() && max_nod <= 0 )
     {
       digitalWrite(LED_BUILTIN, LOW);
       setBuzzerVolume(0);
@@ -381,14 +397,14 @@ void loop()
           switch ( letter_1 )
           {
             case ( 'p' ):  // proportional gain
-              Serial.print("Mahony prop gain from "); Serial.print(Sen->track_filter->getKp(), 3);
-              Sen->track_filter->setKp(f_value);
-              Serial.print(" to "); Serial.println(Sen->track_filter->getKp(), 3);
+              Serial.print("Mahony prop gain from "); Serial.print(Sen->TrackFilter->getKp(), 3);
+              Sen->TrackFilter->setKp(f_value);
+              Serial.print(" to "); Serial.println(Sen->TrackFilter->getKp(), 3);
               break;
             case ( 'i' ):  // integral gain
-              Serial.print("Mahony int gain from "); Serial.print(Sen->track_filter->getKi(), 3);
-              Sen->track_filter->setKi(f_value);
-              Serial.print(" to "); Serial.println(Sen->track_filter->getKi(), 3);
+              Serial.print("Mahony int gain from "); Serial.print(Sen->TrackFilter->getKi(), 3);
+              Sen->TrackFilter->setKi(f_value);
+              Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
               break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");
@@ -399,8 +415,8 @@ void loop()
           plotting_all = false;
           monitoring = false;
           Serial.println("aXX <val> - adjust");
-          Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->track_filter->getKp(), 3);Serial.println(")");
-          Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->track_filter->getKi(), 3);Serial.println(")");
+          Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
+          Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
           Serial.println("h - this help");
           Serial.println("HELP");
           Serial.println("ppX - plot all version X");

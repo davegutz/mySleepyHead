@@ -47,14 +47,15 @@ public:
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(0ULL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
-      roll_filt(0), pitch_filt(0), yaw_filt(0)
+      roll_filt(0), pitch_filt(0), yaw_filt(0), sensorPin_(0)
     {};
-    Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki): t_ms(0),
+    Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
+      const int sensorPin): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_rot_last_(time_now),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
-      roll_filt(0), pitch_filt(0), yaw_filt(0)
+      roll_filt(0), pitch_filt(0), yaw_filt(0), sensorPin_(sensorPin)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -74,7 +75,8 @@ public:
         GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
         GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
-        track_filter = new Mahony(t_kp, t_ki);
+        TrackFilter = new Mahony(t_kp, t_ki);
+        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_init);
     };
     unsigned long long millis;
     ~Sensors(){};
@@ -84,6 +86,7 @@ public:
     void filter(const boolean reset);
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
+    boolean eye_closed_sure() { return eye_closed_confirmed_; };
     void plot_all();
     void plot_all_acc();
     void plot_all_rot();
@@ -124,7 +127,7 @@ public:
     float roll_filt;
     float pitch_filt;
     float yaw_filt;
-    Mahony *track_filter;   // Mahony tracking filter
+    Mahony *TrackFilter;   // Mahony tracking filter
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter
@@ -140,6 +143,7 @@ protected:
     General2_Pole *GQuietFilt; // Quiet detector
     RateLagExp *GQuietRate;    // Quiet detector
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
+    TFDelay *EyeClosedPer; // Persistence eye closed detection
     unsigned long long time_acc_last_;
     unsigned long long time_rot_last_;
     double T_acc_;
@@ -150,4 +154,7 @@ protected:
     boolean o_is_quiet_sure_;
     boolean g_is_quiet_;
     boolean g_is_quiet_sure_;
+    boolean eye_closed_;
+    boolean eye_closed_confirmed_;
+    int sensorPin_;
 };

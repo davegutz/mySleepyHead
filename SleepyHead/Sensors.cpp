@@ -56,24 +56,27 @@ void Sensors::filter(const boolean reset)
         o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
 
+    // IR Sensor
+    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_acc_, reset);
+
     // Mahony Tracking Filter
     if ( run )
-      track_filter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
+      TrackFilter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
     else
     {
       if ( turn )
       {
-        track_filter->updateIMU(0, 0, 0, -0.679,  0.679,  0.281, T_acc_, reset);
+        TrackFilter->updateIMU(0, 0, 0, -0.679,  0.679,  0.281, T_acc_, reset);
       }
       else
-        track_filter->updateIMU(0, 0, 0, 0, 0, 1, T_acc_, reset);
+        TrackFilter->updateIMU(0, 0, 0, 0, 0, 1, T_acc_, reset);
       if ( ++count > 400 ) count = 0;
       if ( count == 0 ) turn = !turn;
     }
 
-    roll_filt = track_filter->getRoll();
-    pitch_filt = track_filter->getPitch();
-    yaw_filt = track_filter->getYaw();
+    roll_filt = TrackFilter->getRoll();
+    pitch_filt = TrackFilter->getPitch();
+    yaw_filt = TrackFilter->getYaw();
 
 }
 
@@ -139,9 +142,9 @@ void Sensors::plot_all_rpy()  // plot pp7
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
   Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
-  Serial.print("\tx_raw:"); Serial.print(track_filter->ax(), 3);
-  Serial.print("\ty_raw:"); Serial.print(track_filter->ay(), 3);
-  Serial.print("\tz_raw:"); Serial.print(track_filter->az(), 3);
+  Serial.print("\tx_raw:"); Serial.print(TrackFilter->ax(), 3);
+  Serial.print("\ty_raw:"); Serial.print(TrackFilter->ay(), 3);
+  Serial.print("\tz_raw:"); Serial.print(TrackFilter->az(), 3);
   // Serial.print("\tx_raw*200:"); Serial.print(x_raw*200+200, 3);
   // Serial.print("\ty_raw*200:"); Serial.print(y_raw*200+200, 3);
   // Serial.print("\tz_raw*200:"); Serial.print(z_raw*200+200, 3);
@@ -151,16 +154,16 @@ void Sensors::plot_all_rpy()  // plot pp7
   // Serial.print("\troll_filt:"); Serial.print(roll_filt, 3);
   // Serial.print("\tpitch_filt:"); Serial.print(pitch_filt, 3);
   // Serial.print("\tyaw_filt:"); Serial.println(yaw_filt, 3);
-  Serial.print("\troll_filt:"); Serial.print(track_filter->getRoll(), 3);
-  Serial.print("\tpitch_filt:"); Serial.print(track_filter->getPitch(), 3);
-  Serial.print("\tyaw_filt:"); Serial.print(track_filter->getYaw(), 3);
-  // Serial.print("\thalfex:"); Serial.print(track_filter->getHalfex(), 3);
-  // Serial.print("\thalfey:"); Serial.print(track_filter->getHalfey(), 3);
-  // Serial.print("\thalfez:"); Serial.println(track_filter->getHalfez(), 3);
-  Serial.print("\tq0:"); Serial.print(track_filter->q0(), 5);
-  Serial.print("\tq1:"); Serial.print(track_filter->q1(), 5);
-  Serial.print("\tq2:"); Serial.print(track_filter->q2(), 5);
-  Serial.print("\tq3:"); Serial.println(track_filter->q3(), 5);
+  Serial.print("\troll_filt:"); Serial.print(TrackFilter->getRoll(), 3);
+  Serial.print("\tpitch_filt:"); Serial.print(TrackFilter->getPitch(), 3);
+  Serial.print("\tyaw_filt:"); Serial.print(TrackFilter->getYaw(), 3);
+  // Serial.print("\thalfex:"); Serial.print(TrackFilter->getHalfex(), 3);
+  // Serial.print("\thalfey:"); Serial.print(TrackFilter->getHalfey(), 3);
+  // Serial.print("\thalfez:"); Serial.println(TrackFilter->getHalfez(), 3);
+  Serial.print("\tq0:"); Serial.print(TrackFilter->q0(), 5);
+  Serial.print("\tq1:"); Serial.print(TrackFilter->q1(), 5);
+  Serial.print("\tq2:"); Serial.print(TrackFilter->q2(), 5);
+  Serial.print("\tq3:"); Serial.println(TrackFilter->q3(), 5);
 }
 
 // plot pp0
@@ -271,6 +274,9 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     }
     else acc_available_ = false;
     T_acc_ = double(time_now_ms - time_acc_last_) / 1000.;
+
+    // IR Sensor
+    eye_closed_ = !digitalRead(sensorPin_);
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
