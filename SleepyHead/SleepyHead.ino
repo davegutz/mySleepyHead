@@ -86,7 +86,6 @@ int debug = 0;
 boolean print_mem = false;
 const int buzzerPin = 9;     // Pin connected to the buzzer
 
-
 // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
 void setBuzzerVolume(int volume)
 {
@@ -163,6 +162,7 @@ void loop()
   static uint16_t log_size = 0;
   boolean plotting = false;
   static boolean eye_closed = false;
+  static boolean buzz_en = false;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -178,7 +178,7 @@ void loop()
   active = ActiveSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
-  boolean inhibit_talk = plotting_all && plot_num==8;
+  boolean inhibit_talk = plotting_all && plot_num==9;
 
   if ( reset )
   {
@@ -250,7 +250,7 @@ void loop()
         Serial.println("Latest register");
         L->print_latest_register();
       }
-      else if ( plotting_all && plot_num==8 )
+      else if ( plotting_all && plot_num==9 )
       {
         L->plot_latest_ram();  // pp8
       }
@@ -267,26 +267,30 @@ void loop()
   // Control
   if ( control )
   {
-    float max_nod = max( abs(Sen->TrackFilter->getPitch()), abs(Sen->TrackFilter->getRoll()) ) - roll_thr_def;
     if ( Sen->eye_closed_sure() )
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      setBuzzerVolume( int(208) );
+      if ( buzz_en )
+      {
+        setBuzzerVolume( int(208) );
+      }
     }
     else
     {
-      digitalWrite(LED_BUILTIN, LOW);
-      setBuzzerVolume(0);
-    }
-    if ( max_nod > 0 && !Sen->eye_closed_sure() )
-    {
-      digitalWrite(LED_BUILTIN, HIGH);
-      setBuzzerVolume( min(208, int(208. * (min(max_nod, 45.) -roll_thr_def) / (45. - roll_thr_def))) );
-    }
-    if ( !Sen->eye_closed_sure() && max_nod <= 0 )
-    {
-      digitalWrite(LED_BUILTIN, LOW);
-      setBuzzerVolume(0);
+      if ( Sen->max_nod() > 0 )
+      {
+        digitalWrite(LED_BUILTIN, HIGH);
+        if ( buzz_en )
+        {
+          int vol = min(208, int(208. * (max(min(Sen->max_nod(), 45.), 0.)) / (45. - roll_thr_def)));
+          setBuzzerVolume( vol );
+          Serial.print("buzz vol ="); Serial.println(vol);
+        }
+      }
+      else    {
+        digitalWrite(LED_BUILTIN, LOW);
+        setBuzzerVolume(0);
+      }
     }
   }
 
@@ -325,9 +329,12 @@ void loop()
         Sen->plot_all_rpy();
         break;
       case 8:
+        Sen->plot_buzz();
+        break;
+      case 9:
         break;
       default:
-        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw) or pp8 (sum plot)");
+        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (buzz) or pp9 (sum plot)");
         break;
       }
     }
@@ -391,6 +398,7 @@ void loop()
       input_str.substring(input_str, 2).toFloat(f_value);
       int i_value = int(f_value);
       Serial.print(" i_value: "); Serial.print(i_value); Serial.print(" f_value: "); Serial.println(f_value);
+      Serial.println("");
       switch ( letter_0 )
       {
         case ( 'a' ):  // a - adjust
@@ -411,6 +419,10 @@ void loop()
               break;
           }
           break;          
+        case ( 'b' ):  // b - toggle buzz enable
+          buzz_en = !buzz_en;
+          Serial.print("buzzer set to "); Serial.println(buzz_en);
+          break;
         case ( 'h' ):  // h  - help
           plotting_all = false;
           monitoring = false;
@@ -418,6 +430,7 @@ void loop()
           Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
           Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
           Serial.println("h - this help");
+          Serial.print("b - enable buzz ("); Serial.print(buzz_en); Serial.println(")");
           Serial.println("HELP");
           Serial.println("ppX - plot all version X");
           Serial.println("\t X=blank - stop plotting");
@@ -429,7 +442,8 @@ void loop()
           Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
           Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
           Serial.println("\t X=7 - roll-pitch-yaw");
-          Serial.println("\t X=8 - summary for plot");
+          Serial.println("\t X=8 - buzz");
+          Serial.println("\t X=9 - summary for plot");
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");

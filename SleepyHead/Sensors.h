@@ -47,7 +47,8 @@ public:
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(0ULL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
-      roll_filt(0), pitch_filt(0), yaw_filt(0), sensorPin_(0)
+      roll_filt(0), pitch_filt(0), yaw_filt(0),
+      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), buzz_(false)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
       const int sensorPin): t_ms(0),
@@ -55,7 +56,8 @@ public:
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_rot_last_(time_now),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
-      roll_filt(0), pitch_filt(0), yaw_filt(0), sensorPin_(sensorPin)
+      roll_filt(0), pitch_filt(0), yaw_filt(0),
+      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), buzz_(false)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -87,11 +89,13 @@ public:
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
+    float max_nod() { return max_nod_; };
     void plot_all();
     void plot_all_acc();
     void plot_all_rot();
     void plot_all_rpy();
     void plot_all_sum();
+    void plot_buzz();
     void plot_quiet();
     void plot_quiet_raw();
     void plot_total();
@@ -154,7 +158,9 @@ protected:
     boolean o_is_quiet_sure_;
     boolean g_is_quiet_;
     boolean g_is_quiet_sure_;
+    float max_nod_;
     boolean eye_closed_;
     boolean eye_closed_confirmed_;
     int sensorPin_;
+    boolean buzz_;
 };
