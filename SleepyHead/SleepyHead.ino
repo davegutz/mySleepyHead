@@ -162,7 +162,8 @@ void loop()
   static uint16_t log_size = 0;
   boolean plotting = false;
   static boolean eye_closed = false;
-  static boolean buzz_en = false;
+  static boolean buzz_en_ir = true;
+  static boolean buzz_en_grav = true;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -270,7 +271,7 @@ void loop()
     if ( Sen->eye_closed_sure() )
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      if ( buzz_en )
+      if ( buzz_en_ir )
       {
         setBuzzerVolume( int(208) );
       }
@@ -280,7 +281,7 @@ void loop()
       if ( Sen->max_nod() > 0 )
       {
         digitalWrite(LED_BUILTIN, HIGH);
-        if ( buzz_en )
+        if ( buzz_en_grav )
         {
           int vol = min(208, int(208. * (max(min(Sen->max_nod(), 45.), 0.)) / (45. - roll_thr_def)));
           setBuzzerVolume( vol );
@@ -404,12 +405,12 @@ void loop()
         case ( 'a' ):  // a - adjust
           switch ( letter_1 )
           {
-            case ( 'p' ):  // proportional gain
+            case ( 'p' ):  // ap - proportional gain
               Serial.print("Mahony prop gain from "); Serial.print(Sen->TrackFilter->getKp(), 3);
               Sen->TrackFilter->setKp(f_value);
               Serial.print(" to "); Serial.println(Sen->TrackFilter->getKp(), 3);
               break;
-            case ( 'i' ):  // integral gain
+            case ( 'i' ):  // ai - integral gain
               Serial.print("Mahony int gain from "); Serial.print(Sen->TrackFilter->getKi(), 3);
               Sen->TrackFilter->setKi(f_value);
               Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
@@ -419,19 +420,32 @@ void loop()
               break;
           }
           break;          
-        case ( 'b' ):  // b - toggle buzz enable
-          buzz_en = !buzz_en;
-          Serial.print("buzzer set to "); Serial.println(buzz_en);
-          break;
+        case ( 'b' ):  // b - buzz
+          switch ( letter_1 )
+          {
+            case ( 'i' ):  // bi - buzz from ir sensor
+              buzz_en_ir = !buzz_en_ir;
+              Serial.print("ir buzzer set to "); Serial.println(buzz_en_ir);
+              break;
+            case ( 'g' ):  // bg - buzz from imu gravity sensor
+              buzz_en_grav = !buzz_en_grav;
+              Serial.print("grav buzzer set to "); Serial.println(buzz_en_grav);
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
         case ( 'h' ):  // h  - help
           plotting_all = false;
           monitoring = false;
           Serial.println("aXX <val> - adjust");
-          Serial.print("\t p = Mahony proportional gain (Kp=");Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
+          Serial.print("\t p = Mahony proportional gain (Kp="); Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
           Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
+          Serial.println("bX - buzz toggles");
+          Serial.print("\t i = ir sensor buzz enable toggle ("); Serial.print(buzz_en_ir);Serial.println(")");
+          Serial.print("\t g = gravity sensor buzz enable toggle ("); Serial.print(buzz_en_grav);Serial.println(")");
           Serial.println("h - this help");
-          Serial.print("b - enable buzz ("); Serial.print(buzz_en); Serial.println(")");
-          Serial.println("HELP");
           Serial.println("ppX - plot all version X");
           Serial.println("\t X=blank - stop plotting");
           Serial.println("\t X=0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
