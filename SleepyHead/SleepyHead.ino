@@ -85,6 +85,24 @@ extern boolean run;
 int debug = 0;
 boolean print_mem = false;
 const int buzzerPin = 9;     // Pin connected to the buzzer
+class Tone
+{
+  public:
+    Tone(const int pin): buzzerPin_(pin), isPlaying_(false) {}
+    void begin()
+    {
+      pinMode(buzzerPin_, OUTPUT);
+      digitalWrite(buzzerPin_, LOW);
+    }
+    boolean isPlaying() { return isPlaying_; }
+    void play(int freq) { tone(buzzerPin_, freq, CLOSED_R*1000); Serial.println("tone called"); isPlaying_ = true; }
+    void stop() { noTone(buzzerPin_); digitalWrite(buzzerPin_, LOW); isPlaying_ = false; }
+  private:
+    int buzzerPin_;
+    boolean isPlaying_;
+} buzz(buzzerPin);
+float buzz_freq_ir = 1000;
+float buzz_freq_grav = 2000;
 
 // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
 void setBuzzerVolume(int volume)
@@ -116,8 +134,9 @@ void setup() {
   }
 
   // Buzzer
-  pinMode(buzzerPin, OUTPUT);  // Set buzzerPin as an OUTPUT
-  digitalWrite(buzzerPin, LOW);
+  // pinMode(buzzerPin, OUTPUT);  // Set buzzerPin as an OUTPUT
+  // digitalWrite(buzzerPin, LOW);
+  buzz.begin();
 
   // IR
   pinMode(sensorPin, INPUT);   // Set sensorPin as an INPUT
@@ -273,7 +292,8 @@ void loop()
       digitalWrite(LED_BUILTIN, HIGH);
       if ( buzz_en_ir )
       {
-        setBuzzerVolume( int(208) );
+        // setBuzzerVolume( int(208) );
+        buzz.play(buzz_freq_ir);
       }
     }
     else
@@ -283,14 +303,16 @@ void loop()
         digitalWrite(LED_BUILTIN, HIGH);
         if ( buzz_en_grav )
         {
-          int vol = min(208, int(208. * (max(min(Sen->max_nod(), 45.), 0.)) / (45. - roll_thr_def)));
-          setBuzzerVolume( vol );
-          Serial.print("buzz vol ="); Serial.println(vol);
+          // int vol = min(208, int(208. * (max(min(Sen->max_nod(), 45.), 0.)) / (45. - roll_thr_def)));
+          // setBuzzerVolume( vol );
+          // Serial.print("buzz vol ="); Serial.println(vol);
+          buzz.play(buzz_freq_grav);
         }
       }
       else    {
         digitalWrite(LED_BUILTIN, LOW);
-        setBuzzerVolume(0);
+        // setBuzzerVolume(0);
+        buzz.stop();
       }
     }
   }
@@ -423,6 +445,17 @@ void loop()
         case ( 'b' ):  // b - buzz
           switch ( letter_1 )
           {
+            case ( 'b' ):  // bb - manual buzz
+              if ( i_value >= 0 && i_value <= 4000 )
+              {
+                if ( i_value == 0 ) buzz.stop();
+                else
+                {
+                  buzz.play(i_value);
+                  Serial.print("buzzer freq set to play "); Serial.print(i_value); Serial.println(" Hz.  Use bb0 to stop");
+                }
+              }
+              break;
             case ( 'i' ):  // bi - buzz from ir sensor
               buzz_en_ir = !buzz_en_ir;
               Serial.print("ir buzzer set to "); Serial.println(buzz_en_ir);
@@ -442,7 +475,8 @@ void loop()
           Serial.println("aXX <val> - adjust");
           Serial.print("\t p = Mahony proportional gain (Kp="); Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
           Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
-          Serial.println("bX - buzz toggles");
+          Serial.println("bX<x> - buzz toggles");
+          Serial.println("\t b<freq> = manual  test enable toggle. 0 to stop");
           Serial.print("\t i = ir sensor buzz enable toggle ("); Serial.print(buzz_en_ir);Serial.println(")");
           Serial.print("\t g = gravity sensor buzz enable toggle ("); Serial.print(buzz_en_grav);Serial.println(")");
           Serial.println("h - this help");

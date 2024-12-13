@@ -37,7 +37,7 @@
 
 const double NOM_DT = 0.01;
 const float deg_to_rps = 0.0174533;
-  
+
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS        86400000UL// Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
