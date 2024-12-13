@@ -85,24 +85,33 @@ extern boolean run;
 int debug = 0;
 boolean print_mem = false;
 const int buzzerPin = 9;     // Pin connected to the buzzer
+
+
+// Generate tones
 class Tone
 {
   public:
-    Tone(const int pin): buzzerPin_(pin), isPlaying_(false) {}
+    Tone(const int pin): buzzerPin_(pin), buzz_freq_grav_(2000), buzz_freq_ir_(1500), isPlaying_(false) {}
     void begin()
     {
       pinMode(buzzerPin_, OUTPUT);
       digitalWrite(buzzerPin_, LOW);
     }
+    int gravityFreq() { return buzz_freq_grav_; }
+    void gravityFreq(const int inp) { buzz_freq_grav_ = inp; }
+    int irFreq() { return buzz_freq_ir_; }
+    void irFreq(const int inp) { buzz_freq_ir_ = inp; }
     boolean isPlaying() { return isPlaying_; }
-    void play(int freq) { tone(buzzerPin_, freq, CLOSED_R*1000); Serial.println("tone called"); isPlaying_ = true; }
-    void stop() { noTone(buzzerPin_); digitalWrite(buzzerPin_, LOW); isPlaying_ = false; }
+    void play_grav() { tone(buzzerPin_, buzz_freq_grav_); Serial.println("grav tone played"); isPlaying_ = true; }
+    void play_ir() { tone(buzzerPin_, buzz_freq_ir_); Serial.println("ir tone played"); isPlaying_ = true; }
+    void stop() { noTone(buzzerPin_); Serial.println("tone stopped"); isPlaying_ = false; }
+
   private:
     int buzzerPin_;
+    int buzz_freq_grav_;
+    int buzz_freq_ir_;
     boolean isPlaying_;
 } buzz(buzzerPin);
-float buzz_freq_ir = 1000;
-float buzz_freq_grav = 2000;
 
 // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
 void setBuzzerVolume(int volume)
@@ -292,8 +301,7 @@ void loop()
       digitalWrite(LED_BUILTIN, HIGH);
       if ( buzz_en_ir )
       {
-        // setBuzzerVolume( int(208) );
-        buzz.play(buzz_freq_ir);
+        buzz.play_ir();
       }
     }
     else
@@ -303,16 +311,12 @@ void loop()
         digitalWrite(LED_BUILTIN, HIGH);
         if ( buzz_en_grav )
         {
-          // int vol = min(208, int(208. * (max(min(Sen->max_nod(), 45.), 0.)) / (45. - roll_thr_def)));
-          // setBuzzerVolume( vol );
-          // Serial.print("buzz vol ="); Serial.println(vol);
-          buzz.play(buzz_freq_grav);
+          if ( !buzz.isPlaying() )buzz.play_grav();
         }
       }
       else    {
         digitalWrite(LED_BUILTIN, LOW);
-        // setBuzzerVolume(0);
-        buzz.stop();
+        if ( buzz.isPlaying() ) buzz.stop();
       }
     }
   }
@@ -445,24 +449,21 @@ void loop()
         case ( 'b' ):  // b - buzz
           switch ( letter_1 )
           {
-            case ( 'b' ):  // bb - manual buzz
-              if ( i_value >= 0 && i_value <= 4000 )
+            case ( 'g' ):  // bG gravity frequency
+              if ( i_value >= 0 && i_value <= 8000 )
               {
-                if ( i_value == 0 ) buzz.stop();
-                else
-                {
-                  buzz.play(i_value);
-                  Serial.print("buzzer freq set to play "); Serial.print(i_value); Serial.println(" Hz.  Use bb0 to stop");
-                }
+                buzz.gravityFreq(i_value);
+                Serial.print("grav buzzer freq set to "); Serial.print(i_value); Serial.println(" Hz");
               }
+              else Serial.println("buzzer freq must be between 0 and 4000 Hz");
               break;
-            case ( 'i' ):  // bi - buzz from ir sensor
-              buzz_en_ir = !buzz_en_ir;
-              Serial.print("ir buzzer set to "); Serial.println(buzz_en_ir);
-              break;
-            case ( 'g' ):  // bg - buzz from imu gravity sensor
-              buzz_en_grav = !buzz_en_grav;
-              Serial.print("grav buzzer set to "); Serial.println(buzz_en_grav);
+            case ( 'i' ):  // ir frequency
+              if ( i_value >= 0 && i_value <= 8000 )
+              {
+                buzz.irFreq(i_value);
+                Serial.print("ir buzzer freq set to "); Serial.print(i_value); Serial.println(" Hz");
+              }
+              else Serial.println("buzzer freq must be between 0 and 4000 Hz");
               break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");
@@ -476,9 +477,8 @@ void loop()
           Serial.print("\t p = Mahony proportional gain (Kp="); Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
           Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
           Serial.println("bX<x> - buzz toggles");
-          Serial.println("\t b<freq> = manual  test enable toggle. 0 to stop");
-          Serial.print("\t i = ir sensor buzz enable toggle ("); Serial.print(buzz_en_ir);Serial.println(")");
-          Serial.print("\t g = gravity sensor buzz enable toggle ("); Serial.print(buzz_en_grav);Serial.println(")");
+          Serial.print("\t i<freq> = ir sensor freq, Hz ("); Serial.print(buzz.irFreq());Serial.println(")");
+          Serial.print("\t g<freq> = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq());Serial.println(")");
           Serial.println("h - this help");
           Serial.println("ppX - plot all version X");
           Serial.println("\t X=blank - stop plotting");
