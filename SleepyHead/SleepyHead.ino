@@ -301,7 +301,7 @@ void loop()
       digitalWrite(LED_BUILTIN, HIGH);
       if ( buzz_en_ir )
       {
-        buzz.play_ir();
+        if ( !buzz.isPlaying() ) buzz.play_ir();
       }
     }
     else
@@ -311,7 +311,7 @@ void loop()
         digitalWrite(LED_BUILTIN, HIGH);
         if ( buzz_en_grav )
         {
-          if ( !buzz.isPlaying() )buzz.play_grav();
+          if ( !buzz.isPlaying() ) buzz.play_grav();
         }
       }
       else    {
