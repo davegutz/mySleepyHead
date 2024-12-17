@@ -78,13 +78,13 @@ boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
-const int sensorPin = 2;     // Pin connected to the IR sensor (or eye detection sensor)
+const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
+const int buzzerPin = 9;     // Pin connected to the buzzer
 
 extern int debug;
 extern boolean run;
 int debug = 0;
 boolean print_mem = false;
-const int buzzerPin = 9;     // Pin connected to the buzzer
 
 
 // Generate tones
@@ -120,20 +120,22 @@ void setBuzzerVolume(int volume)
 }
 
 // Setup
-void setup() {
-
-  // Wire.begin();
-  // Wire.setClock(400000UL);
-
+void setup()
+{
   unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
   setTime(time_initial);
 
+
   // Serial
+  unsigned int count = 0;
   Serial.begin(SERIAL_BAUD);
-  // while (!Serial);
+  while (!Serial && count++<5000) delay(1);  // Usually takes less than 700 ms
+  Serial.println(""); Serial.println("*****************"); Serial.print(count); Serial.println(" ms initialization");
 
   // LED
+  Serial.print("LED starting at pin "); Serial.print(LED_BUILTIN); Serial.print("...");
   pinMode(LED_BUILTIN, OUTPUT);
+  Serial.println(" done");
 
   // IMU
   if ( !IMU.begin() )
@@ -141,18 +143,21 @@ void setup() {
     Serial.println("Failed to initialize IMU!");
     while (1);
   }
+  Serial.println("IMU ready");
+  delay(50);
 
   // Buzzer
-  // pinMode(buzzerPin, OUTPUT);  // Set buzzerPin as an OUTPUT
-  // digitalWrite(buzzerPin, LOW);
+  Serial.print("Buzzer starting at pin "); Serial.print(buzzerPin); Serial.print("...");
   buzz.begin();
-
-  // IR
-  pinMode(sensorPin, INPUT);   // Set sensorPin as an INPUT
- 
-  // Time to start serial monitor not Arduino IDE
+  Serial.println(" done");
   delay(5);
 
+  // IR
+  Serial.print("IR starting at pin "); Serial.print(sensorPin); Serial.print("...");
+  pinMode(sensorPin, INPUT);   // Set sensorPin as an INPUT
+  Serial.println(" done");
+  delay(5);
+ 
   // Say 'Hello'
   say_hello();
 
