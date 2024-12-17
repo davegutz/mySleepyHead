@@ -127,10 +127,10 @@ void setup()
 
 
   // Serial
-  unsigned int count = 0;
+  Serial.println("Serial starting over USB...");
   Serial.begin(SERIAL_BAUD);
-  while (!Serial && count++<5000) delay(1);  // Usually takes less than 700 ms
-  Serial.println(""); Serial.println("*****************"); Serial.print(count); Serial.println(" ms initialization");
+  delay_no_block(2000UL);  // Usually takes less than 700 ms
+  if (Serial) Serial.println("Serial ready");
 
   // LED
   Serial.print("LED starting at pin "); Serial.print(LED_BUILTIN); Serial.print("...");
@@ -691,5 +691,16 @@ void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip)
   {
     delay(1);
     *millis_flip = millis()%1000;
+  }
+}
+
+// Non-blocking delay
+void delay_no_block(const unsigned long long interval)
+{
+  unsigned long long previousMillis = millis();
+  unsigned long long currentMillis = previousMillis;
+  while( currentMillis - previousMillis < interval )
+  {
+    currentMillis = millis();
   }
 }
