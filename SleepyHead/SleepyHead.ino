@@ -80,6 +80,7 @@ unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
 const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
 const int buzzerPin = A3;     // Pin connected to the buzzer
+const int motorPin = 21;     // Pin connected to the buzzer
 
 extern int debug;
 extern boolean run;
@@ -158,6 +159,12 @@ void setup()
   Serial.println(" done");
   delay(5);
  
+  // Motor
+  Serial.print("Motor starting at pin "); Serial.print(motorPin); Serial.print("...");
+  pinMode(motorPin, OUTPUT);   // Set motorPin as an OUTPUT
+  Serial.println(" done");
+  delay(5);
+
   // Say 'Hello'
   say_hello();
 
@@ -303,6 +310,7 @@ void loop()
   {
     if ( Sen->eye_closed_sure() )
     {
+      digitalWrite(motorPin, HIGH);
       digitalWrite(LED_BUILTIN, HIGH);
       if ( buzz_en_ir )
       {
@@ -313,13 +321,16 @@ void loop()
     {
       if ( Sen->max_nod() > 0 )
       {
+        digitalWrite(motorPin, HIGH);
         digitalWrite(LED_BUILTIN, HIGH);
         if ( buzz_en_grav )
         {
           if ( !buzz.isPlaying() ) buzz.play_grav();
         }
       }
-      else    {
+      else
+      {
+        digitalWrite(motorPin, LOW);
         digitalWrite(LED_BUILTIN, LOW);
         if ( buzz.isPlaying() ) buzz.stop();
       }
