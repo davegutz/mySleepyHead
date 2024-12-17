@@ -78,7 +78,7 @@ boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
-const int sensorPin = 2;     // Pin connected to the IR sensor (or eye detection sensor)
+const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
 const int buzzerPin = A3;     // Pin connected to the buzzer
 
 extern int debug;
