@@ -78,8 +78,8 @@ boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
-const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
-const int buzzerPin = 9;     // Pin connected to the buzzer
+const int sensorPin = 2;     // Pin connected to the IR sensor (or eye detection sensor)
+const int buzzerPin = A3;     // Pin connected to the buzzer
 
 extern int debug;
 extern boolean run;
@@ -664,18 +664,19 @@ boolean is_finished(const char in_char)
 // Say hello
 void say_hello()
 {
+  Serial.println("");
+  Serial.println("Hello!");
+  Serial.println();
   Serial.print("Gyroscope sample rate = ");
   Serial.print(IMU.gyroscopeSampleRate());
   Serial.println(" Hz");
-  Serial.println();
   Serial.println("Gyroscope in degrees/second");
+  Serial.println();
   Serial.print("Accelerometer sample rate = ");
   Serial.print(IMU.accelerationSampleRate());
   Serial.println(" Hz");
-  Serial.println();
   Serial.println("Acceleration in g's");
-  Serial.println("Set time using command 'UTxxxxxxx' where 'xxxxxx' is integer from https://www.epochconverter.com/");
-  Serial.println("Check time using command 'vv9;vv0;");
+  Serial.println();
 }
 
 // Time synchro so printed decimal times align with hms rolls
