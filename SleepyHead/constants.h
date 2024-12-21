@@ -74,6 +74,12 @@ const float pitch_thr_def = 10.;         // Threshold sleep detect (10.), deg
 const float roll_thr_def = 10.;          // Threshold sleep detect (10.), deg
 const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
+// Pui 24a
+// const int   buzz_freq_grav = 3500;       // Buzzer frequency when gravity detected, Hz (2000)
+// const int   buzz_freq_ir = 3800;        // Buzzer frequency when IR detected, Hz (3000) 
+// Pui x4033
+const int   buzz_freq_grav = 3200;       // Buzzer frequency when gravity detected, Hz (2000)
+const int   buzz_freq_ir = 3300;        // Buzzer frequency when IR detected, Hz (3000) 
 
 const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec 
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor

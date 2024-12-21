@@ -92,7 +92,7 @@ boolean print_mem = false;
 class Tone
 {
   public:
-    Tone(const int pin): buzzerPin_(pin), buzz_freq_grav_(2000), buzz_freq_ir_(1500), isPlaying_(false) {}
+    Tone(const int pin): buzzerPin_(pin), buzz_freq_grav_(buzz_freq_grav), buzz_freq_ir_(buzz_freq_ir), isPlaying_(false) {}
     void begin()
     {
       pinMode(buzzerPin_, OUTPUT);
