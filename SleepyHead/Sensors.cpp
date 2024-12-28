@@ -78,7 +78,7 @@ void Sensors::filter(const boolean reset)
     pitch_filt = TrackFilter->getPitch();
     yaw_filt = TrackFilter->getYaw();
 
-    max_nod_ = max( abs(pitch_filt), abs(roll_filt) ) - roll_thr_def;
+    max_nod_ = max( abs(pitch_filt)- pitch_thr_, abs(roll_filt) - roll_thr_ ) ;
 
 }
 
