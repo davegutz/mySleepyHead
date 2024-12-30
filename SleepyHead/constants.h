@@ -44,7 +44,7 @@ const float deg_to_rps = 0.0174533;
 #define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
 #define LOG_DELAY             10UL      // Register wait, ms (20UL = 0.01 sec)
-#define PLOT_DELAY            80UL      // Plot wait, ms (80UL = 0.08 sec)
+#define PLOT_DELAY          1000UL      // Plot wait, ms (80UL = 0.08 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
@@ -70,8 +70,8 @@ const float deg_to_rps = 0.0174533;
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
 const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
-const float pitch_thr_def = 10.;         // Threshold sleep detect (10.), deg 
-const float roll_thr_def = 10.;          // Threshold sleep detect (10.), deg
+const float pitch_thr_def = 15.;         // Threshold sleep detect (10.), deg 
+const float roll_thr_def = 15.;          // Threshold sleep detect (10.), deg
 const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
 // Pui 24a
