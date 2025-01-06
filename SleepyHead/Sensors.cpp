@@ -78,7 +78,8 @@ void Sensors::filter(const boolean reset)
     pitch_filt = TrackFilter->getPitch();
     yaw_filt = TrackFilter->getYaw();
 
-    max_nod_ = max( abs(pitch_filt)- pitch_thr_, abs(roll_filt) - roll_thr_ ) ;
+    max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
+    max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
 
 }
 
@@ -190,8 +191,9 @@ void Sensors::plot_buzz()
 {
   Serial.print("eye_cl:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
-  Serial.print("\tmax_nod:"); Serial.print(max_nod_, 3);
-  buzz_ = eye_closed_confirmed_ || max_nod_ > 0.;
+  Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
+  Serial.print("\tmax_nod_p:"); Serial.print(max_nod_p_, 3);
+  buzz_ = eye_closed_confirmed_ || max_nod_p_ > 0.;
   Serial.print("\tbuzz:"); Serial.println(buzz_, 3);
 }
 

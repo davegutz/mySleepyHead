@@ -49,7 +49,7 @@ public:
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), buzz_(false),
-      pitch_thr_(0), roll_thr_(0)
+      pitch_thr_f_(0), roll_thr_f_(0)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
       const int sensorPin): t_ms(0),
@@ -59,7 +59,8 @@ public:
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), buzz_(false),
-      pitch_thr_(pitch_thr_def), roll_thr_(roll_thr_def)
+      pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
+      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -91,11 +92,12 @@ public:
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
-    float max_nod() { return max_nod_; };
-    float pitch_thr() { return pitch_thr_; };
-    void pitch_thr(const float pitch_thr) { pitch_thr_ = pitch_thr; };
-    void roll_thr(const float roll_thr) { roll_thr_ = roll_thr; };
-    float roll_thr() { return roll_thr_; };
+    float max_nod_forte() { return max_nod_f_; };
+    float max_nod_piano() { return max_nod_p_; };
+    float pitch_thr() { return pitch_thr_f_; };
+    void pitch_thr(const float pitch_thr) { pitch_thr_f_ = pitch_thr; };
+    void roll_thr(const float roll_thr) { roll_thr_f_ = roll_thr; };
+    float roll_thr() { return roll_thr_f_; };
     void plot_all();
     void plot_all_acc();
     void plot_all_rot();
@@ -164,11 +166,14 @@ protected:
     boolean o_is_quiet_sure_;
     boolean g_is_quiet_;
     boolean g_is_quiet_sure_;
-    float max_nod_;
+    float max_nod_f_;
+    float max_nod_p_;
     boolean eye_closed_;
     boolean eye_closed_confirmed_;
     int sensorPin_;
     boolean buzz_;
-    float pitch_thr_;
-    float roll_thr_;
+    float pitch_thr_f_;
+    float roll_thr_f_;
+    float pitch_thr_p_;
+    float roll_thr_p_;
 };

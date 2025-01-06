@@ -70,8 +70,10 @@ const float deg_to_rps = 0.0174533;
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
 const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
-const float pitch_thr_def = 15.;         // Threshold sleep detect (10.), deg 
-const float roll_thr_def = 15.;          // Threshold sleep detect (10.), deg
+const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.), deg
+const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
+const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
+const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
 const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
 // Pui 24a

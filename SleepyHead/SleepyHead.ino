@@ -319,11 +319,11 @@ void loop()
     }
     else
     {
-      if ( Sen->max_nod() > 0 )
+      if ( Sen->max_nod_piano() > 0 )
       {
         digitalWrite(motorPin, HIGH);
         digitalWrite(LED_BUILTIN, HIGH);
-        if ( buzz_en_grav )
+        if ( buzz_en_grav && Sen->max_nod_forte() > 0 )
         {
           if ( !buzz.isPlaying() ) buzz.play_grav();
         }
