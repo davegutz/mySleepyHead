@@ -467,6 +467,13 @@ void loop()
               Sen->pitch_thr(f_value);
               Serial.print(" to "); Serial.println(Sen->pitch_thr(), 3);
               break;
+            #ifndef USE_IR_ON_OFF
+              case ( 'v' ):  // av - ir voltage threshold
+                Serial.print("IR threshold from "); Serial.print(Sen->voltage_thr(), 3);
+                Sen->voltage_thr(f_value);
+                Serial.print(" to "); Serial.println(Sen->voltage_thr(), 3);
+                break;
+            #endif
            default:
               Serial.print(letter_0); Serial.println(" unknown");
               break;
@@ -504,6 +511,9 @@ void loop()
           Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
           Serial.print("\t r = roll thr (roll_thr="); Serial.print(Sen->roll_thr(), 3);Serial.println(")");
           Serial.print("\t t = pitch thr (pitch_thr="); Serial.print(Sen->pitch_thr(), 3);Serial.println(")");
+          #ifndef USE_IR_ON_OFF
+            Serial.print("\t v = volt thr (volt_thr="); Serial.print(Sen->voltage_thr(), 3);Serial.println(")");
+          #endif
           Serial.println("bX<x> - buzz toggles");
           Serial.print("\t i<freq> = ir sensor freq, Hz ("); Serial.print(buzz.irFreq());Serial.println(")");
           Serial.print("\t g<freq> = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq());Serial.println(")");

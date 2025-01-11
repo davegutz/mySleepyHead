@@ -57,6 +57,9 @@ void Sensors::filter(const boolean reset)
     }
 
     // IR Sensor
+    #ifndef USE_IR_ON_OFF
+      eye_closed_ = ( eye_voltage_ - voltage_thr_ ) < 0.;
+    #endif
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_acc_, reset);
 
     // Mahony Tracking Filter
@@ -189,6 +192,10 @@ void Sensors::plot_all_sum()  // plot pp0
 // Print pp8
 void Sensors::plot_buzz()
 {
+  #ifndef USE_IR_ON_OFF
+    Serial.print("\teye_voltage:"); Serial.print(eye_voltage_);
+    Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_);
+  #endif
   Serial.print("eye_cl:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
   Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
@@ -290,7 +297,11 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     T_acc_ = double(time_now_ms - time_acc_last_) / 1000.;
 
     // IR Sensor
-    eye_closed_ = !digitalRead(sensorPin_);
+    #ifdef IR_SENSOR_ON_OFF
+      eye_closed_ = !digitalRead(sensorPin_);
+    #else
+      eye_voltage_ = analogRead(sensorPin_);
+    #endif
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )

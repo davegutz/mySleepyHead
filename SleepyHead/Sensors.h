@@ -49,7 +49,7 @@ public:
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), buzz_(false),
-      pitch_thr_f_(0), roll_thr_f_(0)
+      pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_(0), voltage_thr_(0)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
       const int sensorPin): t_ms(0),
@@ -60,7 +60,7 @@ public:
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), buzz_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
-      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano)
+      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_(0), voltage_thr_(voltage_thr_def)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -113,6 +113,9 @@ public:
     void sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
+    float voltage_thr() { return voltage_thr_; };
+    void voltage_thr(const float voltage_thr) { voltage_thr_ = voltage_thr; };
+
     time_t t_ms;
     // Gyroscope in radians/second
     float a_raw;
@@ -176,4 +179,6 @@ protected:
     float roll_thr_f_;
     float pitch_thr_p_;
     float roll_thr_p_;
+    float eye_voltage_;
+    float voltage_thr_;
 };
