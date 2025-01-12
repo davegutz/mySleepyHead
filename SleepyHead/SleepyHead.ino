@@ -377,7 +377,8 @@ void loop()
         Sen->plot_buzz();
         break;
       case 9:
-        Sen->print_buzz();
+        Sen->print_rapid(reset, true, Sen->time_now_s());
+        debug = 9;
         break;
       case 10:
         break;
@@ -534,7 +535,8 @@ void loop()
           Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
           Serial.println("\t X=7 - roll-pitch-yaw");
           Serial.println("\t X=8 - buzz");
-          Serial.println("\t X=9 - summary for plot");
+          Serial.println("\t X=9 - stream buzz");
+          Serial.println("\t X=10 - summary for plot");
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");

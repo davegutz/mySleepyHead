@@ -90,6 +90,7 @@ public:
     boolean both_not_quiet() { return ( !o_is_quiet_sure_ && !g_is_quiet_sure_ ); };
     void filter(const boolean reset);
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
+    void header_rapid_9();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
     float max_nod_forte() { return max_nod_f_; };
@@ -109,11 +110,13 @@ public:
     void plot_total();
     void print_all_header();
     void print_all();
-    void print_buzz();
+    void print_rapid(const boolean reset, const boolean print_now, const float time_s);
+    void print_rapid_9(const float time_s);
     void quiet_decisions(const boolean reset);
     void sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
+    float time_now_s() { return float(time_now_ms_)/1000.0; };
     float voltage_thr() { return eye_voltage_thr_; };
     void voltage_thr(const float voltage_thr) { eye_voltage_thr_ = voltage_thr; };
 
@@ -182,4 +185,5 @@ protected:
     float roll_thr_p_;
     float eye_voltage_;
     float eye_voltage_thr_;
+    unsigned long long time_now_ms_;
 };

@@ -28,6 +28,7 @@
 #include "CollDatum.h"
 
 extern boolean run;
+extern int debug;
 
 // Filter noise
 void Sensors::filter(const boolean reset)
@@ -276,9 +277,10 @@ void Sensors::quiet_decisions(const boolean reset)
   static int count = 0;
 }
 
-// Print pp9
-void Sensors::print_buzz()
+// Print pp9 header
+void Sensors::header_rapid_9()
 {
+  Serial.print("time_s,");
   #ifndef USE_IR_ON_OFF
     Serial.print("eye_voltage,");
     Serial.print("eye_voltage_thr,");
@@ -288,6 +290,13 @@ void Sensors::print_buzz()
   Serial.print("max_nod_f,");
   Serial.print("max_nod_p,");
   Serial.print("buzz,");
+  Serial.println("");
+}
+
+// Print pp9
+void Sensors::print_rapid_9(const float time)
+{
+  Serial.print(time, 6); Serial.print(",");
   #ifndef USE_IR_ON_OFF
     Serial.print(eye_voltage_, 4); Serial.print(",");
     Serial.print(eye_voltage_thr_, 3); Serial.print(",");
@@ -301,14 +310,34 @@ void Sensors::print_buzz()
   Serial.println("");
 }
 
+// Manage IR sensor data streaming
+void Sensors::print_rapid(const boolean reset, const boolean print_now, const float time_s)
+{
+  static uint8_t last_read_debug = 0;     // Remember first time with new debug to print headers
+  if ( ( debug==9 ) )
+  {
+    if ( reset || (last_read_debug != debug) )
+    {
+      header_rapid_9();
+    }
+    if ( print_now )
+    {
+      print_rapid_9(time_s);
+    }
+  }
+  last_read_debug = debug;
+}
+
 // Sample the IMU
 void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms)
 {
+    time_now_ms_ = time_now_ms;
+
     // Reset
     if ( reset )
     {
-        time_rot_last_ = time_now_ms - READ_DELAY;
-        time_acc_last_ = time_now_ms - READ_DELAY;
+        time_rot_last_ = time_now_ms_ - READ_DELAY;
+        time_acc_last_ = time_now_ms_ - READ_DELAY;
     }
 
     // Accelerometer
@@ -340,20 +369,20 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available_ = false;
-    T_rot_ = double(time_now_ms - time_rot_last_) / 1000.;
+    T_rot_ = double(time_now_ms_ - time_rot_last_) / 1000.;
 
     // Time stamp
-    t_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
+    t_ms = time_now_ms_ - time_start_ms + (unsigned long long)now_hms*1000;
     if ( debug==10 )
     {
       cSF(prn_buff, INPUT_BYTES, "");
       time_long_2_str(t_ms, prn_buff);
       Serial.print("t_ms: "); Serial.print(prn_buff); Serial.print(" "); Serial.print(t_ms, 3); Serial.print(" = ");
-      Serial.print(time_now_ms); Serial.print(" - "); Serial.print(time_start_ms, 3); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
+      Serial.print(time_now_ms_); Serial.print(" - "); Serial.print(time_start_ms, 3); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
       time_long_2_str((unsigned long long)now_hms*1000, prn_buff); Serial.print(" "); Serial.println(prn_buff);
 
     }
-    if ( acc_available_ ) time_acc_last_ = time_now_ms;
-    if ( rot_available_ ) time_rot_last_ = time_now_ms;
+    if ( acc_available_ ) time_acc_last_ = time_now_ms_;
+    if ( rot_available_ ) time_rot_last_ = time_now_ms_;
 
 }
