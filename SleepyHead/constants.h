@@ -44,7 +44,7 @@ const float deg_to_rps = 0.0174533;
 #define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
 #define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
 #define LOG_DELAY             10UL      // Register wait, ms (20UL = 0.01 sec)
-#define PLOT_DELAY          1000UL      // Plot wait, ms (80UL = 0.08 sec)
+#define PLOT_DELAY           100UL      // Plot wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
@@ -67,7 +67,7 @@ const float deg_to_rps = 0.0174533;
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
-#define USE_IR_ON_OFF        false      // Using a stock IR sensor with on-off behavior fed into same A6/D20 port as the analog modification
+#undef  USE_IR_ON_OFF                   // Using a stock IR sensor with on-off behavior fed into same A6/D20 port as the analog modification
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
 const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
@@ -75,7 +75,6 @@ const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.)
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
-const float voltage_thr_def = 1.5;       // Threshold sleep detect (1.5), v
 const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
 // Pui 24a
@@ -90,3 +89,8 @@ const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
 const float T_SCL = (32000./T_MAX);     // Rotational int16_t scale factor
 const uint8_t NREG = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
+
+// Analog sensor definitions
+const float v3v3 = 3.3;                 // IR detector power supply, v (3.3)
+const int v3v3_units = 4095;            // A/D range, units (1023)
+const float voltage_thr_def = 0.0;      // Threshold sleep detect (0.0 is off), v

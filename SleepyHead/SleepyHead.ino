@@ -157,6 +157,8 @@ void setup()
   Serial.print("IR starting at pin "); Serial.print(sensorPin); Serial.print("...");
   pinMode(sensorPin, INPUT);   // Set sensorPin as an INPUT
   Serial.println(" done");
+  // change the resolution to 12 bits (4095)
+  analogReadResolution(12);
   delay(5);
  
   // Motor
@@ -219,7 +221,7 @@ void loop()
   active = ActiveSync->update(millis(), reset);
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
-  boolean inhibit_talk = plotting_all && plot_num==9;
+  boolean inhibit_talk = plotting_all && plot_num==10;
 
   if ( reset )
   {
@@ -291,9 +293,9 @@ void loop()
         Serial.println("Latest register");
         L->print_latest_register();
       }
-      else if ( plotting_all && plot_num==9 )
+      else if ( plotting_all && plot_num==10 )
       {
-        L->plot_latest_ram();  // pp8
+        L->plot_latest_ram();  // pp10
       }
     }
     else if ( logging )
@@ -375,9 +377,12 @@ void loop()
         Sen->plot_buzz();
         break;
       case 9:
+        Sen->print_buzz();
+        break;
+      case 10:
         break;
       default:
-        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (buzz) or pp9 (sum plot)");
+        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (buzz), pp9 (buzz list) or pp10 (sum plot)");
         break;
       }
     }
@@ -550,13 +555,13 @@ void loop()
             case ( 'p' ):  // pp - plot all filtered
               switch ( i_value )
               {
-                case 0 ... 8:
+                case 0 ... 9:
                   plot_num = i_value;
                   plotting_all = true;
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total) or pp7 (sum plot)");
+                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (buzz), pp9 (buzz list) or pp10 (sum plot)");
                   plotting_all = false;
                   break;
               }

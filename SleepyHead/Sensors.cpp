@@ -58,7 +58,7 @@ void Sensors::filter(const boolean reset)
 
     // IR Sensor
     #ifndef USE_IR_ON_OFF
-      eye_closed_ = ( eye_voltage_ - voltage_thr_ ) < 0.;
+      eye_closed_ = ( eye_voltage_ - eye_voltage_thr_ ) < 0.;
     #endif
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_acc_, reset);
 
@@ -193,8 +193,9 @@ void Sensors::plot_all_sum()  // plot pp0
 void Sensors::plot_buzz()
 {
   #ifndef USE_IR_ON_OFF
-    Serial.print("\teye_voltage:"); Serial.print(eye_voltage_);
-    Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_);
+    Serial.print("teye_voltage:"); Serial.print(eye_voltage_, 4);
+    Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_, 3);
+    Serial.print("\t");
   #endif
   Serial.print("eye_cl:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
@@ -275,6 +276,31 @@ void Sensors::quiet_decisions(const boolean reset)
   static int count = 0;
 }
 
+// Print pp9
+void Sensors::print_buzz()
+{
+  #ifndef USE_IR_ON_OFF
+    Serial.print("eye_voltage,");
+    Serial.print("eye_voltage_thr,");
+  #endif
+  Serial.print("eye_cl,");
+  Serial.print("conf,");
+  Serial.print("max_nod_f,");
+  Serial.print("max_nod_p,");
+  Serial.print("buzz,");
+  #ifndef USE_IR_ON_OFF
+    Serial.print(eye_voltage_, 4); Serial.print(",");
+    Serial.print(eye_voltage_thr_, 3); Serial.print(",");
+  #endif
+  Serial.print(eye_closed_); Serial.print(",");
+  Serial.print(eye_closed_confirmed_); Serial.print(",");
+  Serial.print(max_nod_f_, 3); Serial.print(",");
+  Serial.print(max_nod_p_, 3); Serial.print(",");
+  buzz_ = eye_closed_confirmed_ || max_nod_p_ > 0.;
+  Serial.print(buzz_, 3); Serial.print(",");
+  Serial.println("");
+}
+
 // Sample the IMU
 void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms)
 {
@@ -300,7 +326,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     #ifdef IR_SENSOR_ON_OFF
       eye_closed_ = !digitalRead(sensorPin_);
     #else
-      eye_voltage_ = analogRead(sensorPin_);
+      eye_voltage_ = analogRead(sensorPin_) * v3v3 / float(v3v3_units);
     #endif
 
     // Gyroscope
@@ -318,7 +344,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
 
     // Time stamp
     t_ms = time_now_ms - time_start_ms + (unsigned long long)now_hms*1000;
-    if ( debug==9 )
+    if ( debug==10 )
     {
       cSF(prn_buff, INPUT_BYTES, "");
       time_long_2_str(t_ms, prn_buff);
