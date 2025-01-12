@@ -1,3 +1,4 @@
 
 *.pyc
 pySleepyHead/pySleepyHead/__pycache__/MahonyAHRS_Utils.cpython-311.pyc
+/dataReduction
