@@ -62,7 +62,7 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
 
     # # Load mon v4 (old)
     mon_old, sim_old, f, data_file_clean, temp_flt_file_clean, _ = \
-        load_data(data_file, 1, unit_key, zero_zero_in, time_end_in, legacy=legacy_in)
+        load_data(data_file, 1, unit_key, zero_zero_in, time_end_in)
 
     # How to initialize
     if mon_old is not None:
@@ -101,9 +101,9 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
 
 
 def main():
-    data_file = 'G:/My Drive/GitHubArchive/SOC_Particle/dataReduction\\g20240902\\ampHiFail_pro3p2_hi_lo_chg.csv'
-    unit_key = 'g20240902_pro3p2_hi_lo_chg'
-    time_end_in = 20
+    data_file = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+    unit_key = 'v20250113_pro0n33iot_Rapid'
+    time_end_in = None
     data_only = False
 
     compare_run_sim(data_file=data_file, unit_key=unit_key, data_only=data_only, time_end_in=time_end_in)

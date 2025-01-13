@@ -667,7 +667,7 @@ def write_clean_file(path_to_data, type_=None, hdr_key=None, unit_key=None, skip
     # Data
     num_lines = 0
     num_lines_in = 0
-    num_skips = 0
+    num_skips = 1
     length = 0
     unit_key_found = False
     with (open(path_to_data, "r", encoding='cp437') as input_file):  # reads all characters even bad ones
@@ -699,46 +699,20 @@ class SavedData:
         i_end = 0
         if data is None:
             self.i = 0
+            self.cTime = None
             self.time = None
-            self.time_min = None
-            self.time_day = None
-            self.dt = None  # Update time, s
+            self.eye_voltage = None
             self.unit = None  # text title
-            self.hm = None  # hours, minutes
-            self.cTime = None  # Control time, s
-            self.ib = None  # Bank current, A
-            self.ioc = None  # Hys indicator current, A
-            self.voc = None
-            self.voc_soc = None
-            # self.ib_past = None  # Past bank current, A
-            self.ib_charge = None  # BMS switched current, A
-            self.vb = None  # Bank voltage, V
-            self.chm = None  # Battery chemistry code
-            self.qcrs = None  # Unit capacity rated scaled, Coulombs
-            self.sat = None  # Indication that battery is saturated, T=saturated
-            self.ib_lag = None  # Lagged indication that battery is saturated, 1=saturated
-            self.sel = None  # Current source selection, 0=amp, 1=no amp
-            self.mod = None  # Configuration control code, 0=all hardware, 7=all simulated, +8 tweak test
-            self.bms_off = None  # Battery management system off, T=off
-            self.Tb = None  # Battery bank temperature, deg C
-            self.vsat = None  # Monitor Bank saturation threshold at temperature, deg C
-            self.dv_dyn = None  # Monitor Bank current induced back emf, V
-            self.dv_hys = None  # Drop across hysteresis, V
-            self.voc_stat = None  # Monitor Static bank open circuit voltage, V
-            self.voc = None  # Bank VOC estimated from vb and RC model, V
-            self.voc_ekf = None  # Monitor bank solved static open circuit voltage, V
-            self.y_ekf = None  # Monitor single battery solver error, V
-            self.y_ekf_f = None  # Monitor single battery solver filtered error, V
-            self.soc_s = None  # Simulated state of charge, fraction
-            self.soc_ekf = None  # Solved state of charge, fraction
-            self.soc = None  # Coulomb Counter fraction of saturation charge (q_capacity_) available (0-1)
-            self.time_ref = 0.  # Adjust time for start of ib input
-            self.voc_soc_new = None  # For studies
+            self.eye_voltage_thr = None
+            self.eye_cl = None
+            self.conf = None
+            self.max_nod_f = None
+            self.max_nod_p = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
             self.time = np.array(data.cTime)
-            self.ib = np.array(data.ib)
+            self.eye_voltage = np.array(data.eye_voltage)
             # manage data shape
             # Find first non-zero ib and use to adjust time
             # Ignore initial run of non-zero ib because resetting from previous run
@@ -750,16 +724,16 @@ class SavedData:
                 try:
                     self.zero_end = 0
                     # stop after first non-zero
-                    while self.zero_end < len(self.ib) and abs(self.ib[self.zero_end]) < zero_thr:
+                    while self.zero_end < len(self.eye_voltage) and abs(self.eye_voltage[self.zero_end]) < zero_thr:
                         self.zero_end += 1
                     self.zero_end -= 1  # backup one
-                    if self.zero_end == len(self.ib) - 1:
+                    if self.zero_end == len(self.eye_voltage) - 1:
                         print(Colors.fg.red, f"\n\nLikely ib is zero throughout the data.  Check setup and retry\n\n",
                               Colors.reset)
                         self.zero_end = 0
                     elif self.zero_end == -1:
-                        print(Colors.fg.red, f"\n\nLikely ib is noisy throughout the data.  Check setup and retry\n\n",
-                              Colors.reset)
+                        # print(Colors.fg.red, f"\n\nLikely ib is noisy throughout the data.  Check setup and retry\n\n",
+                        #       Colors.reset)
                         self.zero_end = 0
                 except IOError:
                     self.zero_end = 0
@@ -790,228 +764,21 @@ class SavedData:
                     i_end = min(i_end, i_end_ekf)
                     self.zero_end = min(self.zero_end, i_end - 1)
             self.cTime = self.cTime[:i_end]
-            self.dt = np.array(data.dt[:i_end])
             self.time = np.array(self.time[:i_end])
-            self.ib = np.array(data.ib[:i_end])
-            self.ioc = np.array(data.ib[:i_end])
-            self.voc_soc = np.array(data.voc_soc[:i_end])
-            self.vb = np.array(data.vb[:i_end])
-            self.chm = np.array(data.chm[:i_end])
-            if hasattr(data, 'qcrs'):
-                self.qcrs = data.qcrs[:i_end]
-            self.sat = np.array(data.sat[:i_end])
-            # Lag for saturation
-            n = len(self.cTime)
-            self.ib_lag = np.zeros(n)
-            self.sel = np.array(data.sel[:i_end])
-            self.mod_data = np.array(data.mod[:i_end])
-            self.bms_off = np.array(data.bmso[:i_end])
-            # not_bms_off = self.bms_off < 1
-            # bms_off_and_not_charging = self.bms_off * not_bms_off
-            # self.ib_charge = self.ib * (bms_off_and_not_charging < 1)
-            self.ib_charge = np.array(data.ib_charge[:i_end])
-            self.Tb = np.array(data.Tb[:i_end])
-            self.vsat = np.array(data.vsat[:i_end])
-            self.dv_dyn = np.array(data.dv_dyn[:i_end])
-            self.voc_stat = np.array(data.voc_stat[:i_end])
-            self.voc = self.vb - self.dv_dyn
-            self.dv_hys = self.voc - self.voc_stat
-            self.voc_ekf = np.array(data.voc_ekf[:i_end])
-            self.y_ekf = np.array(data.y_ekf[:i_end])
-            self.soc_s = np.array(data.soc_s[:i_end])
-            self.soc_ekf = np.array(data.soc_ekf[:i_end])
-            self.soc = np.array(data.soc[:i_end])
-            self.voc_soc_new = None
+            self.eye_voltage = np.array(data.eye_voltage[:i_end])
+            self.eye_voltage_thr = np.array(data.eye_voltage_thr[:i_end])
+            self.eye_cl = np.array(data.eye_cl[:i_end])
+            self.conf = np.array(data.conf[:i_end])
+            self.max_nod_f = np.array(data.max_nod_f[:i_end])
+            self.max_nod_p = np.array(data.max_nod_p[:i_end])
         if sel is None:
             self.c_time_s = None
-            self.res = None
-            self.user_sel = None
-            self.cc_dif = None
-            self.ccd_fa = None
-            self.ibmh = None
-            self.ibnh = None
-            self.ibmm = None
-            self.ibnm = None
-            self.ibm = None
-            self.ib_diff = None
-            self.ib_diff_f = None
-            self.ib_diff_flt = None
-            self.ib_diff_fa = None
-            self.voc_soc_sel = None
-            self.e_wrap = None
-            self.e_wrap_filt = None
-            self.e_wrap_m = None
-            self.e_wrap_m_filt = None
-            self.e_wrap_n = None
-            self.e_wrap_n_filt = None
-            self.wh_flt = None
-            self.wh_m_flt = None
-            self.wh_n_flt = None
-            self.wl_flt = None
-            self.wl_m_flt = None
-            self.wl_n_flt = None
-            self.red_loss = None
-            self.wh_fa = None
-            self.wh_m_fa = None
-            self.wh_n_fa = None
-            self.wl_fa = None
-            self.wl_m_fa = None
-            self.wl_n_fa = None
-            self.wv_fa = None
-            self.ib_sel_stat = None
-            self.ib_h = None
-            self.ib_s = None
-            self.mib = None
-            # self.ib = np.append(np.array(self.ib_past[1:]), self.ib_past[-1])  # shift time to present
-            self.ib_sel = None
-            self.vb_h = None
-            self.vb_s = None
-            self.mvb = None
-            self.vb = self.vb
-            self.Tb_h = None
-            self.Tb_s = None
-            self.mtb = None
-            self.Tb_f = None
-            self.vb_sel = None
-            self.ib_rate = None
-            self.ib_quiet = None
-            self.dscn_flt = None
-            self.dscn_fa = None
-            self.vb_flt = None
-            self.vb_fa = None
-            self.ib_finj = None
-            self.Tb_finj = None
-            self.vb_finj = None
-            self.tb_sel = None
-            self.tb_flt = None
-            self.tb_fa = None
-            self.ccd_thr = None
-            self.ewh_thr = None
-            self.ewl_thr = None
-            self.ewhm_thr = None
-            self.ewlm_thr = None
-            self.ibd_thr = None
-            self.ibq_thr = None
-            self.preserving = None
-            self.y_ekf_f = None
-            self.ib_dec = None
         else:
-            falw = np.array(sel.falw[:i_end], dtype=np.uint32)
-            fltw = np.array(sel.fltw[:i_end], dtype=np.uint32)
-            self.c_time_s = np.array(sel.c_time[:i_end])
-            self.res = np.array(sel.res[:i_end])
-            self.user_sel = np.array(sel.user_sel[:i_end])
-            self.cc_dif = np.array(sel.cc_dif[:i_end])
-            self.ccd_fa = np.bool_(np.array(falw) & 2**4)
-            self.ibmh = np.array(sel.ibmh[:i_end])
-            self.ibnh = np.array(sel.ibnh[:i_end])
-            self.ibmm = np.array(sel.ibmm[:i_end])
-            self.ibnm = np.array(sel.ibnm[:i_end])
-            self.ibm = np.array(sel.ibm[:i_end])
-            self.ib_diff = np.array(sel.ib_diff[:i_end])
-            self.ib_diff_f = np.array(sel.ib_diff_f[:i_end])
-            self.ib_diff_flt = np.bool_((np.array(fltw) & 2**8) | (np.array(fltw) & 2**9))
-            self.ib_diff_fa = np.bool_((np.array(falw) & 2**8) | (np.array(falw) & 2**9))
-            self.voc_soc_sel = np.array(sel.voc_soc[:i_end])
-            self.e_wrap = np.array(sel.e_w[:i_end])
-            self.e_wrap_filt = np.array(sel.e_w_f[:i_end])
-            if hasattr(sel, 'e_wm'):
-                self.e_wrap_m = np.array(sel.e_wm[:i_end])
-            if hasattr(sel, 'e_wm_f'):
-                self.e_wrap_m_filt = np.array(sel.e_wm_f[:i_end])
-            if hasattr(sel, 'e_wn'):
-                self.e_wrap_n = np.array(sel.e_wn[:i_end])
-            if hasattr(sel, 'e_wn_f'):
-                self.e_wrap_n_filt = np.array(sel.e_wn_f[:i_end])
-            if hasattr(sel, 'e_wm_t'):
-                self.e_wrap_m_trim = np.array(sel.e_wm_t[:i_end])
-            self.wh_flt = np.bool_(np.array(fltw) & 2**5)
-            self.wl_flt = np.bool_(np.array(fltw) & 2**6)
-            self.wh_m_flt = np.bool_(np.array(fltw) & 2**14)
-            self.wl_m_flt = np.bool_(np.array(fltw) & 2**15)
-            self.wh_n_flt = np.bool_(np.array(fltw) & 2**16)
-            self.wl_n_flt = np.bool_(np.array(fltw) & 2**17)
-            self.red_loss = np.bool_(np.array(fltw) & 2**7)
-            self.wh_fa = np.bool_(np.array(falw) & 2**5)
-            self.wl_fa = np.bool_(np.array(falw) & 2**6)
-            self.wv_fa = np.bool_(np.array(falw) & 2**7)
-            self.wh_m_fa = np.bool_(np.array(falw) & 2**14)
-            self.wl_m_fa = np.bool_(np.array(falw) & 2**15)
-            self.wh_n_fa = np.bool_(np.array(falw) & 2**16)
-            self.wl_n_fa = np.bool_(np.array(falw) & 2**17)
-            self.ib_sel_stat = np.array(sel.ib_sel_stat[:i_end])
-            self.ib_h = np.array(sel.ib_h[:i_end])
-            self.ib_s = np.array(sel.ib_s[:i_end])
-            self.mib = np.array(sel.mib[:i_end])
-            self.ib_sel = np.array(sel.ib[:i_end])
-            self.vb_h = np.array(sel.vb_h[:i_end])
-            self.vb_s = np.array(sel.vb_s[:i_end])
-            self.mvb = np.array(sel.mvb[:i_end])
-            self.vb = np.array(sel.vb[:i_end])
-            self.Tb_h = np.array(sel.Tb_h[:i_end])
-            self.Tb_s = np.array(sel.Tb_s[:i_end])
-            self.mtb = np.array(sel.mtb[:i_end])
-            self.Tb_f = np.array(sel.Tb_f[:i_end])
-            self.vb_sel = np.array(sel.vb_sel[:i_end])
-            self.ib_rate = np.array(sel.ib_rate[:i_end])
-            self.ib_quiet = np.array(sel.ib_quiet[:i_end])
-            self.dscn_flt = np.bool_(np.array(fltw) & 2**10)
-            self.dscn_fa = np.bool_(np.array(falw) & 2**10)
-            self.vb_flt = np.bool_(np.array(fltw) & 2**1)
-            self.vb_fa = np.bool_(np.array(falw) & 2**1)
-            self.tb_sel = np.array(sel.tb_sel[:i_end])
-            self.tb_flt = np.bool_(np.array(fltw) & 2**0)
-            self.tb_fa = np.bool_(np.array(falw) & 2**0)
-            self.ccd_thr = np.array(sel.ccd_thr[:i_end])
-            self.ewh_thr = np.array(sel.ewh_thr[:i_end])
-            self.ewl_thr = np.array(sel.ewl_thr[:i_end])
-            self.ewhm_thr = self.ewh_thr / 10.  # WRAP_HI_NOA / WRAP_HI_AMP = SHUNT_AMP_R2 / SHUNT_NOA_R2
-            self.ewlm_thr = self.ewl_thr / 10.  # WRAP_LO_NOA / WRAP_LO_AMP = SHUNT_AMP_R2 / SHUNT_NOA_R2
-            self.ibd_thr = np.array(sel.ibd_thr[:i_end])
-            self.ibq_thr = np.array(sel.ibq_thr[:i_end])
-            self.preserving = np.array(sel.preserving[:i_end])
-            if hasattr(sel, 'y_ekf_f'):
-                self.y_ekf_f = np.array(sel.y_ekf_f[:i_end])
-            if hasattr(sel, 'ib_dec'):
-                self.ib_dec = np.array(sel.ib_dec[:i_end])
+            self.c_time_s = None
         if ekf is None:
             self.c_time_e = None
-            self.Fx = None
-            self.Bu = None
-            self.Q = None
-            self.R = None
-            self.P = None
-            self.S = None
-            self.K = None
-            self.u = None
-            self.x = None
-            self.y = None
-            self.z = None
-            self.x_prior = None
-            self.P_prior = None
-            self.x_post = None
-            self.P_post = None
-            self.hx = None
-            self.H = None
         else:
-            self.c_time_e = np.array(ekf.c_time[:i_end])
-            self.Fx = np.array(ekf.Fx_[:i_end])
-            self.Bu = np.array(ekf.Bu_[:i_end])
-            self.Q = np.array(ekf.Q_[:i_end])
-            self.R = np.array(ekf.R_[:i_end])
-            self.P = np.array(ekf.P_[:i_end])
-            self.S = np.array(ekf.S_[:i_end])
-            self.K = np.array(ekf.K_[:i_end])
-            self.u = np.array(ekf.u_[:i_end])
-            self.x = np.array(ekf.x_[:i_end])
-            self.y = np.array(ekf.y_[:i_end])
-            self.z = np.array(ekf.z_[:i_end])
-            self.x_prior = np.array(ekf.x_prior_[:i_end])
-            self.P_prior = np.array(ekf.P_prior_[:i_end])
-            self.x_post = np.array(ekf.x_post_[:i_end])
-            self.P_post = np.array(ekf.P_post_[:i_end])
-            self.hx = np.array(ekf.hx_[:i_end])
-            self.H = np.array(ekf.H_[:i_end])
+            self.c_time_e = None
 
     def __str__(self):
         s = "{},".format(self.unit[self.i])

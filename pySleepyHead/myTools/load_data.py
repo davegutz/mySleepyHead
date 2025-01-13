@@ -82,14 +82,12 @@ class SyncInfo:
 
 
 # Load from files
-def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, rated_batt_cap=100.,
-              legacy=False, v1_only=False, zero_thr_in=0.02):
+def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_in=0.02):
 
-    print(f"load_data: \n{path_to_data=}\n{skip=}\n{unit_key=}\n{zero_zero_in=}\n{time_end_in=}\n{rated_batt_cap=}\n"
-          f"{legacy=}\n{v1_only=}")
+    print(f"load_data: \n{path_to_data=}\n{skip=}\n{unit_key=}\n{zero_zero_in=}\n{time_end_in=}\n")
 
-    hdr_key = "unit,"  # Find one instance of title
-    hdr_key_sel = "unit_s,"  # Find one instance of title
+    hdr_key = "key_Rapid,"  # Find one instance of title
+    hdr_key_sel = "Analog_s,"  # Find one instance of title
     unit_key_sel = "unit_sel"
     hdr_key_ekf = "unit_e,"  # Find one instance of title
     unit_key_ekf = "unit_ekf"
@@ -110,7 +108,7 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, rated_bat
     # Load sel (old)
     sel_file_clean = write_clean_file(path_to_data, type_='_sel', hdr_key=hdr_key_sel,
                                       unit_key=unit_key_sel, skip=skip)
-    if sel_file_clean and not v1_only:
+    if sel_file_clean:
         sel_raw = np.genfromtxt(sel_file_clean, delimiter=',', names=True, dtype=float).view(np.recarray)
     else:
         sel_raw = None
@@ -119,7 +117,7 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, rated_bat
     # Load ekf (old)
     ekf_file_clean = write_clean_file(path_to_data, type_='_ekf', hdr_key=hdr_key_ekf,
                                       unit_key=unit_key_ekf, skip=skip)
-    if ekf_file_clean and not v1_only:
+    if ekf_file_clean:
         ekf_raw = np.genfromtxt(ekf_file_clean, delimiter=',', names=True, dtype=float).view(np.recarray)
     else:
         ekf_raw = None
@@ -131,7 +129,7 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, rated_bat
     # Load sim _s v24 portion of real-time run (old)
     data_file_sim_clean = write_clean_file(path_to_data, type_='_sim', hdr_key=hdr_key_sim,
                                            unit_key=unit_key_sim, skip=skip)
-    if data_file_sim_clean and not v1_only:
+    if data_file_sim_clean:
         sim_raw = np.genfromtxt(data_file_sim_clean, delimiter=',', names=True, dtype=float).view(np.recarray)
         sim = SavedDataSim(time_ref=mon.time_ref, data=sim_raw, time_end=time_end_in)
     else:
@@ -147,18 +145,14 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, rated_bat
 
     return mon, sim, None, data_file_clean, temp_flt_file_clean, sync_info
 
-
 def main():
-    path_to_data = '/home/daveg/google-drive/GitHubArchive/SOC_Particle/dataReduction/g20240331/allInCHG_pro0p_chg.csv'
+    path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+
     skip = 1
-    unit_key = 'g20240331_pro0p_chg '
+    unit_key = 'v20250113_pro0n33iot_Rapid,'
     zero_zero_in = False
     time_end_in = None
-    rated_batt_cap = 108.4
-    legacy = False
-    v1_only = False
-    load_data(path_to_data=path_to_data, skip=skip, unit_key=unit_key, zero_zero_in=zero_zero_in,
-              time_end_in=time_end_in, rated_batt_cap=rated_batt_cap, legacy=legacy, v1_only=v1_only)
+    load_data(path_to_data=path_to_data, skip=skip, unit_key=unit_key, zero_zero_in=zero_zero_in, time_end_in=time_end_in)
 
 
 if __name__ == '__main__':

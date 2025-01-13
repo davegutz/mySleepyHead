@@ -22,11 +22,11 @@ import platform
 def local_paths(version_folder='no_name'):
     path_to_local = None
     if platform.system() == 'Linux':
-        path_to_local = '/home/daveg/.local/SOC_Particle'
+        path_to_local = '/home/daveg/.local/mySleepyHead'
     elif platform.system() == 'Darwin':
-        path_to_local = '/Users/daveg/.local/SOC_Particle'
+        path_to_local = '/Users/daveg/.local/mySleepyHead'
     else:
-        path_to_local = os.path.join(os.getenv('LOCALAPPDATA'), 'SOC_Particle')
+        path_to_local = os.path.join(os.getenv('LOCALAPPDATA'), 'mySleepyHead')
 
     if not os.path.isdir(path_to_local):
         os.mkdir(path_to_local)

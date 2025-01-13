@@ -197,7 +197,7 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin);
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid");
   static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;

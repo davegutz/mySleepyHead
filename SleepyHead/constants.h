@@ -34,6 +34,8 @@
 // Setup
 #include "local_config.h"
 #include <SafeString.h>
+#include "local_config.h"
+const String unit_key = version + "_" + HDWE_UNIT;
 
 const double NOM_DT = 0.01;
 const float deg_to_rps = 0.0174533;

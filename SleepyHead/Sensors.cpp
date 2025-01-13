@@ -280,7 +280,8 @@ void Sensors::quiet_decisions(const boolean reset)
 // Print pp9 header
 void Sensors::header_rapid_9()
 {
-  Serial.print("time_s,");
+  Serial.print("key_Rapid,");
+  Serial.print("cTime,");
   #ifndef USE_IR_ON_OFF
     Serial.print("eye_voltage,");
     Serial.print("eye_voltage_thr,");
@@ -296,6 +297,7 @@ void Sensors::header_rapid_9()
 // Print pp9
 void Sensors::print_rapid_9(const float time)
 {
+  Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
   #ifndef USE_IR_ON_OFF
     Serial.print(eye_voltage_, 4); Serial.print(",");

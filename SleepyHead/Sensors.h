@@ -52,7 +52,7 @@ public:
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_(0), eye_voltage_thr_(0)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
-      const int sensorPin): t_ms(0),
+      const int sensorPin, const String unit): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_rot_last_(time_now),
@@ -60,7 +60,8 @@ public:
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), buzz_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
-      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_(0), eye_voltage_thr_(voltage_thr_def)
+      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_(0), eye_voltage_thr_(voltage_thr_def),
+      unit_(unit)
     {
         // Update time and time constant changed on the fly
         float Tfilt_init = READ_DELAY/1000.;
@@ -186,4 +187,5 @@ protected:
     float eye_voltage_;
     float eye_voltage_thr_;
     unsigned long long time_now_ms_;
+    String unit_;
 };
