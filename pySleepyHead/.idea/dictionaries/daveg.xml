@@ -1,13 +1,15 @@
 <component name="ProjectDictionaryState">
   <dictionary name="daveg">
     <words>
+      <w>activebackground</w>
+      <w>activeforeground</w>
+      <w>begini</w>
       <w>bmso</w>
-      <w>brightblack</w>
-      <w>coeff</w>
+      <w>clipcut</w>
       <w>daveg</w>
-      <w>deadband</w>
       <w>desat</w>
       <w>dscn</w>
+      <w>dshow</w>
       <w>dvoc</w>
       <w>ewhm</w>
       <w>ewlm</w>
@@ -19,7 +21,10 @@
       <w>finj</w>
       <w>fltb</w>
       <w>fltw</w>
-      <w>greenalso</w>
+      <w>fmpeg</w>
+      <w>framerate</w>
+      <w>fullscreen</w>
+      <w>gdigrab</w>
       <w>gutz</w>
       <w>hdwe</w>
       <w>hyst</w>
@@ -27,29 +32,22 @@
       <w>ibmm</w>
       <w>ibnh</w>
       <w>ibnm</w>
-      <w>lightcyan</w>
+      <w>libxcb</w>
+      <w>lightgray</w>
       <w>lightgreen</w>
-      <w>lightgrey</w>
-      <w>lightred</w>
       <w>linestyle</w>
-      <w>lstate</w>
-      <w>lutt</w>
       <w>markersize</w>
       <w>markevery</w>
+      <w>mpga</w>
       <w>nsum</w>
       <w>precleanup</w>
       <w>qcap</w>
       <w>qcrs</w>
       <w>randles</w>
-      <w>rapheson</w>
-      <w>rstate</w>
-      <w>soln</w>
-      <w>succ</w>
-      <w>tfdteresis</w>
       <w>tkagg</w>
-      <w>tustin</w>
-      <w>xmax</w>
-      <w>xmin</w>
+      <w>unsynchronized</w>
+      <w>wraplength</w>
+      <w>xcbgrab</w>
       <w>ylim</w>
       <w>yscld</w>
     </words>
