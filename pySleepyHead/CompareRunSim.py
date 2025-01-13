@@ -24,6 +24,7 @@ from datetime import datetime
 from load_data import load_data
 from PlotGP import gp_plot
 import easygui
+from PlotKiller import show_killer
 import tkinter.messagebox
 from local_paths import version_from_data_file, local_paths
 import os
@@ -96,6 +97,8 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
         unite_pictures_into_pdf(outputPdfName=filename+'_'+date_time+'.pdf', save_pdf_path=save_pdf_path)
         cleanup_fig_files(fig_files)
         plt.show(block=False)
+        string = 'plots ' + str(fig_list[0].number) + ' - ' + str(fig_list[-1].number)
+        show_killer(string, 'CompareRunSim', fig_list=fig_list)
 
     return data_file_clean, mon_old, sim_old, None, None, None
 

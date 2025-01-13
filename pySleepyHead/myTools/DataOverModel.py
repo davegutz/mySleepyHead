@@ -708,6 +708,7 @@ class SavedData:
             self.conf = None
             self.max_nod_f = None
             self.max_nod_p = None
+            self.buzz = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -771,6 +772,7 @@ class SavedData:
             self.conf = np.array(data.conf[:i_end])
             self.max_nod_f = np.array(data.max_nod_f[:i_end])
             self.max_nod_p = np.array(data.max_nod_p[:i_end])
+            self.buzz = np.array(data.buzz[:i_end])
         if sel is None:
             self.c_time_s = None
         else:
