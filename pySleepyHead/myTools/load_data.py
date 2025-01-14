@@ -15,7 +15,7 @@
 """Utility to load data from csv files"""
 
 import numpy as np
-from DataOverModel import SavedData, SavedDataSim, write_clean_file
+from DataOverModel import SavedData, write_clean_file
 
 
 def find_sync(path_to_data):

@@ -38,13 +38,13 @@ if sys.platform == 'darwin':
 plt.rcParams.update({'figure.max_open_warning': 0})
 
 
-def gp_plot(mo, mv, so, sv, smv, filename, fig_files=None, plot_title=None, fig_list=None,
-            ref_str='_ref', test_str='_test'):
+def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, ref_str='_ref', test_str='_test'):
     fig_list.append(plt.figure())  # GP 1
     plt.subplot(221)
     plt.title(plot_title + ' GP 1')
     # plt.plot(mo.time, mo.eye_voltage, 1, color='black', linestyle='-', label='eye_voltage' + ref_str, marker=None, markersize=None, markevery=None)
     plq(plt, mo, 'time', mo, 'eye_voltage', color='black', linestyle='-', label='eye_voltage' + ref_str)
+    plq(plt, mo, 'time', mv, 'eye_voltage_filt', color='red', linestyle='-.', label='eye_voltage_filt' + test_str)
     # plq(plt, mo, 'time', mo, 'eye_voltage_thr', color='red', linestyle='--', label='eye_voltage_thr' + ref_str)
     plt.legend(loc=1)
     plt.subplot(222)

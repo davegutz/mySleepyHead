@@ -82,7 +82,7 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
 
     # New run
     patch = EyePatch(mon_old)
-    patch.calculate(init_time=init_time)
+    mon_ver = patch.calculate(init_time=init_time)
 
     # Plots
     if data_only is False:
@@ -92,7 +92,7 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
         data_root_test = data_root_test.replace('.csv', '')
         filename = data_root_test
         plot_title = dir_root_test + '/' + data_root_test + '   ' + date_time
-        fig_list, fig_files = gp_plot(mon_old, None, sim_old, None, None, filename, fig_files,
+        fig_list, fig_files = gp_plot(mon_old, mon_ver, filename, fig_files,
                                       plot_title=plot_title, fig_list=fig_list, ref_str='',
                                       test_str='_ver')
 

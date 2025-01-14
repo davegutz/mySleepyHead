@@ -35,9 +35,9 @@ class EyePatch:
 
     def __init__(self, data, dt=0.1):
         self.Data = data
-        self.voltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
+        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
             0., Device.V3V3Q2)  # actual dt provided at run time
-        self.voltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
+        self.VoltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
         self.time = None
         self.dt = None
         self.eye_voltage = None
@@ -54,7 +54,6 @@ class EyePatch:
         if t_max is not None:
             t_delt = t - t[0]
             t = t[np.where(t_delt <= t_max)]
-        volt_in = self.Data.eye_voltage
         t_len = len(t)
 
         # time loop
@@ -63,6 +62,8 @@ class EyePatch:
             now = t[i]
             reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
             self.Data.i = i
+            self.time = now
+            self.eye_voltage = self.Data.eye_voltage[i]
             T = None
             if i == 0:
                 T = t[1] - t[0]
@@ -77,27 +78,26 @@ class EyePatch:
             if reset:
                 1 == 1  # place holder
 
+            # Run filters
+            self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage, reset, T)
 
             # Log
-            mon.save(t[i], T, mon.soc, sim.voc)
+            self.save(t[i], T)
 
             # Print initial
             if i == 0 and verbose:
                 print('time=', t[i])
-                print('mon:  ', str(mon))
+                print(' object   T  reset  time   eye_voltage  eye_voltage_filt')
             if verbose:
-                print("{:9.3f}".format(t[i]), "{:4.0f}".format(self.Data.chm[i]),
-                      "{:9.3f}".format(self.Data.ib[i]), "{:12.7f}".format(self.Data.soc[i]), "{:9.3f}".format(self.Data.dv_hys[i]),
-                      "{:9.3f}".format(sim.saved.dv_hys[i]), "{:9.3f}".format(mon.saved.ib[i]), "{:12.7f}".format(mon.saved.soc[i]),
-                      "{:4.0f}".format(mon.sat), "{:9.3f}".format(mon.saved.dv_hys[i]))
+                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
+
         # Data
         if verbose:
-            print(
-                '   time mo.chm so.chm so.ib_in_s so.dv_hys  mo.ib mo.soc mo.dv_hys   smv.ib_in_s sim.ibs sim.ioc sim.sat sim.dis sim.dv_dot smv.dv_hys  mv.ib  mv.soc mon.ibs  mon.ioc   mon.sat   mon.dis    mon.dv_dot  mv.dv_hys')
+            print('   time mo.eye_voltage ')
             print('time=', now)
-            print('mon:  ', str(mon))
+            print('EyePatch:  ', str(self))
 
-        return mon
+        return self.saved
 
     def save(self, time, dt):  # Filter
         """Log EyePatch"""
@@ -109,6 +109,9 @@ class EyePatch:
         self.saved.eye_cl.append(self.eye_cl)
         self.saved.conf.append(self.conf)
         self.saved.buzz_eye.append(self.buzz_eye)
+
+    def __str__(self):
+        return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage) + "{:9.3f}".format(self.eye_voltage_filt)
 
 class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
