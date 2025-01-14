@@ -26,7 +26,7 @@ class Device:
     NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
     CLOSED_S = 1.0  # Voltage trip set persistence, s ()
     CLOSED_R = 0.5  # Voltage trip reset persistence, s ()
-    OMEGA_N_NOISE = 0.1  # Noise filter wn, r/s ()
+    OMEGA_N_NOISE = 1.  # Noise filter wn, r/s ()
     ZETA_NOISE = 0.9  # Noise filter damping factor ()
     V3V3Q2 = 3.3 / 2.  # Filter windup limits
 
@@ -35,8 +35,8 @@ class EyePatch:
 
     def __init__(self, data, dt=0.1):
         self.Data = data
-        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
-            0., Device.V3V3Q2)  # actual dt provided at run time
+        # self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
+        self.VoltFilter = LagExp(Device.NOMINAL_DT, 1./Device.OMEGA_N_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
         self.VoltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
         self.time = None
         self.dt = None
@@ -72,12 +72,6 @@ class EyePatch:
                 if candidate_dt > 1e-6:
                     T = candidate_dt
 
-            # Basic reset model verification is to init to the input data
-            # Tried hard not to re-implement solvers in the Python verification  tool
-            # Also, BTW, did not implement signal selection or tweak logic
-            if reset:
-                1 == 1  # place holder
-
             # Run filters
             self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage, reset, T)
 
@@ -87,9 +81,9 @@ class EyePatch:
             # Print initial
             if i == 0 and verbose:
                 print('time=', t[i])
-                print(' object   T  reset  time   eye_voltage  eye_voltage_filt')
+                print(' object   T  reset  time   eye_voltage  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
             if verbose:
-                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
+                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter))
 
         # Data
         if verbose:

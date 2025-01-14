@@ -288,7 +288,12 @@ class General2Pole(DiscreteFilter2):
         self.in_ = 0.
         self.out_ = 0.
         self.accel = 0.
+        self.dt = None
+        self.reset = None
         self.saved = Saved2()
+
+    def __repr__(self):
+        return "{:8.6f}".format(self.dt) + "{:2d}".format(self.reset) + "{:7.3f}".format(self.a) + "{:7.3f}".format(self.b) + "{:7.3f}".format(self.in_) + "{:7.3f}".format(self.out_)
 
     def __str__(self, prefix=''):
         s = prefix + "General2Pole:\n"
@@ -309,10 +314,12 @@ class General2Pole(DiscreteFilter2):
 
     def calculate_(self, in_, reset):
         self.in_ = in_
+        self.reset = reset
         self.rate_state(self.in_, reset)
 
     def calculate(self, in_, reset, dt):
         self.in_ = in_
+        self.reset = reset
         self.assign_coeff(dt)
         self.rate_state_calc(self.in_, dt, reset)
         self.out_ = self.Tustin.state
