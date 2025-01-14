@@ -38,8 +38,15 @@ class EyePatch:
         self.voltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
             0., Device.V3V3Q2)  # actual dt provided at run time
         self.voltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
-        self.volt_raw = None
-        self.volt_filt = None
+        self.time = None
+        self.dt = None
+        self.eye_voltage = None
+        self.eye_voltage_filt = None
+        self.eye_voltage_thr = None
+        self.eye_cl = None
+        self.conf = None
+        self.buzz_eye = None
+        self.saved = Saved()  # for plots and prints
 
     def calculate(self, init_time=-4., scale_in=None, verbose=True, t_max=None, unit=None):
         """Filter data set and calculate candidate filter"""
@@ -91,3 +98,28 @@ class EyePatch:
             print('mon:  ', str(mon))
 
         return mon
+
+    def save(self, time, dt):  # Filter
+        """Log EyePatch"""
+        self.saved.time.append(self.time)
+        self.saved.dt.append(self.dt)
+        self.saved.eye_voltage.append(self.eye_voltage)
+        self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
+        self.saved.eye_voltage_thr.append(self.eye_voltage_thr)
+        self.saved.eye_cl.append(self.eye_cl)
+        self.saved.conf.append(self.conf)
+        self.saved.buzz_eye.append(self.buzz_eye)
+
+class Saved:
+    # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
+    def __init__(self):
+        self.time = []
+        self.dt = []
+        self.eye_voltage = []
+        self.eye_voltage_filt = []
+        self.eye_voltage_thr = []
+        self.eye_cl = []
+        self.conf = []
+        self.buzz_eye = []
+
+
