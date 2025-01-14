@@ -123,8 +123,7 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_
         ekf_raw = None
         print(f"load_data: returning ekf_raw=None")
 
-    mon = SavedData(data=mon_raw, sel=sel_raw, ekf=ekf_raw, time_end=time_end_in, zero_zero=zero_zero_in,
-                    zero_thr=zero_thr_in, sync_cTime=sync)
+    mon = SavedData(data=mon_raw, time_end=time_end_in, zero_zero=zero_zero_in)
 
     # Load sim _s v24 portion of real-time run (old)
     data_file_sim_clean = write_clean_file(path_to_data, type_='_sim', hdr_key=hdr_key_sim,
