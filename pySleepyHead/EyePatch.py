@@ -35,8 +35,8 @@ class EyePatch:
 
     def __init__(self, data, dt=0.1):
         self.Data = data
-        # self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
-        self.VoltFilter = LagExp(Device.NOMINAL_DT, 1./Device.OMEGA_N_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
+        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
+        # self.VoltFilter = LagExp(Device.NOMINAL_DT, 1./Device.OMEGA_N_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
         self.VoltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
         self.time = None
         self.dt = None
