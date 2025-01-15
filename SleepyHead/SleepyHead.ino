@@ -78,6 +78,7 @@ boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
+const int v3v3Pin = 14;     // Pin connected to the IR sensor (or eye detection sensor)
 const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
 const int buzzerPin = A3;     // Pin connected to the buzzer
 const int motorPin = 21;     // Pin connected to the buzzer
@@ -161,6 +162,14 @@ void setup()
   analogReadResolution(12);
   delay(5);
  
+  // v3v3
+  Serial.print("v3v3_nom starting at pin "); Serial.print(v3v3Pin); Serial.print("...");
+  pinMode(v3v3Pin, INPUT);   // Set sensorPin as an INPUT
+  Serial.println(" done");
+  // change the resolution to 12 bits (4095)
+  analogReadResolution(12);
+  delay(5);
+
   // Motor
   Serial.print("Motor starting at pin "); Serial.print(motorPin); Serial.print("...");
   pinMode(motorPin, OUTPUT);   // Set motorPin as an OUTPUT
@@ -197,7 +206,7 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid");
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
   static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;

@@ -23,9 +23,9 @@ import numpy as np
 
 class Device:
     # Logic constants
-    NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
-    CLOSED_S = 1.0  # Voltage trip set persistence, s ()
-    CLOSED_R = 0.5  # Voltage trip reset persistence, s ()
+    NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)d
+    VOLT_CLOSED_S = 0.5  # Voltage trip set persistence, s ()
+    VOLT_CLOSED_R = 0.2  # Voltage trip reset persistence, s ()
     OMEGA_N_NOISE = 5.  # Noise filter wn, r/s ()
     ZETA_NOISE = 0.9  # Noise filter damping factor ()
     V3V3Q2 = 3.3 / 2.  # Filter windup limits
@@ -38,7 +38,7 @@ class EyePatch:
         self.Data = data
         self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE, -10., 10., 0., Device.V3V3Q2)  # actual dt provided at run time
         # self.VoltFilter = LagExp(Device.NOMINAL_DT, 1./Device.OMEGA_N_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
-        self.VoltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
+        self.VoltTripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
         self.time = None
         self.dt = None
         self.eye_voltage = None
@@ -76,7 +76,7 @@ class EyePatch:
             # Run filters
             self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage, reset, T)
             self.eye_cl = self.eye_voltage_filt < Device.EYE_CL_THR
-            self.conf = self.VoltTripConf.calculate(self.eye_cl, Device.CLOSED_S, Device.CLOSED_R, T, reset)
+            self.conf = self.VoltTripConf.calculate(self.eye_cl, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, T, reset)
 
             # Log
             self.save(t[i], T)
@@ -89,7 +89,7 @@ class EyePatch:
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltFilter.AB2))
-                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf))
+                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.conf))
 
         # Data
         if verbose:

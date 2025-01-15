@@ -283,6 +283,7 @@ void Sensors::header_rapid_9()
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
   #ifndef USE_IR_ON_OFF
+    Serial.print("v3v3,");
     Serial.print("eye_voltage,");
     Serial.print("eye_voltage_thr,");
   #endif
@@ -300,6 +301,7 @@ void Sensors::print_rapid_9(const float time)
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
   #ifndef USE_IR_ON_OFF
+    Serial.print(v3v3_, 4); Serial.print(",");
     Serial.print(eye_voltage_, 4); Serial.print(",");
     Serial.print(eye_voltage_thr_, 3); Serial.print(",");
   #endif
@@ -353,11 +355,15 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     else acc_available_ = false;
     T_acc_ = double(time_now_ms - time_acc_last_) / 1000.;
 
+    // Half v3v3_nom = 3.3; v3v3_units = 4095;
+    v3v3_ = analogRead(v3v3Pin_) * v3v3_nom / float(v3v3_units) * 2.;
+
+
     // IR Sensor
     #ifdef IR_SENSOR_ON_OFF
       eye_closed_ = !digitalRead(sensorPin_);
     #else
-      eye_voltage_ = analogRead(sensorPin_) * v3v3 / float(v3v3_units);
+      eye_voltage_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) + (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
     #endif
 
     // Gyroscope

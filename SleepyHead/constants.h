@@ -55,7 +55,7 @@ const float deg_to_rps = 0.0174533;
 #define INPUT_BYTES            200      // Serial input buffer sizes (200)
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
 #define TAU_FILT              0.01      // Tau filter, sec (0.01)
-#define TAU_Q_FILT            0.01     // Quiet rate time constant, sec (0.01)
+#define TAU_Q_FILT            0.01      // Quiet rate time constant, sec (0.01)
 #define MIN_Q_FILT            -20.      // Quiet filter minimum, g's / rps(-20)
 #define MAX_Q_FILT             20.      // Quiet filter maximum, g's / rps (20)
 #define WN_Q_FILT              25.      // Quiet filter-2 natural frequency, r/s (25.)
@@ -70,6 +70,7 @@ const float deg_to_rps = 0.0174533;
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #undef  USE_IR_ON_OFF                   // Using a stock IR sensor with on-off behavior fed into same A6/D20 port as the analog modification
+#define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
 const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
@@ -93,6 +94,6 @@ const float T_SCL = (32000./T_MAX);     // Rotational int16_t scale factor
 const uint8_t NREG = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
 
 // Analog sensor definitions
-const float v3v3 = 3.3;                 // IR detector power supply, v (3.3)
+const float v3v3_nom = 3.3;                 // IR detector power supply, v (3.3)
 const int v3v3_units = 4095;            // A/D range, units (1023)
 const float voltage_thr_def = 0.0;      // Threshold sleep detect (0.0 is off), v
