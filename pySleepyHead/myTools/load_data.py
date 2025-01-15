@@ -13,6 +13,7 @@
 #
 # See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text.
 """Utility to load data from csv files"""
+import platform
 
 import numpy as np
 from DataOverModel import SavedData, write_clean_file
@@ -145,7 +146,10 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_
     return mon, sim, None, data_file_clean, temp_flt_file_clean, sync_info
 
 def main():
-    path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+    if platform.system() == 'win32':
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+    else:
+        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
 
     skip = 1
     unit_key = 'v20250113_pro0n33iot_Rapid,'
