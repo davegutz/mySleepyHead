@@ -26,16 +26,17 @@ class Device:
     NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
     CLOSED_S = 1.0  # Voltage trip set persistence, s ()
     CLOSED_R = 0.5  # Voltage trip reset persistence, s ()
-    OMEGA_N_NOISE = 1.  # Noise filter wn, r/s ()
+    OMEGA_N_NOISE = 5.  # Noise filter wn, r/s ()
     ZETA_NOISE = 0.9  # Noise filter damping factor ()
     V3V3Q2 = 3.3 / 2.  # Filter windup limits
+    EYE_CL_THR = 1.3
 
 class EyePatch:
     """Container of candidate filters"""
 
     def __init__(self, data, dt=0.1):
         self.Data = data
-        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
+        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE, -10., 10., 0., Device.V3V3Q2)  # actual dt provided at run time
         # self.VoltFilter = LagExp(Device.NOMINAL_DT, 1./Device.OMEGA_N_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
         self.VoltTripConf = TFDelay(False, Device.CLOSED_S, Device.CLOSED_R, Device.NOMINAL_DT)
         self.time = None
@@ -48,7 +49,7 @@ class EyePatch:
         self.buzz_eye = None
         self.saved = Saved()  # for plots and prints
 
-    def calculate(self, init_time=-4., scale_in=None, verbose=True, t_max=None, unit=None):
+    def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
         """Filter data set and calculate candidate filter"""
         t = self.Data.time
         if t_max is not None:
@@ -74,6 +75,8 @@ class EyePatch:
 
             # Run filters
             self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage, reset, T)
+            self.eye_cl = self.eye_voltage_filt < Device.EYE_CL_THR
+            self.conf = self.VoltTripConf.calculate(self.eye_cl, Device.CLOSED_S, Device.CLOSED_R, T, reset)
 
             # Log
             self.save(t[i], T)
@@ -83,7 +86,10 @@ class EyePatch:
                 print('time=', t[i])
                 print(' object   T  reset  time   eye_voltage  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
             if verbose:
-                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltFilter.AB2))
+                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf))
 
         # Data
         if verbose:

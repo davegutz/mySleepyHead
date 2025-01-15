@@ -29,6 +29,7 @@ class TFDelay:
         self.timer = 0
         self.t_true = t_true
         self.t_false = t_false
+        self.reset = None
         self.nt = int(max(round(self.t_true/dt)+1, 0))
         self.nf = int(max(round(self.t_false/dt)+1, 0))
         self.dt = dt
@@ -43,6 +44,15 @@ class TFDelay:
         else:
             self.time = -self.nt
         self.saved = Saved()
+
+    def __repr__(self):
+        return ("{:8.6f}".format(self.dt) +
+                "{:2d}".format(self.reset) +
+                "{:2d}".format(self.nt) +
+                "{:2d}".format(self.nf) +
+                "{:2d}".format(self.timer) +
+                "{:2d}".format(self.in_) +
+                "{:2d}".format(self.out))
 
     def __str__(self, prefix=''):
         s = prefix + "TFDelay:\n"
@@ -75,7 +85,8 @@ class TFDelay:
         return self.out
 
     def calculate2(self, in_, reset):
-        if reset:
+        self.reset = reset
+        if self.reset:
             if in_:
                 self.timer = self.nf
             else:
@@ -99,7 +110,8 @@ class TFDelay:
         return self.calculate1(in_)
 
     def calculate4r(self, in_, t_true, t_false, reset):
-        if reset > 0:
+        self.reset = reset
+        if self.reset > 0:
             if in_:
                 self.timer = self.nf
             else:
@@ -107,8 +119,9 @@ class TFDelay:
         return self.calculate3(in_, t_true, t_false)
 
     def calculate(self, in_, t_true, t_false, dt, reset):
+        self.reset = reset
         self.in_ = in_
-        if reset:
+        if self.reset:
             if self.in_:
                 self.timer = self.nf
             else:
@@ -118,6 +131,7 @@ class TFDelay:
 
     def save(self, time):
         self.saved.time.append(time)
+        self.saved.reset.append(self.reset)
         self.saved.timer.append(self.timer)
         self.saved.in_.append(self.in_)
         self.saved.nt.append(self.nt)
@@ -133,6 +147,7 @@ class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
     def __init__(self):
         self.time = []
+        self.reset = []
         self.in_ = []
         self.out = []
         self.timer = []

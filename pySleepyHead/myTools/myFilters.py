@@ -162,6 +162,17 @@ class DiscreteIntegrator:
         self.state = 0.
         self.rate_state = 0.
 
+    def __repr__(self):
+        return ("{:8.6f}".format(self.dt) +
+                # "{:2d}".format(self.reset) +
+                "{:7.3f}".format(self.a) +
+                "{:7.3f}".format(self.b) +
+                "{:7.3f}".format(self.c) +
+                "{:7.3g}".format(self.min) +
+                "{:7.3g}".format(self.max) +
+                "{:9.3g}".format(self.state) +
+                "{:9.3g}".format(self.rate_state))
+
     def __str__(self, prefix=''):
         s = prefix + "DiscreteIntegrator:\n"
         s += "  dt       =    {:7.3f}  // Update time, s\n".format(self.dt)
@@ -278,12 +289,12 @@ class TustinIntegrator(DiscreteIntegrator):
 class General2Pole(DiscreteFilter2):
     # General 2-Pole filter variable update rate and limits, poor aliasing characteristics
 
-    def __init__(self, dt, omega_n, zeta, min_, max_):
+    def __init__(self, dt, omega_n, zeta, minv_, maxv_, min_, max_):
         DiscreteFilter2.__init__(self, dt, omega_n, zeta, min_, max_)
         self.a = 2. * self.zeta * self.omega_n
         self.b = self.omega_n * self.omega_n
         self.assign_coeff(dt)
-        self.AB2 = AB2Integrator(dt, min_, max_)
+        self.AB2 = AB2Integrator(dt, minv_, maxv_)
         self.Tustin = TustinIntegrator(dt, min_, max_)
         self.in_ = 0.
         self.out_ = 0.
@@ -293,7 +304,13 @@ class General2Pole(DiscreteFilter2):
         self.saved = Saved2()
 
     def __repr__(self):
-        return "{:8.6f}".format(self.dt) + "{:2d}".format(self.reset) + "{:7.3f}".format(self.a) + "{:7.3f}".format(self.b) + "{:7.3f}".format(self.in_) + "{:7.3f}".format(self.out_)
+        return ("{:8.6f}".format(self.dt) +
+                "{:2d}".format(self.reset) +
+                "{:7.3f}".format(self.a) +
+                "{:7.3f}".format(self.b) +
+                "{:7.3f}".format(self.in_) +
+                "{:7.3f}".format(self.accel) +
+                "{:7.3f}".format(self.out_) )
 
     def __str__(self, prefix=''):
         s = prefix + "General2Pole:\n"
