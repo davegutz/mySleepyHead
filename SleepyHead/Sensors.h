@@ -45,7 +45,7 @@ public:
     Sensors(): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last_(0ULL), time_rot_last_(0ULL),
+      time_acc_last_(0ULL), time_eye_last_(0LL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false), head_buzz_(false),
@@ -56,7 +56,7 @@ public:
       const int sensorPin, const String unit, const int v3v3_pin): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last_(time_now), time_rot_last_(time_now),
+      time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_buzz_(false), head_buzz_(false),
@@ -65,32 +65,34 @@ public:
       unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin)
     {
         // Update time and time constant changed on the fly
-        float Tfilt_init = READ_DELAY/1000.;
+        float Tfilt_head_init = HEAD_DELAY/1000.;
+        float Tfilt_eye_init = EYE_DELAY/1000.;
         
-        A_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        B_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        C_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        O_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        OQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
-        OQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
-        OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
+        A_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        B_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        C_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        O_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        OQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
+        OQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         
-        X_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        Y_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        Z_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        G_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
-        GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
-        GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
+        X_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        Y_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        Z_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        G_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        GQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
+        GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
-        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_init);
+        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_eye_init);
     };
     unsigned long long millis;
     ~Sensors(){};
 
     boolean both_are_quiet() { return o_is_quiet_sure_ && g_is_quiet_sure_; };
     boolean both_not_quiet() { return ( !o_is_quiet_sure_ && !g_is_quiet_sure_ ); };
-    void filter(const boolean reset);
+    void filter_eye(const boolean reset);
+    void filter_head(const boolean reset);
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     void header_rapid_9();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
@@ -115,10 +117,12 @@ public:
     void print_rapid(const boolean reset, const boolean print_now, const float time_s);
     void print_rapid_9(const float time_s);
     void quiet_decisions(const boolean reset);
-    void sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
+    void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
+    void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
-    float time_now_s() { return float(time_now_ms_)/1000.0; };
+    float time_eye_s() { return float(time_eye_ms_)/1000.0; };
+    float time_now_s() { return float(time_head_ms_)/1000.0; };
     float voltage_thr() { return eye_voltage_thr_; };
     void voltage_thr(const float voltage_thr) { eye_voltage_thr_ = voltage_thr; };
 
@@ -166,8 +170,10 @@ protected:
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
     TFDelay *EyeClosedPer; // Persistence eye closed detection
     unsigned long long time_acc_last_;
+    unsigned long long time_eye_last_;
     unsigned long long time_rot_last_;
     double T_acc_;
+    double T_eye_;
     double T_rot_;
     boolean acc_available_;
     boolean rot_available_;
@@ -188,7 +194,8 @@ protected:
     float roll_thr_p_;
     float eye_voltage_norm_;
     float eye_voltage_thr_;
-    unsigned long long time_now_ms_;
+    unsigned long long time_eye_ms_;
+    unsigned long long time_head_ms_;
     String unit_;
     float v3v3_;
     int v3v3Pin_;

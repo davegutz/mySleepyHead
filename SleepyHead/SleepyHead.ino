@@ -188,10 +188,12 @@ void loop()
   static unsigned long long now_ms = (unsigned long long) millis();
   boolean chitchat = false;
   static Sync *Talk = new Sync(TALK_DELAY);
-  boolean read = false;
-  static Sync *ReadSensors = new Sync(READ_DELAY);
-  boolean publishing;
-  static Sync *Plotting = new Sync(PLOT_DELAY);
+  boolean read_eye = false;
+  static Sync *ReadEye = new Sync(EYE_DELAY);
+  boolean read_head = false;
+  static Sync *ReadHead = new Sync(HEAD_DELAY);
+  boolean publishing = false;
+  static Sync *Plotting = new Sync(PUBLISH_DELAY);
   boolean control = false;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
   boolean blink = false;
@@ -206,7 +208,7 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT_EYE), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
   static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
@@ -222,9 +224,10 @@ void loop()
   // Synchronize
   now_ms = (unsigned long long) millis();
   if ( now_ms - last_sync > ONE_DAY_MILLIS || reset )  sync_time(&last_sync, &millis_flip); 
-  read = ReadSensors->update(millis(), reset);
+  read_eye = ReadEye->update(millis(), reset);
+  read_head = ReadHead->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
-  elapsed = ReadSensors->now() - time_start;
+  elapsed = ReadHead->now() - time_start;
   control = ControlSync->update(millis(), reset);
   blink = BlinkSync->update(millis(), reset);
   active = ActiveSync->update(millis(), reset);
@@ -253,11 +256,15 @@ void loop()
   }
 
   // Read sensors
-  if ( read )
+  if ( read_eye )
   {
-
-    Sen->sample(reset, millis(), time_start, now());
-    Sen->filter(reset);
+    Sen->sample_eye(reset, millis());
+    Sen->filter_eye(reset);
+  }
+  if ( read_head )
+  {
+    Sen->sample_head(reset, millis(), time_start, now());
+    Sen->filter_head(reset);
     Sen->quiet_decisions(reset);
     L->put_precursor(Sen);
 
@@ -277,7 +284,7 @@ void loop()
       log_size = 0;
     }
 
-    // Log data - full resolution since part of 'read' frame
+    // Log data - full resolution since part of 'read_head' frame
     if ( logging && !logging_past)
     {
       L->register_lock(inhibit_talk, Sen);  // after move_precursor so has values on first save
@@ -314,7 +321,7 @@ void loop()
 
     logging_past = logging;
 
-  }  // end read
+  }  // end read_head
 
   // Control
   if ( control )
@@ -386,7 +393,7 @@ void loop()
         Sen->plot_buzz();
         break;
       case 9:
-        Sen->print_rapid(reset, true, Sen->time_now_s());
+        Sen->print_rapid(reset, true, Sen->time_eye_s());
         debug = 9;
         break;
       case 10:
@@ -404,7 +411,7 @@ void loop()
   accel_ready = false;
 
   // Initialize complete once sensors and models started and summary written
-  if ( read ) reset = false;
+  if ( read_head ) reset = false;
 
   // Blink when threshold breached and therefore logging
   if ( blink )

@@ -37,16 +37,18 @@
 #include "local_config.h"
 const String unit_key = version + "_" + HDWE_UNIT;
 
-const double NOM_DT = 0.01;
+const double NOM_DT_EYE = 0.01;
+const double NOM_DT_HEAD = 0.1;
 const float deg_to_rps = 0.0174533;
 
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS        86400000UL// Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
-#define READ_DELAY            10UL      // Sensor read wait, ms (10UL = 0.01 sec) Dr
-#define CONTROL_DELAY        100UL      // Control read wait, ms (100UL = 0.1 sec)
-#define LOG_DELAY             10UL      // Register wait, ms (20UL = 0.01 sec)
-#define PLOT_DELAY           100UL      // Plot wait, ms (100UL = 0.1 sec)
+#define EYE_DELAY             20UL      // Sensor read wait, ms (20UL = 0.02 sec) Dr
+#define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec) Dr
+#define CONTROL_DELAY         20UL      // Control read wait, ms (20UL = 0.02 sec)
+#define LOG_DELAY             20UL      // Register wait, ms (20UL = 0.01 sec)
+#define PUBLISH_DELAY         20UL      // Publish wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 
@@ -78,7 +80,7 @@ const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.)
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
-const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)
+const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)  Head needs none; heavily filtered by Mahoney
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
 // Pui 24a
 // const int   buzz_freq_grav = 3500;       // Buzzer frequency when gravity detected, Hz (2000)
