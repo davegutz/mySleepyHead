@@ -113,19 +113,19 @@ class SavedData:
             self.i = 0
             self.cTime = None
             self.time = None
-            self.eye_voltage = None
+            self.eye_voltage_norm = None
             self.unit = None  # text title
             self.eye_voltage_thr = None
-            self.eye_cl = None
-            self.conf = None
+            self.eye_closed = None
+            self.eye_closed_confirmed = None
             self.max_nod_f = None
             self.max_nod_p = None
-            self.buzz = None
+            self.head_buzz = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
             self.time = np.array(data.cTime)
-            self.eye_voltage = np.array(data.eye_voltage)
+            self.eye_voltage_norm = np.array(data.eye_voltage_norm)
             # manage data shape
             # Find first non-zero ib and use to adjust time
             # Ignore initial run of non-zero ib because resetting from previous run
@@ -137,10 +137,10 @@ class SavedData:
                 try:
                     self.zero_end = 0
                     # stop after first non-zero
-                    while self.zero_end < len(self.eye_voltage) and abs(self.eye_voltage[self.zero_end]) < zero_thr:
+                    while self.zero_end < len(self.eye_voltage_norm) and abs(self.eye_voltage_norm[self.zero_end]) < zero_thr:
                         self.zero_end += 1
                     self.zero_end -= 1  # backup one
-                    if self.zero_end == len(self.eye_voltage) - 1:
+                    if self.zero_end == len(self.eye_voltage_norm) - 1:
                         print(Colors.fg.red, f"\n\nLikely ib is zero throughout the data.  Check setup and retry\n\n",
                               Colors.reset)
                         self.zero_end = 0
@@ -178,13 +178,13 @@ class SavedData:
                     self.zero_end = min(self.zero_end, i_end - 1)
             self.cTime = self.cTime[:i_end]
             self.time = np.array(self.time[:i_end])
-            self.eye_voltage = np.array(data.eye_voltage[:i_end])
+            self.eye_voltage_norm = np.array(data.eye_voltage_norm[:i_end])
             self.eye_voltage_thr = np.array(data.eye_voltage_thr[:i_end])
-            self.eye_cl = np.array(data.eye_cl[:i_end])
-            self.conf = np.array(data.conf[:i_end])
+            self.eye_closed = np.array(data.eye_closed[:i_end])
+            self.eye_closed_confirmed = np.array(data.eye_closed_confirmed[:i_end])
             self.max_nod_f = np.array(data.max_nod_f[:i_end])
             self.max_nod_p = np.array(data.max_nod_p[:i_end])
-            self.buzz = np.array(data.buzz[:i_end])
+            self.head_buzz = np.array(data.head_buzz[:i_end])
         if sel is None:
             self.c_time_s = None
         else:
@@ -198,13 +198,13 @@ class SavedData:
         s = "{},".format(self.unit[self.i])
         s += "{:13.3f},".format(self.cTime[self.i])
         s += "{:13.6f},".format(self.time[self.i])
-        s += "{:8.3f},".format(self.eye_voltage[self.i])
+        s += "{:8.3f},".format(self.eye_voltage_norm[self.i])
         s += "{:7.2f},".format(self.eye_voltage_thr[self.i])
-        s += "{:5.2f},".format(self.eye_cl[self.i])
-        s += "{:5.2f},".format(self.conf[self.i])
+        s += "{:5.2f},".format(self.eye_closed[self.i])
+        s += "{:5.2f},".format(self.eye_closed_confirmed[self.i])
         s += "{:5.2f},".format(self.max_nod_f[self.i])
         s += "{:10.6f},".format(self.max_nod_p[self.i])
-        s += "{:7.3f},".format(self.buzz[self.i])
+        s += "{:7.3f},".format(self.head_buzz[self.i])
         return s
 
     def mod(self):

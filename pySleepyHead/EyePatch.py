@@ -41,11 +41,11 @@ class EyePatch:
         self.VoltTripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
         self.time = None
         self.dt = None
-        self.eye_voltage = None
+        self.eye_voltage_norm = None
         self.eye_voltage_filt = None
         self.eye_voltage_thr = None
-        self.eye_cl = None
-        self.conf = None
+        self.eye_closed = None
+        self.eye_closed_confirmed = None
         self.buzz_eye = None
         self.saved = Saved()  # for plots and prints
 
@@ -64,7 +64,7 @@ class EyePatch:
             reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
             self.Data.i = i
             self.time = now
-            self.eye_voltage = self.Data.eye_voltage[i]
+            self.eye_voltage_norm = self.Data.eye_voltage_norm[i]
             T = None
             if i == 0:
                 T = t[1] - t[0]
@@ -74,9 +74,9 @@ class EyePatch:
                     T = candidate_dt
 
             # Run filters
-            self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage, reset, T)
-            self.eye_cl = self.eye_voltage_filt < Device.EYE_CL_THR
-            self.conf = self.VoltTripConf.calculate(self.eye_cl, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, T, reset)
+            self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage_norm, reset, T)
+            self.eye_closed = self.eye_voltage_filt < Device.EYE_CL_THR
+            self.eye_closed_confirmed = self.VoltTripConf.calculate(self.eye_closed, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, T, reset)
 
             # Log
             self.save(t[i], T)
@@ -84,16 +84,16 @@ class EyePatch:
             # Print initial
             if i == 0 and verbose:
                 print('time=', t[i])
-                print(' object   T  reset  time   eye_voltage  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
+                print(' object   T  reset  time   eye_voltage_norm  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
             if verbose:
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltFilter.AB2))
-                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.conf))
+                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
 
         # Data
         if verbose:
-            print('   time mo.eye_voltage ')
+            print('   time mo.eye_voltage_norm ')
             print('time=', now)
             print('EyePatch:  ', str(self))
 
@@ -103,26 +103,26 @@ class EyePatch:
         """Log EyePatch"""
         self.saved.time.append(self.time)
         self.saved.dt.append(self.dt)
-        self.saved.eye_voltage.append(self.eye_voltage)
+        self.saved.eye_voltage_norm.append(self.eye_voltage_norm)
         self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
         self.saved.eye_voltage_thr.append(self.eye_voltage_thr)
-        self.saved.eye_cl.append(self.eye_cl)
-        self.saved.conf.append(self.conf)
+        self.saved.eye_closed.append(self.eye_closed)
+        self.saved.eye_closed_confirmed.append(self.eye_closed_confirmed)
         self.saved.buzz_eye.append(self.buzz_eye)
 
     def __str__(self):
-        return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage) + "{:9.3f}".format(self.eye_voltage_filt)
+        return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
 
 class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
     def __init__(self):
         self.time = []
         self.dt = []
-        self.eye_voltage = []
+        self.eye_voltage_norm = []
         self.eye_voltage_filt = []
         self.eye_voltage_thr = []
-        self.eye_cl = []
-        self.conf = []
+        self.eye_closed = []
+        self.eye_closed_confirmed = []
         self.buzz_eye = []
 
 

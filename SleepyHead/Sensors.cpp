@@ -63,6 +63,9 @@ void Sensors::filter(const boolean reset)
     #endif
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_acc_, reset);
 
+    // Eye buzz
+    eye_buzz_ = eye_closed_confirmed_;
+
     // Mahony Tracking Filter
     if ( run )
       TrackFilter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
@@ -82,8 +85,12 @@ void Sensors::filter(const boolean reset)
     pitch_filt = TrackFilter->getPitch();
     yaw_filt = TrackFilter->getYaw();
 
+    // Head sensor
     max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
     max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
+
+    // Head buzz
+    head_buzz_ = max_nod_p_ > 0.;
 
 }
 
@@ -198,12 +205,11 @@ void Sensors::plot_buzz()
     Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_, 3);
     Serial.print("\t");
   #endif
-  Serial.print("eye_cl:"); Serial.print(eye_closed_);
+  Serial.print("eye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
   Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
   Serial.print("\tmax_nod_p:"); Serial.print(max_nod_p_, 3);
-  buzz_ = eye_closed_confirmed_ || max_nod_p_ > 0.;
-  Serial.print("\tbuzz:"); Serial.println(buzz_, 3);
+  Serial.print("\tbuzz:"); Serial.println(head_buzz_, 3);
 }
 
 // plot pp4
@@ -287,11 +293,12 @@ void Sensors::header_rapid_9()
     Serial.print("eye_voltage_norm,");
     Serial.print("eye_voltage_thr,");
   #endif
-  Serial.print("eye_cl,");
-  Serial.print("conf,");
+  Serial.print("eye_closed,");
+  Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");
   Serial.print("max_nod_p,");
-  Serial.print("buzz,");
+  Serial.print("head_buzz,");
+  Serial.print("eye_buzz,");
   Serial.println("");
 }
 
@@ -309,8 +316,8 @@ void Sensors::print_rapid_9(const float time)
   Serial.print(eye_closed_confirmed_); Serial.print(",");
   Serial.print(max_nod_f_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
-  buzz_ = eye_closed_confirmed_ || max_nod_p_ > 0.;
-  Serial.print(buzz_, 3); Serial.print(",");
+  Serial.print(head_buzz_, 3); Serial.print(",");
+  Serial.print(head_buzz_, 3); Serial.print(",");
   Serial.println("");
 }
 

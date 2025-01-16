@@ -1,4 +1,4 @@
-key_Rapid,cTime,eye_voltage,eye_voltage_thr,eye_cl,conf,max_nod_f,max_nod_p,buzz
+key_Rapid,cTime,eye_voltage_norm,eye_voltage_thr,eye_closed,eye_closed_confirmed,max_nod_f,max_nod_p,head_buzz
 v20250113_pro0n33iot_Rapid,60.401001,1.3675,0,0,0,-11.13,-6.13,0
 v20250113_pro0n33iot_Rapid,60.492001,1.3651,0,0,0,-10.821,-5.821,0
 v20250113_pro0n33iot_Rapid,60.592999,1.3756,0,0,0,-10.862,-5.862,0
