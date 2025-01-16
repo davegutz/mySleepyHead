@@ -49,7 +49,7 @@ public:
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), buzz_(false),
-      pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_(0), eye_voltage_thr_(0), v3v3_(0),
+      pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), eye_voltage_thr_(0), v3v3_(0),
       v3v3Pin_(0)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
@@ -61,7 +61,7 @@ public:
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), buzz_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
-      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_(0), eye_voltage_thr_(voltage_thr_def),
+      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0), eye_voltage_thr_(voltage_thr_def),
       unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin)
     {
         // Update time and time constant changed on the fly
@@ -185,7 +185,7 @@ protected:
     float roll_thr_f_;
     float pitch_thr_p_;
     float roll_thr_p_;
-    float eye_voltage_;
+    float eye_voltage_norm_;
     float eye_voltage_thr_;
     unsigned long long time_now_ms_;
     String unit_;

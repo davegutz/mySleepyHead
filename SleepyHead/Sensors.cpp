@@ -59,7 +59,7 @@ void Sensors::filter(const boolean reset)
 
     // IR Sensor
     #ifndef USE_IR_ON_OFF
-      eye_closed_ = ( eye_voltage_ - eye_voltage_thr_ ) < 0.;
+      eye_closed_ = ( eye_voltage_norm_ - eye_voltage_thr_ ) < 0.;
     #endif
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_acc_, reset);
 
@@ -194,7 +194,7 @@ void Sensors::plot_all_sum()  // plot pp0
 void Sensors::plot_buzz()
 {
   #ifndef USE_IR_ON_OFF
-    Serial.print("teye_voltage:"); Serial.print(eye_voltage_, 4);
+    Serial.print("teye_voltage:"); Serial.print(eye_voltage_norm_, 4);
     Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_, 3);
     Serial.print("\t");
   #endif
@@ -284,7 +284,7 @@ void Sensors::header_rapid_9()
   Serial.print("cTime,");
   #ifndef USE_IR_ON_OFF
     Serial.print("v3v3,");
-    Serial.print("eye_voltage,");
+    Serial.print("eye_voltage_norm,");
     Serial.print("eye_voltage_thr,");
   #endif
   Serial.print("eye_cl,");
@@ -302,7 +302,7 @@ void Sensors::print_rapid_9(const float time)
   Serial.print(time, 6); Serial.print(",");
   #ifndef USE_IR_ON_OFF
     Serial.print(v3v3_, 4); Serial.print(",");
-    Serial.print(eye_voltage_, 4); Serial.print(",");
+    Serial.print(eye_voltage_norm_, 4); Serial.print(",");
     Serial.print(eye_voltage_thr_, 3); Serial.print(",");
   #endif
   Serial.print(eye_closed_); Serial.print(",");
@@ -363,7 +363,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
     #ifdef IR_SENSOR_ON_OFF
       eye_closed_ = !digitalRead(sensorPin_);
     #else
-      eye_voltage_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) + (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
+      eye_voltage_norm_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) - (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
     #endif
 
     // Gyroscope
