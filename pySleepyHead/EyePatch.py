@@ -28,8 +28,12 @@ class Device:
     VOLT_CLOSED_R = 0.2  # Voltage trip reset persistence, s ()
     OMEGA_N_NOISE = 5.  # Noise filter wn, r/s ()
     ZETA_NOISE = 0.9  # Noise filter damping factor ()
+    MAX_T_FILT = 0.15  # Noise filter minimum update time consistent with OMEGA_N and ZETA, s ()
     V3V3Q2 = 3.3 / 2.  # Filter windup limits
     EYE_CL_THR = 1.3
+    TAU_ST = 0.156  # Short term filter time constant, s ()
+    TAU_LT = 30.  # Long term filter time constant, s ()
+
 
 class EyePatch:
     """Container of candidate filters"""
@@ -74,7 +78,7 @@ class EyePatch:
                     T = candidate_dt
 
             # Run filters
-            self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage_norm, reset, T)
+            self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage_norm, reset, min(T, Device.MAX_T_FILT))
             self.eye_closed = self.eye_voltage_filt < Device.EYE_CL_THR
             self.eye_closed_confirmed = self.VoltTripConf.calculate(self.eye_closed, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, T, reset)
 
