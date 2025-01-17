@@ -54,6 +54,7 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mv, 'time', mv, 'eye_closed', add=2, color='cyan', linestyle='--', label='eye_closed' + test_str + '2')
     plq(plt, mo, 'time', mo, 'eye_closed_confirmed', color='green', linestyle='-.', label='eye_closed_confirmed' + ref_str)
     plq(plt, mv, 'time', mv, 'eye_closed_confirmed', color='magenta', linestyle=':', label='eye_closed_confirmed' + test_str)
+    plq(plt, mv, 'time', mv, 'eye_closed_LTST', color='orange', linestyle='--', label='eye_closed_LTST' + test_str)
     plt.legend(loc=1)
     plt.subplot(233)
     plq(plt, mo, 'time', mo, 'max_nod_f', color='cyan', linestyle='-', label='max_nod_f' + ref_str)

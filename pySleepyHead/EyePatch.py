@@ -35,8 +35,8 @@ class Device:
     TAU_LT = 30.  # Long term filter time constant, s ()
     FLT_NEG_LTST = -1.3e6
     FRZ_NEG_LTST = -0.3e6
-    FLT_POS_LTST = 0.01
-    FRZ_POS_LTST = 0.04
+    FLT_POS_LTST = 0.04
+    FRZ_POS_LTST = 0.01
 
 
 class EyePatch:
@@ -50,6 +50,7 @@ class EyePatch:
         self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,
                                                    flt_thr_neg=Device.FLT_NEG_LTST, frz_thr_neg=Device.FRZ_NEG_LTST,
                                                    flt_thr_pos=Device.FLT_POS_LTST, frz_thr_pos=Device.FRZ_POS_LTST)
+        self.LTST_TripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
         self.time = None
         self.dt = None
         self.eye_voltage_norm = None
@@ -67,6 +68,7 @@ class EyePatch:
         self.input = None
         self.lt_state = None
         self.st_state = None
+        self.eye_closed_LTST = None
         self.saved = Saved()  # for plots and prints
 
     def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
@@ -99,6 +101,8 @@ class EyePatch:
             self.eye_closed_confirmed = self.VoltTripConf.calculate(self.eye_closed, Device.VOLT_CLOSED_S,
                                                                     Device.VOLT_CLOSED_R, T, reset)
             self.flt_LTST = self.LTST_Filter.calculate(self.eye_voltage_norm, reset, T)
+            self.eye_closed_LTST = self.LTST_TripConf.calculate(self.flt_LTST, Device.VOLT_CLOSED_S,
+                                                                    Device.VOLT_CLOSED_R, T, reset)
             self.cf = self.LTST_Filter.cf
             self.dltst = self.LTST_Filter.dltst
             self.freeze = self.LTST_Filter.freeze
@@ -142,6 +146,8 @@ class EyePatch:
         self.saved.freeze.append(self.freeze)
         self.saved.lt_state.append(self.lt_state)
         self.saved.st_state.append(self.st_state)
+        self.saved.eye_closed_LTST.append(self.eye_closed_LTST)
+
 
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
@@ -163,5 +169,4 @@ class Saved:
         self.freeze = []
         self.lt_state = []
         self.st_state = []
-
-
+        self.eye_closed_LTST = []

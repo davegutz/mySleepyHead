@@ -587,7 +587,7 @@ class LongTermShortTermFilter:
     """Dynamic change detection of a normally unchanging signal, see US Patent """
     # Tustin lag calculator, non-pre-warped
 
-    def __init__(self, dt, tau_lt, tau_st, flt_thr_neg, frz_thr_neg, flt_thr_pos, frz_thr_pos):
+    def __init__(self, dt, tau_lt, tau_st, flt_thr_neg=-1.e6, frz_thr_neg=-1e5, flt_thr_pos=1e6, frz_thr_pos=1e5):
         self.tau_lt = tau_lt
         self.tau_st = tau_st
         self.dt = dt
@@ -648,11 +648,17 @@ class LongTermShortTermFilter:
         if self.dltst <= 0:
             self.freeze = self.dltst <= self.frz_thr_neg
             self.fault = self.dltst <= self.frz_thr_neg
-            self.cf = max(min( 1. - (self.dltst - self.frz_thr_neg) / (self.flt_thr_neg - self.frz_thr_neg), 1.), 0.)
+            if self.freeze is np.True_:
+                self.cf = max(min( 1. - (self.frz_thr_neg - self.dltst) / (self.frz_thr_neg - self.flt_thr_neg), 1.), 0.)
+            else:
+                self.cf = 1.
         else:
             self.freeze = self.dltst >= self.frz_thr_pos
             self.fault = self.dltst >= self.frz_thr_pos
-            self.cf = max(min( 1. - (self.dltst - self.frz_thr_pos) / (self.flt_thr_pos - self.frz_thr_pos), 1.), 0.)
+            if self.freeze is np.True_:
+                self.cf = max(min( 1. - (self.dltst - self.frz_thr_pos) / (self.flt_thr_pos - self.frz_thr_pos), 1.), 0.)
+            else:
+                self.cf = 1.
         return self.fault
 
 
