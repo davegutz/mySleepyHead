@@ -35,8 +35,8 @@ class Device:
     TAU_LT = 30.  # Long term filter time constant, s ()
     FLT_NEG_LTST = -1.3e6
     FRZ_NEG_LTST = -0.3e6
-    FLT_POS_LTST = 0.3
-    FRZ_POS_LTST = 1.3
+    FLT_POS_LTST = 0.01
+    FRZ_POS_LTST = 0.04
 
 
 class EyePatch:
