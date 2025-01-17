@@ -17,7 +17,7 @@
 Filter data and try candidate filters to detect sleepiness.
 """
 from TFDelay import TFDelay
-from myFilters import LagTustin, LagExp, General2Pole, RateLimit, SlidingDeadband, TustinIntegrator, RateLagExp
+from myFilters import General2Pole, LongTermShortTermFilter
 import numpy as np
 
 
@@ -33,6 +33,10 @@ class Device:
     EYE_CL_THR = 1.3
     TAU_ST = 0.156  # Short term filter time constant, s ()
     TAU_LT = 30.  # Long term filter time constant, s ()
+    FLT_NEG_LTST = -1.3e6
+    FRZ_NEG_LTST = -0.3e6
+    FLT_POS_LTST = 0.3
+    FRZ_POS_LTST = 1.3
 
 
 class EyePatch:
@@ -40,9 +44,12 @@ class EyePatch:
 
     def __init__(self, data, dt=0.1):
         self.Data = data
-        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE, -10., 10., 0., Device.V3V3Q2)  # actual dt provided at run time
-        # self.VoltFilter = LagExp(Device.NOMINAL_DT, 1./Device.OMEGA_N_NOISE,0., Device.V3V3Q2)  # actual dt provided at run time
+        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
+                                       -10., 10., 0., Device.V3V3Q2)  # actual dt provided at run time
         self.VoltTripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
+        self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,
+                                                   flt_thr_neg=Device.FLT_NEG_LTST, frz_thr_neg=Device.FRZ_NEG_LTST,
+                                                   flt_thr_pos=Device.FLT_POS_LTST, frz_thr_pos=Device.FRZ_POS_LTST)
         self.time = None
         self.dt = None
         self.eye_voltage_norm = None
@@ -50,7 +57,16 @@ class EyePatch:
         self.eye_voltage_thr = None
         self.eye_closed = None
         self.eye_closed_confirmed = None
+        self.flt_LTST = None
         self.buzz_eye = None
+        self.cf = 1.
+        self.dltst = None
+        self.fault = False
+        self.freeze = False
+        self.reset = True
+        self.input = None
+        self.lt_state = None
+        self.st_state = None
         self.saved = Saved()  # for plots and prints
 
     def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
@@ -80,7 +96,14 @@ class EyePatch:
             # Run filters
             self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage_norm, reset, min(T, Device.MAX_T_FILT))
             self.eye_closed = self.eye_voltage_filt < Device.EYE_CL_THR
-            self.eye_closed_confirmed = self.VoltTripConf.calculate(self.eye_closed, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, T, reset)
+            self.eye_closed_confirmed = self.VoltTripConf.calculate(self.eye_closed, Device.VOLT_CLOSED_S,
+                                                                    Device.VOLT_CLOSED_R, T, reset)
+            self.flt_LTST = self.LTST_Filter.calculate(self.eye_voltage_norm, reset, T)
+            self.cf = self.LTST_Filter.cf
+            self.dltst = self.LTST_Filter.dltst
+            self.freeze = self.LTST_Filter.freeze
+            self.lt_state = self.LTST_Filter.lt_state
+            self.st_state = self.LTST_Filter.st_state
 
             # Log
             self.save(t[i], T)
@@ -113,6 +136,12 @@ class EyePatch:
         self.saved.eye_closed.append(self.eye_closed)
         self.saved.eye_closed_confirmed.append(self.eye_closed_confirmed)
         self.saved.buzz_eye.append(self.buzz_eye)
+        self.saved.flt_LTST.append(self.flt_LTST)
+        self.saved.cf.append(self.cf)
+        self.saved.dltst.append(self.dltst)
+        self.saved.freeze.append(self.freeze)
+        self.saved.lt_state.append(self.lt_state)
+        self.saved.st_state.append(self.st_state)
 
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
@@ -128,5 +157,11 @@ class Saved:
         self.eye_closed = []
         self.eye_closed_confirmed = []
         self.buzz_eye = []
+        self.flt_LTST = []
+        self.cf = []
+        self.dltst = []
+        self.freeze = []
+        self.lt_state = []
+        self.st_state = []
 
 
