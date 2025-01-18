@@ -31,8 +31,8 @@ class Device:
     MAX_T_FILT = 0.15  # Noise filter minimum update time consistent with OMEGA_N and ZETA, s ()
     V3V3Q2 = 3.3 / 2.  # Filter windup limits
     EYE_CL_THR = 1.3
-    TAU_ST = 0.156  # Short term filter time constant, s ()
-    TAU_LT = 30.  # Long term filter time constant, s ()
+    TAU_ST = 0.4  # Short term filter time constant, s ()
+    TAU_LT = 20.  # Long term filter time constant, s ()
     FLT_NEG_LTST = -1.3e6
     FRZ_NEG_LTST = -0.3e6
     FLT_POS_LTST = 0.04
@@ -69,6 +69,8 @@ class EyePatch:
         self.lt_state = None
         self.st_state = None
         self.eye_closed_LTST = None
+        self.frz_thr_pos = Device.FRZ_POS_LTST
+        self.flt_thr_pos = Device.FLT_POS_LTST
         self.saved = Saved()  # for plots and prints
 
     def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
@@ -120,13 +122,14 @@ class EyePatch:
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltFilter.AB2))
-                print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
+                print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed_LTST {:d}".format(self.eye_closed_LTST))
 
         # Data
         if verbose:
             print('   time mo.eye_voltage_norm ')
             print('time=', now)
-            print('EyePatch:  ', str(self))
+            print('EyePatch:  ', str(self.LTST_Filter))
 
         return self.saved
 
@@ -146,6 +149,8 @@ class EyePatch:
         self.saved.freeze.append(self.freeze)
         self.saved.lt_state.append(self.lt_state)
         self.saved.st_state.append(self.st_state)
+        self.saved.frz_thr_pos.append(Device.FRZ_POS_LTST)
+        self.saved.flt_thr_pos.append(Device.FLT_POS_LTST)
         self.saved.eye_closed_LTST.append(self.eye_closed_LTST)
 
 
@@ -170,3 +175,5 @@ class Saved:
         self.lt_state = []
         self.st_state = []
         self.eye_closed_LTST = []
+        self.frz_thr_pos = []
+        self.flt_thr_pos = []

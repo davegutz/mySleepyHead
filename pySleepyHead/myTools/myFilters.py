@@ -606,6 +606,19 @@ class LongTermShortTermFilter:
         self.lt_state = None
         self.st_state = None
 
+    def __repr__(self, prefix=''):
+        s = prefix + "LTST filter:"
+        s += "  reset {:d}".format(self.reset)
+        s += "  dt {:9.6f}".format(self.dt)
+        s += "  input {:7.3f}".format(self.input)
+        s += "  lt_state {:7.3f}".format(self.lt_state)
+        s += "  st_state {:7.3f}".format(self.st_state)
+        s += "  dltst {:7.3f}".format(self.dltst)
+        s += "  freeze {:d}".format(self.freeze)
+        s += "  cf {:7.3f}".format(self.cf)
+        s += "  fault {:d}".format(self.fault)
+        return s
+
     def __str__(self, prefix=''):
         s = prefix + "LTST filter:"
         s += "\n  "
