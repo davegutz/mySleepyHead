@@ -105,11 +105,6 @@ class EyePatch:
             self.flt_LTST = self.LTST_Filter.calculate(self.eye_voltage_norm, reset, T)
             self.eye_closed_LTST = self.LTST_TripConf.calculate(self.flt_LTST, Device.VOLT_CLOSED_S,
                                                                     Device.VOLT_CLOSED_R, T, reset)
-            self.cf = self.LTST_Filter.cf
-            self.dltst = self.LTST_Filter.dltst
-            self.freeze = self.LTST_Filter.freeze
-            self.lt_state = self.LTST_Filter.lt_state
-            self.st_state = self.LTST_Filter.st_state
 
             # Log
             self.save(t[i], T)
@@ -144,11 +139,11 @@ class EyePatch:
         self.saved.eye_closed_confirmed.append(self.eye_closed_confirmed)
         self.saved.buzz_eye.append(self.buzz_eye)
         self.saved.flt_LTST.append(self.flt_LTST)
-        self.saved.cf.append(self.cf)
-        self.saved.dltst.append(self.dltst)
-        self.saved.freeze.append(self.freeze)
-        self.saved.lt_state.append(self.lt_state)
-        self.saved.st_state.append(self.st_state)
+        self.saved.cf.append(self.LTST_Filter.cf)
+        self.saved.dltst.append(self.LTST_Filter.dltst)
+        self.saved.freeze.append(self.LTST_Filter.freeze)
+        self.saved.lt_state.append(self.LTST_Filter.lt_state)
+        self.saved.st_state.append(self.LTST_Filter.st_state)
         self.saved.frz_thr_pos.append(Device.FRZ_POS_LTST)
         self.saved.flt_thr_pos.append(Device.FLT_POS_LTST)
         self.saved.eye_closed_LTST.append(self.eye_closed_LTST)
