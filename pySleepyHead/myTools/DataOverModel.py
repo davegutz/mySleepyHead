@@ -121,6 +121,11 @@ class SavedData:
             self.max_nod_f = None
             self.max_nod_p = None
             self.head_buzz = None
+            self.eye_buzz = None
+            self.lt_state = None
+            self.st_state = None
+            self.dltst = None
+            self.freeze = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -185,6 +190,12 @@ class SavedData:
             self.max_nod_f = np.array(data.max_nod_f[:i_end])
             self.max_nod_p = np.array(data.max_nod_p[:i_end])
             self.head_buzz = np.array(data.head_buzz[:i_end])
+            self.eye_buzz = np.array(data.eye_buzz[:i_end])
+            self.lt_state = np.array(data.lt_state[:i_end])
+            self.st_state = np.array(data.st_state[:i_end])
+            self.dltst = np.array(data.dltst[:i_end])
+            self.freeze = np.array(data.freeze[:i_end])
+
         if sel is None:
             self.c_time_s = None
         else:

@@ -84,8 +84,10 @@ public:
         GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
-        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_eye_init);
+        LTST_Filter = new LongTermShortTerm_Filter(Tfilt_eye_init, TAU_LT, TAU_ST, 1.e6, 1.e5, FLT_THR_POS, FRZ_THR_POS);
+        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_eye_init); 
     };
+
     unsigned long long millis;
     ~Sensors(){};
 
@@ -169,6 +171,7 @@ protected:
     RateLagExp *GQuietRate;    // Quiet detector
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
     TFDelay *EyeClosedPer; // Persistence eye closed detection
+    LongTermShortTerm_Filter *LTST_Filter;  // LTST filter
     unsigned long long time_acc_last_;
     unsigned long long time_eye_last_;
     unsigned long long time_rot_last_;

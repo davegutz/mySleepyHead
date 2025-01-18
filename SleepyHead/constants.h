@@ -82,6 +82,11 @@ const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
 const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)  Head needs none; heavily filtered by Mahoney
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
+const float  TAU_LT = 20.;               // Long term filter time constant, sec (20)
+const float  TAU_ST = 0.4;               // Short term filter time constant, sec (0.4)
+const float FLT_THR_POS = 0.04;          // LTST filter positive dltst fault threshold, v (0.04)
+const float FRZ_THR_POS = 0.01;          // LTST filter positive dltst freeze threshold, v (0.01)
+
 // Pui 24a
 // const int   buzz_freq_grav = 3500;       // Buzzer frequency when gravity detected, Hz (2000)
 // const int   buzz_freq_ir = 3800;        // Buzzer frequency when IR detected, Hz (3000) 

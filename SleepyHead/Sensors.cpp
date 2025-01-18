@@ -34,9 +34,7 @@ extern int debug;
 void Sensors::filter_eye(const boolean reset)
 {
     // IR Sensor
-    #ifndef USE_IR_ON_OFF
-      eye_closed_ = ( eye_voltage_norm_ - eye_voltage_thr_ ) < 0.;
-    #endif
+    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, reset, min(T_eye_, NOM_DT_HEAD));
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_eye_, reset);
 
     // Eye buzz
@@ -201,18 +199,16 @@ void Sensors::plot_all_sum()  // plot pp0
 }
 
 // Print pp8
-void Sensors::plot_buzz()
+void Sensors::plot_buzz()  // print pp8
 {
-  #ifndef USE_IR_ON_OFF
-    Serial.print("teye_voltage:"); Serial.print(eye_voltage_norm_, 4);
-    Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_, 3);
-    Serial.print("\t");
-  #endif
+  Serial.print("teye_voltage:"); Serial.print(eye_voltage_norm_, 4);
+  Serial.print("\t");
   Serial.print("eye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
+  Serial.print("\teye_buzz:"); Serial.println(eye_buzz_);
   Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
   Serial.print("\tmax_nod_p:"); Serial.print(max_nod_p_, 3);
-  Serial.print("\tbuzz:"); Serial.println(head_buzz_, 3);
+  Serial.print("\thead_buzz:"); Serial.println(head_buzz_);
 }
 
 // plot pp4
@@ -291,17 +287,18 @@ void Sensors::header_rapid_9()
 {
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
-  #ifndef USE_IR_ON_OFF
-    Serial.print("v3v3,");
-    Serial.print("eye_voltage_norm,");
-    Serial.print("eye_voltage_thr,");
-  #endif
+  Serial.print("v3v3,");
+  Serial.print("eye_voltage_norm,");
   Serial.print("eye_closed,");
   Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");
   Serial.print("max_nod_p,");
   Serial.print("head_buzz,");
   Serial.print("eye_buzz,");
+  Serial.print("lt_state,");
+  Serial.print("st_state,");
+  Serial.print("dltst,");
+  Serial.print("freeze,");
   Serial.println("");
 }
 
@@ -310,17 +307,18 @@ void Sensors::print_rapid_9(const float time)
 {
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
-  #ifndef USE_IR_ON_OFF
-    Serial.print(v3v3_, 4); Serial.print(",");
-    Serial.print(eye_voltage_norm_, 4); Serial.print(",");
-    Serial.print(eye_voltage_thr_, 3); Serial.print(",");
-  #endif
+  Serial.print(v3v3_, 4); Serial.print(",");
+  Serial.print(eye_voltage_norm_, 4); Serial.print(",");
   Serial.print(eye_closed_); Serial.print(",");
   Serial.print(eye_closed_confirmed_); Serial.print(",");
   Serial.print(max_nod_f_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
-  Serial.print(head_buzz_, 3); Serial.print(",");
-  Serial.print(head_buzz_, 3); Serial.print(",");
+  Serial.print(head_buzz_); Serial.print(",");
+  Serial.print(eye_buzz_); Serial.print(",");
+  Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->st_state(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->freeze()); Serial.print(",");
   Serial.println("");
 }
 
@@ -354,16 +352,12 @@ void Sensors::sample_eye(const boolean reset, const unsigned long long time_eye_
     }
 
     // Half v3v3_nom = 3.3; v3v3_units = 4095;
-    v3v3_ = analogRead(v3v3Pin_) * v3v3_nom / float(v3v3_units) * 2.;
+    // v3v3_ = analogRead(v3v3Pin_) * v3v3_nom / float(v3v3_units) * 2.;
+    v3v3_ = v3v3_nom;  // Disable.  Very small effect.  Don't bother wiring it.
 
 
     // IR Sensor
-    #ifdef IR_SENSOR_ON_OFF
-      eye_closed_ = !digitalRead(sensorPin_);
-    #else
-      eye_voltage_norm_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) - (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
-    #endif
-
+    eye_voltage_norm_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) - (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
     T_eye_ = double(time_eye_ms - time_eye_last_) / 1000.;
     time_eye_last_ = time_eye_ms_;
 
