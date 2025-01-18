@@ -660,14 +660,14 @@ class LongTermShortTermFilter:
         self.dltst = self.lt_state - self.st_state
         if self.dltst <= 0:
             self.freeze = self.dltst <= self.frz_thr_neg
-            self.fault = self.dltst <= self.frz_thr_neg
+            self.fault = self.dltst <= self.flt_thr_neg
             if self.freeze is np.True_:
                 self.cf = max(min( 1. - (self.frz_thr_neg - self.dltst) / (self.frz_thr_neg - self.flt_thr_neg), 1.), 0.)
             else:
                 self.cf = 1.
         else:
             self.freeze = self.dltst >= self.frz_thr_pos
-            self.fault = self.dltst >= self.frz_thr_pos
+            self.fault = self.dltst >= self.flt_thr_pos
             if self.freeze is np.True_:
                 self.cf = max(min( 1. - (self.dltst - self.frz_thr_pos) / (self.flt_thr_pos - self.frz_thr_pos), 1.), 0.)
             else:
