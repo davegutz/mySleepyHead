@@ -451,6 +451,39 @@ protected:
   TustinIntegrator *Tustin_;
 };
 
+
+class LongTermShortTerm_Filter
+{
+public:
+  LongTermShortTerm_Filter()
+    : flt_thr_neg_(0), flt_thr_pos_(0), freeze_(false), frz_thr_neg_(0), frz_thr_pos_(0), T_(0), tau_lt_(0), tau_st_(0)
+  {};
+  LongTermShortTerm_Filter(const double T, const double tau_lt, const double tau_st, const double flt_thr_neg, const double frz_thr_neg,
+                           const double flt_thr_pos, const double frz_thr_pos);
+  ~LongTermShortTerm_Filter();
+  void assign_coeff(const double T);
+  boolean calculate(const double in, const boolean RESET, const double T);
+protected:
+  double cf_;
+  double dltst_;
+  boolean fault_;
+  double flt_thr_neg_;
+  double flt_thr_pos_;
+  boolean freeze_;
+  double frz_thr_neg_;
+  double frz_thr_pos_;
+  double input_;
+  double klt_;
+  double kst_;
+  double lt_state_;
+  boolean RESET_;
+  double st_state_;
+  double T_;
+  double tau_lt_;
+  double tau_st_;
+};
+
+
 // PID
 struct PID
 {
