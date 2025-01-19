@@ -471,6 +471,7 @@ public:
   double get_freeze_thr_neg() { return (frz_thr_neg_); };
   double get_freeze_thr_pos() { return (frz_thr_pos_); };
   double lt_state() { return (lt_state_); };
+  void pretty_print();
   void set_fault_thr_neg(const double input) { flt_thr_neg_ = input; };
   void set_fault_thr_pos(const double input) { flt_thr_pos_ = input; };
   void set_freeze_thr_neg(const double input) { frz_thr_neg_ = input; };

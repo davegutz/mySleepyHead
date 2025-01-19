@@ -542,6 +542,8 @@ void loop()
           Serial.print("\t i = ir sensor freq, Hz ("); Serial.print(buzz.irFreq());Serial.println(")");
           Serial.print("\t g = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq());Serial.println(")");
           Serial.println("h - this help");
+          Serial.println("P? - Print stuff");
+          Serial.println("\t L - LTST Filter");
           Serial.println("pp? - plot all version X");
           Serial.println("\t blank - stop plotting");
           Serial.println("\t 0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
@@ -572,6 +574,17 @@ void loop()
           plotting_all = false;
           monitoring = !monitoring;
           break;
+        case ( 'P' ):  // P - print
+          switch ( letter_1 )
+          {
+            case ( 'L' ):  // PL - Print LTST Filter
+              Sen->LTST_Filter->pretty_print();
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
         case ( 'p' ):  // p - plot
           switch ( letter_1 )
           {

@@ -851,6 +851,23 @@ boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET
   return ( fault_ );
 }
 
+// Print
+void LongTermShortTerm_Filter::pretty_print()
+{
+  Serial.println("LTST:");
+  Serial.print("\tinput\t\t"); Serial.println(input_, 4);
+  Serial.print("\tlt_state\t"); Serial.println(lt_state_, 4);
+  Serial.print("\tst_state\t"); Serial.println(st_state_, 4);
+  Serial.print("\tdltst\t\t"); Serial.println(dltst_, 4);
+  Serial.print("\tfrz_thr_neg_\t"); Serial.println(frz_thr_neg_);
+  Serial.print("\tfrz_thr_pos_\t"); Serial.println(frz_thr_pos_);
+  Serial.print("\tflt_thr_neg_\t"); Serial.println(flt_thr_neg_);
+  Serial.print("\tflt_thr_pos_\t"); Serial.println(flt_thr_pos_);
+  Serial.print("\tfreeze_\t\t"); Serial.println(freeze_);
+  Serial.print("\tfault_\t\t"); Serial.println(fault_);
+  Serial.print("\tcf_\t\t"); Serial.println(cf_, 3);
+}
+
 
 // class PRBS_7
 // Pseudo-Random Binary Sequence, 7 bits.  Seed in range [0-255] or [0x00-0xFF]
