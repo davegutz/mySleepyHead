@@ -48,7 +48,7 @@ const float deg_to_rps = 0.0174533;
 #define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec) Dr
 #define CONTROL_DELAY         20UL      // Control read wait, ms (20UL = 0.02 sec)
 #define LOG_DELAY             20UL      // Register wait, ms (20UL = 0.01 sec)
-#define PUBLISH_DELAY         20UL      // Publish wait, ms (100UL = 0.1 sec)
+#define PUBLISH_DELAY        100UL      // Publish wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
 #define G_MAX                  20.      // Max G value, g's (20.) 

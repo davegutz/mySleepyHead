@@ -463,6 +463,7 @@ public:
   ~LongTermShortTerm_Filter();
   void assign_coeff(const double T);
   boolean calculate(const double in, const boolean RESET, const double T);
+  double cf() { return (cf_); };
   double dltst() { return (dltst_); };
   boolean freeze() { return (freeze_); };
   double get_fault_thr_neg() { return (flt_thr_neg_); };

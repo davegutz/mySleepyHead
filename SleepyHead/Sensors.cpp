@@ -201,11 +201,13 @@ void Sensors::plot_all_sum()  // plot pp0
 // Print pp8
 void Sensors::plot_buzz()  // print pp8
 {
-  Serial.print("teye_voltage:"); Serial.print(eye_voltage_norm_, 4);
-  Serial.print("\t");
-  Serial.print("eye_closed:"); Serial.print(eye_closed_);
+  Serial.print("eye_voltage:"); Serial.print(eye_voltage_norm_, 3);
+  Serial.print("\tltstate:"); Serial.print(LTST_Filter->lt_state(), 3);
+  Serial.print("\tststate:"); Serial.print(LTST_Filter->st_state(), 3);
+  Serial.print("\tdltst:"); Serial.print(LTST_Filter->dltst(), 3);
+  Serial.print("\teye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
-  Serial.print("\teye_buzz:"); Serial.println(eye_buzz_);
+  Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
   Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
   Serial.print("\tmax_nod_p:"); Serial.print(max_nod_p_, 3);
   Serial.print("\thead_buzz:"); Serial.println(head_buzz_);
@@ -315,7 +317,7 @@ void Sensors::print_rapid_9(const float time)
   Serial.print(max_nod_p_, 3); Serial.print(",");
   Serial.print(head_buzz_); Serial.print(",");
   Serial.print(eye_buzz_); Serial.print(",");
-  Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->lt_state(), 4); Serial.print(",");
   Serial.print(LTST_Filter->st_state(), 4); Serial.print(",");
   Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
   Serial.print(LTST_Filter->freeze()); Serial.print(",");

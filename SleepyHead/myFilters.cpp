@@ -816,7 +816,7 @@ boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET
     st_state_ = input_;
   }
 
-  if ( ! freeze_)
+  if ( ! freeze_ )
   {
     lt_state_ = input_ * klt_ + lt_state_ * (1. - klt_);
   }
@@ -848,7 +848,7 @@ boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET
       cf_ = 1.;
     }
   }
-  return (fault_);
+  return ( fault_ );
 }
 
 
