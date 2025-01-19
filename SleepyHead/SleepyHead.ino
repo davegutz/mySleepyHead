@@ -188,10 +188,12 @@ void loop()
   static unsigned long long now_ms = (unsigned long long) millis();
   boolean chitchat = false;
   static Sync *Talk = new Sync(TALK_DELAY);
-  boolean read = false;
-  static Sync *ReadSensors = new Sync(READ_DELAY);
-  boolean publishing;
-  static Sync *Plotting = new Sync(PLOT_DELAY);
+  boolean read_eye = false;
+  static Sync *ReadEye = new Sync(EYE_DELAY);
+  boolean read_head = false;
+  static Sync *ReadHead = new Sync(HEAD_DELAY);
+  boolean publishing = false;
+  static Sync *Plotting = new Sync(PUBLISH_DELAY);
   boolean control = false;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
   boolean blink = false;
@@ -206,7 +208,7 @@ void loop()
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
   static time_t new_event = 0;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT_EYE), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
   static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
   static boolean logging = false;
   static boolean logging_past = false;
@@ -222,9 +224,10 @@ void loop()
   // Synchronize
   now_ms = (unsigned long long) millis();
   if ( now_ms - last_sync > ONE_DAY_MILLIS || reset )  sync_time(&last_sync, &millis_flip); 
-  read = ReadSensors->update(millis(), reset);
+  read_eye = ReadEye->update(millis(), reset);
+  read_head = ReadHead->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
-  elapsed = ReadSensors->now() - time_start;
+  elapsed = ReadHead->now() - time_start;
   control = ControlSync->update(millis(), reset);
   blink = BlinkSync->update(millis(), reset);
   active = ActiveSync->update(millis(), reset);
@@ -253,11 +256,15 @@ void loop()
   }
 
   // Read sensors
-  if ( read )
+  if ( read_eye )
   {
-
-    Sen->sample(reset, millis(), time_start, now());
-    Sen->filter(reset);
+    Sen->sample_eye(reset, millis());
+    Sen->filter_eye(reset);
+  }
+  if ( read_head )
+  {
+    Sen->sample_head(reset, millis(), time_start, now());
+    Sen->filter_head(reset);
     Sen->quiet_decisions(reset);
     L->put_precursor(Sen);
 
@@ -277,7 +284,7 @@ void loop()
       log_size = 0;
     }
 
-    // Log data - full resolution since part of 'read' frame
+    // Log data - full resolution since part of 'read_head' frame
     if ( logging && !logging_past)
     {
       L->register_lock(inhibit_talk, Sen);  // after move_precursor so has values on first save
@@ -314,7 +321,7 @@ void loop()
 
     logging_past = logging;
 
-  }  // end read
+  }  // end read_head
 
   // Control
   if ( control )
@@ -386,7 +393,7 @@ void loop()
         Sen->plot_buzz();
         break;
       case 9:
-        Sen->print_rapid(reset, true, Sen->time_now_s());
+        Sen->print_rapid(reset, true, Sen->time_eye_s());
         debug = 9;
         break;
       case 10:
@@ -404,7 +411,7 @@ void loop()
   accel_ready = false;
 
   // Initialize complete once sensors and models started and summary written
-  if ( read ) reset = false;
+  if ( read_head ) reset = false;
 
   // Blink when threshold breached and therefore logging
   if ( blink )
@@ -472,6 +479,11 @@ void loop()
               Sen->TrackFilter->setKi(f_value);
               Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
               break;
+            case ( 'l' ):  // al - LTST fault threshold
+              Serial.print("LTST fault threshold from "); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3);
+              Sen->LTST_Filter->set_fault_thr_pos(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_fault_thr_pos(), 3);
+              break;
             case ( 'r' ):  // ar - roll threshold
               Serial.print("Roll threshold from "); Serial.print(Sen->roll_thr(), 3);
               Sen->roll_thr(f_value);
@@ -482,13 +494,11 @@ void loop()
               Sen->pitch_thr(f_value);
               Serial.print(" to "); Serial.println(Sen->pitch_thr(), 3);
               break;
-            #ifndef USE_IR_ON_OFF
-              case ( 'v' ):  // av - ir voltage threshold
-                Serial.print("IR threshold from "); Serial.print(Sen->voltage_thr(), 3);
-                Sen->voltage_thr(f_value);
-                Serial.print(" to "); Serial.println(Sen->voltage_thr(), 3);
-                break;
-            #endif
+            case ( 'z' ):  // az - LTST freeze threshold
+              Serial.print("LTST freeze threshold from "); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3);
+              Sen->LTST_Filter->set_freeze_thr_pos(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_freeze_thr_pos(), 3);
+              break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");
               break;
@@ -521,45 +531,60 @@ void loop()
         case ( 'h' ):  // h  - help
           plotting_all = false;
           monitoring = false;
-          Serial.println("aXX <val> - adjust");
-          Serial.print("\t p = Mahony proportional gain (Kp="); Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
-          Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
-          Serial.print("\t r = roll thr (roll_thr="); Serial.print(Sen->roll_thr(), 3);Serial.println(")");
-          Serial.print("\t t = pitch thr (pitch_thr="); Serial.print(Sen->pitch_thr(), 3);Serial.println(")");
-          #ifndef USE_IR_ON_OFF
-            Serial.print("\t v = volt thr (volt_thr="); Serial.print(Sen->voltage_thr(), 3);Serial.println(")");
-          #endif
-          Serial.println("bX<x> - buzz toggles");
-          Serial.print("\t i<freq> = ir sensor freq, Hz ("); Serial.print(buzz.irFreq());Serial.println(")");
-          Serial.print("\t g<freq> = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq());Serial.println(")");
+          Serial.println("a?<val> - adjust");
+          Serial.print("\t p = Mahony proportional gain ("); Serial.print(Sen->TrackFilter->getKp(), 3); Serial.println(")");
+          Serial.print("\t i = Mahony integral gain ("); Serial.print(Sen->TrackFilter->getKi(), 3); Serial.println(")");
+          Serial.print("\t l = LTST fault thr ("); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3); Serial.println(")");
+          Serial.print("\t r = roll thr ("); Serial.print(Sen->roll_thr(), 3); Serial.println(")");
+          Serial.print("\t t = pitch thr ("); Serial.print(Sen->pitch_thr(), 3); Serial.println(")");
+          Serial.print("\t z = LTST freeze thr ("); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3); Serial.println(")");
+          Serial.println("b?<val> - buzz preferences");
+          Serial.print("\t i = ir sensor freq, Hz ("); Serial.print(buzz.irFreq()); Serial.println(")");
+          Serial.print("\t g = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq()); Serial.println(")");
           Serial.println("h - this help");
-          Serial.println("ppX - plot all version X");
-          Serial.println("\t X=blank - stop plotting");
-          Serial.println("\t X=0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
-          Serial.println("\t X=1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
-          Serial.println("\t X=2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
-          Serial.println("\t X=3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
-          Serial.println("\t X=4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
-          Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
-          Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
-          Serial.println("\t X=7 - roll-pitch-yaw");
-          Serial.println("\t X=8 - buzz");
-          Serial.println("\t X=9 - stream buzz");
-          Serial.println("\t X=10 - summary for plot");
+          Serial.println("P? - Print stuff");
+          Serial.println("\t L - LTST Filter");
+          Serial.println("pp? - plot all version X");
+          Serial.println("\t blank - stop plotting");
+          Serial.println("\t 0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
+          Serial.println("\t 1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
+          Serial.println("\t 2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
+          Serial.println("\t 3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
+          Serial.println("\t 4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
+          Serial.println("\t 5 - quiet filtering metrics (o_quiet, g_quiet)");
+          Serial.println("\t 6 - total (T_rot, o_filt, T_acc, g_filt)");
+          Serial.println("\t 7 - roll-pitch-yaw(T_acc, tx_raw, ty_raw, tz_raw, roll_filt, pitch_filt, yaw_filt, q0, q1, q2, q3)");
+          Serial.println("\t 8 - buzz (eye_voltage, ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, head_buzz)");
+          Serial.println("\t 9 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
+          Serial.println("\t 10 - summary for plot");
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");
           Serial.println("r  - reset cmd toggle");
           Serial.println("s  - print sizes for all (will vary depending on history of collision)");
+          Serial.println("t?<val> - trim attitude");
+          Serial.print("\t p = pitch bias nodding ("); Serial.print(Sen->get_delta_pitch(), 3); Serial.println(")");
+          Serial.print("\t r = roll bias tilting ("); Serial.print(Sen->get_delta_roll(), 3); Serial.println(")");
           Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
-          Serial.println("vvX  - verbosity debug level");
-          Serial.println("x  - play toggle ( true = real time, false = pulse )");
-          Serial.println("\t X=9  - time trace in Sensors");
+          Serial.println("vv?  - verbosity debug level");
+          Serial.println("x?  - play toggle ( true = real time, false = pulse )");
+          Serial.println("\t 9  - time trace in Sensors");
           break;
         case ( 'm' ):  // m  - print all
           plotting_all = false;
           monitoring = !monitoring;
           break;
+        case ( 'P' ):  // P - print
+          switch ( letter_1 )
+          {
+            case ( 'L' ):  // PL - Print LTST Filter
+              Sen->LTST_Filter->pretty_print();
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
         case ( 'p' ):  // p - plot
           switch ( letter_1 )
           {
@@ -596,6 +621,24 @@ void loop()
         case ( 's' ):  // s - sizes for all
           print_mem = true;
           break;
+        case ( 't' ):  // t - trim
+          switch ( letter_1 )
+          {
+            case ( 'p' ):  // tp - trim pitch
+              Serial.print("Pitch bias "); Serial.print(Sen->get_delta_pitch(), 3);
+              Sen->set_delta_pitch(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_delta_pitch(), 3);
+              break;
+            case ( 'r' ):  // tr - trim roll
+              Serial.print("Roll bias "); Serial.print(Sen->get_delta_roll(), 3);
+              Sen->set_delta_roll(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_delta_roll(), 3);
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
         case ( 'U' ):
           switch ( letter_1 )
           {

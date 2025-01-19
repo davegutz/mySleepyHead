@@ -30,18 +30,29 @@
 extern boolean run;
 extern int debug;
 
-// Filter noise
-void Sensors::filter(const boolean reset)
+// Filter noise eye
+void Sensors::filter_eye(const boolean reset)
+{
+    // IR Sensor
+    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, reset, min(T_eye_, NOM_DT_HEAD));
+    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_eye_, reset);
+
+    // Eye buzz
+    eye_buzz_ = eye_closed_confirmed_;
+}
+
+// Filter noise head
+void Sensors::filter_head(const boolean reset)
 {
     static int count = 0;
     static boolean turn = false;
 
     if ( reset || acc_available_ )
     {
-        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
-        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
-        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
-        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, NOM_DT));
+        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
+        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
+        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
+        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
         g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_T_Q_FILT));     
         g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
         static int count = 0;
@@ -49,19 +60,13 @@ void Sensors::filter(const boolean reset)
 
     if ( reset || rot_available_ )
     {
-        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
-        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
-        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
-        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, NOM_DT));
+        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
+        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
+        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
+        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
         o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_T_Q_FILT));     
         o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
-
-    // IR Sensor
-    #ifndef USE_IR_ON_OFF
-      eye_closed_ = ( eye_voltage_norm_ - eye_voltage_thr_ ) < 0.;
-    #endif
-    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_acc_, reset);
 
     // Mahony Tracking Filter
     if ( run )
@@ -82,9 +87,12 @@ void Sensors::filter(const boolean reset)
     pitch_filt = TrackFilter->getPitch();
     yaw_filt = TrackFilter->getYaw();
 
-    max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
-    max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
+    // Head sensor
+    max_nod_f_ = max( abs(pitch_filt + delta_pitch_)- pitch_thr_f_, abs(roll_filt + delta_roll_) - roll_thr_f_ ) ;
+    max_nod_p_ = max( abs(pitch_filt + delta_pitch_)- pitch_thr_p_, abs(roll_filt + delta_roll_) - roll_thr_p_ ) ;
 
+    // Head buzz
+    head_buzz_ = max_nod_p_ > 0.;
 }
 
 // Print publish
@@ -191,19 +199,18 @@ void Sensors::plot_all_sum()  // plot pp0
 }
 
 // Print pp8
-void Sensors::plot_buzz()
+void Sensors::plot_buzz()  // print pp8
 {
-  #ifndef USE_IR_ON_OFF
-    Serial.print("teye_voltage:"); Serial.print(eye_voltage_norm_, 4);
-    Serial.print("\teye_voltage_thr:"); Serial.print(eye_voltage_thr_, 3);
-    Serial.print("\t");
-  #endif
-  Serial.print("eye_cl:"); Serial.print(eye_closed_);
+  Serial.print("eye_voltage:"); Serial.print(eye_voltage_norm_, 3);
+  Serial.print("\tltstate:"); Serial.print(LTST_Filter->lt_state(), 3);
+  Serial.print("\tststate:"); Serial.print(LTST_Filter->st_state(), 3);
+  Serial.print("\tdltst:"); Serial.print(LTST_Filter->dltst(), 3);
+  Serial.print("\teye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
+  Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
   Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
   Serial.print("\tmax_nod_p:"); Serial.print(max_nod_p_, 3);
-  buzz_ = eye_closed_confirmed_ || max_nod_p_ > 0.;
-  Serial.print("\tbuzz:"); Serial.println(buzz_, 3);
+  Serial.print("\thead_buzz:"); Serial.println(head_buzz_);
 }
 
 // plot pp4
@@ -282,16 +289,18 @@ void Sensors::header_rapid_9()
 {
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
-  #ifndef USE_IR_ON_OFF
-    Serial.print("v3v3,");
-    Serial.print("eye_voltage_norm,");
-    Serial.print("eye_voltage_thr,");
-  #endif
-  Serial.print("eye_cl,");
-  Serial.print("conf,");
+  Serial.print("v3v3,");
+  Serial.print("eye_voltage_norm,");
+  Serial.print("eye_closed,");
+  Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");
   Serial.print("max_nod_p,");
-  Serial.print("buzz,");
+  Serial.print("head_buzz,");
+  Serial.print("eye_buzz,");
+  Serial.print("lt_state,");
+  Serial.print("st_state,");
+  Serial.print("dltst,");
+  Serial.print("freeze,");
   Serial.println("");
 }
 
@@ -300,17 +309,18 @@ void Sensors::print_rapid_9(const float time)
 {
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
-  #ifndef USE_IR_ON_OFF
-    Serial.print(v3v3_, 4); Serial.print(",");
-    Serial.print(eye_voltage_norm_, 4); Serial.print(",");
-    Serial.print(eye_voltage_thr_, 3); Serial.print(",");
-  #endif
+  Serial.print(v3v3_, 4); Serial.print(",");
+  Serial.print(eye_voltage_norm_, 4); Serial.print(",");
   Serial.print(eye_closed_); Serial.print(",");
   Serial.print(eye_closed_confirmed_); Serial.print(",");
   Serial.print(max_nod_f_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
-  buzz_ = eye_closed_confirmed_ || max_nod_p_ > 0.;
-  Serial.print(buzz_, 3); Serial.print(",");
+  Serial.print(head_buzz_); Serial.print(",");
+  Serial.print(eye_buzz_); Serial.print(",");
+  Serial.print(LTST_Filter->lt_state(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->st_state(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->freeze()); Serial.print(",");
   Serial.println("");
 }
 
@@ -332,16 +342,39 @@ void Sensors::print_rapid(const boolean reset, const boolean print_now, const fl
   last_read_debug = debug;
 }
 
-// Sample the IMU
-void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms)
+// Sample the IR (Eye)
+void Sensors::sample_eye(const boolean reset, const unsigned long long time_eye_ms)
 {
-    time_now_ms_ = time_now_ms;
+    time_eye_ms_ = time_eye_ms;
 
     // Reset
     if ( reset )
     {
-        time_rot_last_ = time_now_ms_ - READ_DELAY;
-        time_acc_last_ = time_now_ms_ - READ_DELAY;
+        time_eye_last_ = time_eye_ms_ - EYE_DELAY;
+    }
+
+    // Half v3v3_nom = 3.3; v3v3_units = 4095;
+    // v3v3_ = analogRead(v3v3Pin_) * v3v3_nom / float(v3v3_units) * 2.;
+    v3v3_ = v3v3_nom;  // Disable.  Very small effect.  Don't bother wiring it.
+
+
+    // IR Sensor
+    eye_voltage_norm_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) - (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
+    T_eye_ = double(time_eye_ms - time_eye_last_) / 1000.;
+    time_eye_last_ = time_eye_ms_;
+
+}
+
+// Sample the IMU (Head)
+void Sensors::sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms)
+{
+    time_head_ms_ = time_now_ms;
+
+    // Reset
+    if ( reset )
+    {
+        time_rot_last_ = time_head_ms_ - HEAD_DELAY;
+        time_acc_last_ = time_head_ms_ - HEAD_DELAY;
     }
 
     // Accelerometer
@@ -353,18 +386,7 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
         g_raw = sqrt(x_raw*x_raw + y_raw*y_raw + z_raw*z_raw);
     }
     else acc_available_ = false;
-    T_acc_ = double(time_now_ms - time_acc_last_) / 1000.;
-
-    // Half v3v3_nom = 3.3; v3v3_units = 4095;
-    v3v3_ = analogRead(v3v3Pin_) * v3v3_nom / float(v3v3_units) * 2.;
-
-
-    // IR Sensor
-    #ifdef IR_SENSOR_ON_OFF
-      eye_closed_ = !digitalRead(sensorPin_);
-    #else
-      eye_voltage_norm_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) - (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
-    #endif
+    T_acc_ = double(time_head_ms_ - time_acc_last_) / 1000.;
 
     // Gyroscope
     if ( !reset && IMU.gyroscopeAvailable() )
@@ -377,20 +399,20 @@ void Sensors::sample(const boolean reset, const unsigned long long time_now_ms, 
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
     else rot_available_ = false;
-    T_rot_ = double(time_now_ms_ - time_rot_last_) / 1000.;
+    T_rot_ = double(time_head_ms_ - time_rot_last_) / 1000.;
 
     // Time stamp
-    t_ms = time_now_ms_ - time_start_ms + (unsigned long long)now_hms*1000;
+    t_ms = time_head_ms_ - time_start_ms + (unsigned long long)now_hms*1000;
     if ( debug==10 )
     {
       cSF(prn_buff, INPUT_BYTES, "");
       time_long_2_str(t_ms, prn_buff);
       Serial.print("t_ms: "); Serial.print(prn_buff); Serial.print(" "); Serial.print(t_ms, 3); Serial.print(" = ");
-      Serial.print(time_now_ms_); Serial.print(" - "); Serial.print(time_start_ms, 3); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
+      Serial.print(time_head_ms_); Serial.print(" - "); Serial.print(time_start_ms, 3); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
       time_long_2_str((unsigned long long)now_hms*1000, prn_buff); Serial.print(" "); Serial.println(prn_buff);
 
     }
-    if ( acc_available_ ) time_acc_last_ = time_now_ms_;
-    if ( rot_available_ ) time_rot_last_ = time_now_ms_;
+    if ( acc_available_ ) time_acc_last_ = time_head_ms_;
+    if ( rot_available_ ) time_rot_last_ = time_head_ms_;
 
 }

@@ -790,6 +790,85 @@ void General2_Pole::rateStateCalc(double in, const double T, const int RESET)
 }
 
 
+LongTermShortTerm_Filter::LongTermShortTerm_Filter(const double T, const double tau_lt, const double tau_st,
+  const double flt_thr_neg, const double frz_thr_neg, const double flt_thr_pos, const double frz_thr_pos)
+  : flt_thr_neg_(flt_thr_neg), flt_thr_pos_(flt_thr_pos), freeze_(false), frz_thr_neg_(frz_thr_neg), frz_thr_pos_(frz_thr_pos), T_(0), tau_lt_(tau_lt), tau_st_(tau_st)
+{
+
+}
+
+void LongTermShortTerm_Filter::assign_coeff(const double T)
+{
+  T_ = T;
+  klt_ = T_ / tau_lt_;
+  kst_ = T_ / tau_st_;
+}
+
+boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double T)
+{
+  RESET_ = RESET;
+  T_ = T;
+  input_ = in;
+  assign_coeff(T_);
+  if ( RESET_ )
+  {
+    lt_state_ = input_;
+    st_state_ = input_;
+  }
+
+  if ( ! freeze_ )
+  {
+    lt_state_ = input_ * klt_ + lt_state_ * (1. - klt_);
+  }
+  st_state_ = input_ * kst_ + st_state_ * (1. - kst_);
+  dltst_ = lt_state_ - st_state_;
+  if ( dltst_ <= 0. )
+  {
+    freeze_ = dltst_ <= frz_thr_neg_;
+    fault_ = dltst_ <= flt_thr_neg_;
+    if ( freeze_ )
+    {
+      cf_ = max(min( 1. - (frz_thr_neg_ - dltst_) / (frz_thr_neg_ - flt_thr_neg_), 1.), 0.);
+    }
+    else
+    {
+      cf_ = 1.;
+    }    
+  }
+  else
+  {
+    freeze_ = dltst_ >= frz_thr_pos_;
+    fault_ = dltst_ >= flt_thr_pos_;
+    if ( freeze_ )
+    {
+      cf_ = max(min( 1. - (dltst_ - frz_thr_pos_) / (flt_thr_pos_ - frz_thr_pos_), 1.), 0.);
+    }
+    else
+    {
+      cf_ = 1.;
+    }
+  }
+  return ( fault_ );
+}
+
+// Print
+void LongTermShortTerm_Filter::pretty_print()
+{
+  Serial.println("LTST:");
+  Serial.print("\tinput\t\t"); Serial.println(input_, 4);
+  Serial.print("\tlt_state\t"); Serial.println(lt_state_, 4);
+  Serial.print("\tst_state\t"); Serial.println(st_state_, 4);
+  Serial.print("\tdltst\t\t"); Serial.println(dltst_, 4);
+  Serial.print("\tfrz_thr_neg_\t"); Serial.println(frz_thr_neg_);
+  Serial.print("\tfrz_thr_pos_\t"); Serial.println(frz_thr_pos_);
+  Serial.print("\tflt_thr_neg_\t"); Serial.println(flt_thr_neg_);
+  Serial.print("\tflt_thr_pos_\t"); Serial.println(flt_thr_pos_);
+  Serial.print("\tfreeze_\t\t"); Serial.println(freeze_);
+  Serial.print("\tfault_\t\t"); Serial.println(fault_);
+  Serial.print("\tcf_\t\t"); Serial.println(cf_, 3);
+}
+
+
 // class PRBS_7
 // Pseudo-Random Binary Sequence, 7 bits.  Seed in range [0-255] or [0x00-0xFF]
 // Useful noise device

@@ -45,53 +45,59 @@ public:
     Sensors(): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last_(0ULL), time_rot_last_(0ULL),
+      time_acc_last_(0ULL), time_eye_last_(0LL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
-      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), buzz_(false),
-      pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), eye_voltage_thr_(0), v3v3_(0),
+      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false), head_buzz_(false),
+      pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
       v3v3Pin_(0)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
       const int sensorPin, const String unit, const int v3v3_pin): t_ms(0),
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
-      time_acc_last_(time_now), time_rot_last_(time_now),
+      time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
-      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), buzz_(false),
+      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_buzz_(false), head_buzz_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
-      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0), eye_voltage_thr_(voltage_thr_def),
-      unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin)
+      pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
+      unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def)
     {
         // Update time and time constant changed on the fly
-        float Tfilt_init = READ_DELAY/1000.;
+        float Tfilt_head_init = HEAD_DELAY/1000.;
+        float Tfilt_eye_init = EYE_DELAY/1000.;
         
-        A_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        B_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        C_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        O_Filt = new LagExp(Tfilt_init, TAU_FILT, -W_MAX, W_MAX);
-        OQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
-        OQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
-        OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
+        A_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        B_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        C_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        O_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        OQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
+        OQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         
-        X_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        Y_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        Z_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        G_Filt = new LagExp(Tfilt_init, TAU_FILT, -G_MAX, G_MAX);
-        GQuietFilt = new General2_Pole(Tfilt_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
-        GQuietRate = new RateLagExp(Tfilt_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
-        GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_init);
+        X_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        Y_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        Z_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        G_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
+        GQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
+        GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
-        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_init);
+        LTST_Filter = new LongTermShortTerm_Filter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS);
+        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_eye_init); 
     };
+
     unsigned long long millis;
     ~Sensors(){};
 
     boolean both_are_quiet() { return o_is_quiet_sure_ && g_is_quiet_sure_; };
     boolean both_not_quiet() { return ( !o_is_quiet_sure_ && !g_is_quiet_sure_ ); };
-    void filter(const boolean reset);
+    void filter_eye(const boolean reset);
+    void filter_head(const boolean reset);
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
+    float get_delta_pitch() { return delta_pitch_; };
+    float get_delta_roll() { return delta_roll_; };
     void header_rapid_9();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
@@ -115,12 +121,14 @@ public:
     void print_rapid(const boolean reset, const boolean print_now, const float time_s);
     void print_rapid_9(const float time_s);
     void quiet_decisions(const boolean reset);
-    void sample(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
+    void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
+    void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
+    void set_delta_pitch(const float input) { delta_pitch_ = input; };
+    void set_delta_roll(const float input) { delta_roll_ = input; };
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
-    float time_now_s() { return float(time_now_ms_)/1000.0; };
-    float voltage_thr() { return eye_voltage_thr_; };
-    void voltage_thr(const float voltage_thr) { eye_voltage_thr_ = voltage_thr; };
+    float time_eye_s() { return float(time_eye_ms_)/1000.0; };
+    float time_now_s() { return float(time_head_ms_)/1000.0; };
 
     time_t t_ms;
     // Gyroscope in radians/second
@@ -149,6 +157,7 @@ public:
     float pitch_filt;
     float yaw_filt;
     Mahony *TrackFilter;   // Mahony tracking filter
+    LongTermShortTerm_Filter *LTST_Filter;  // LTST filter
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter
@@ -166,8 +175,10 @@ protected:
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
     TFDelay *EyeClosedPer; // Persistence eye closed detection
     unsigned long long time_acc_last_;
+    unsigned long long time_eye_last_;
     unsigned long long time_rot_last_;
     double T_acc_;
+    double T_eye_;
     double T_rot_;
     boolean acc_available_;
     boolean rot_available_;
@@ -180,15 +191,18 @@ protected:
     boolean eye_closed_;
     boolean eye_closed_confirmed_;
     int sensorPin_;
-    boolean buzz_;
+    boolean eye_buzz_;
+    boolean head_buzz_;
     float pitch_thr_f_;
     float roll_thr_f_;
     float pitch_thr_p_;
     float roll_thr_p_;
     float eye_voltage_norm_;
-    float eye_voltage_thr_;
-    unsigned long long time_now_ms_;
+    unsigned long long time_eye_ms_;
+    unsigned long long time_head_ms_;
     String unit_;
     float v3v3_;
     int v3v3Pin_;
+    float delta_pitch_;
+    float delta_roll_;
 };

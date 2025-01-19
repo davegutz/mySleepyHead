@@ -583,6 +583,98 @@ class LagTustin(DiscreteFilter):
         self.saved.out_.append(self.out_)
 
 
+class LongTermShortTermFilter:
+    """Dynamic change detection of a normally unchanging signal, see US Patent """
+    # Tustin lag calculator, non-pre-warped
+
+    def __init__(self, dt, tau_lt, tau_st, flt_thr_neg=-1.e6, frz_thr_neg=-1e5, flt_thr_pos=1e6, frz_thr_pos=1e5):
+        self.tau_lt = tau_lt
+        self.tau_st = tau_st
+        self.dt = dt
+        self.frz_thr_neg = frz_thr_neg
+        self.flt_thr_neg = flt_thr_neg
+        self.frz_thr_pos = frz_thr_pos
+        self.flt_thr_pos = flt_thr_pos
+        self.klt = self.dt / self.tau_lt
+        self.kst = self.dt / self.tau_st
+        self.cf = 1.
+        self.dltst = None
+        self.fault = False
+        self.freeze = False
+        self.reset = True
+        self.input = None
+        self.lt_state = None
+        self.st_state = None
+
+    def __repr__(self, prefix=''):
+        s = prefix + "LTST filter:"
+        s += "  reset {:d}".format(self.reset)
+        s += "  dt {:9.6f}".format(self.dt)
+        s += "  input {:7.3f}".format(self.input)
+        s += "  lt_state {:7.3f}".format(self.lt_state)
+        s += "  st_state {:7.3f}".format(self.st_state)
+        s += "  dltst {:7.3f}".format(self.dltst)
+        s += "  freeze {:d}".format(self.freeze)
+        s += "  cf {:7.3f}".format(self.cf)
+        s += "  fault {:d}".format(self.fault)
+        return s
+
+    def __str__(self, prefix=''):
+        s = prefix + "LTST filter:"
+        s += "\n  "
+        s += "  klt      =    {:7.3f}  // Long term gain, r/s\n".format(self.klt)
+        s += "  kst      =    {:7.3f}  // Short term gain, r/s\n".format(self.kst)
+        s += "  cf       =    {:7.3f}  // Confidence that filter unfaulted\n".format(self.cf)
+        s += "  dltst    =    {:7.3f}  // Filter difference, units of input\n".format(self.dltst)
+        s += "  dt       =    {:9.6f}  // Update time, s\n".format(self.dt)
+        s += "  fault    =    {:d}  // Detected a fault\n".format(self.fault)
+        s += "  freeze   =    {:d}  // Long term frozen; suspect a fault\n".format(self.freeze)
+        s += "  flt_thr_neg=  {:7.3f}  // Negative drift high threshold declaring fault\n".format(self.flt_thr_neg)
+        s += "  flt_thr_pos=  {:7.3f}  // Positive drift fault threshold declaring fault\n".format(self.flt_thr_pos)
+        s += "  frz_thr_neg=  {:7.3f}  // Negative drift fault threshold declaring freeze, units of input\n".format(self.frz_thr_neg)
+        s += "  frz_thr_pos=  {:7.3f}  // Positive drift fault threshold declaring freeze, units of input\n".format(self.frz_thr_pos)
+        s += "  input    =    {:7.3f}  // Filter input, units of input\n".format(self.input)
+        s += "  lt_state =    {:7.3f}  // Filter long term state, units of input\n".format(self.lt_state)
+        s += "  reset    =    {:d}     // Initializing \n".format(self.reset)
+        s += "  st_state =    {:7.3f}  // Filter short term state, units of input\n".format(self.st_state)
+        s += "  tau_lt   =    {:7.3f}  // Filter long term time constant, s\n".format(self.tau_lt)
+        s += "  tau_st   =    {:7.3f}  // Filter short term time constant, s\n".format(self.tau_st)
+        return s
+
+    def assign_coeff(self, dt):
+        self.dt = dt
+        self.klt = self.dt / self.tau_lt
+        self.kst = self.dt / self.tau_st
+
+    def calculate(self, in_, reset, dt):
+        self.reset = reset
+        self.dt = dt
+        self.input = in_
+        self.assign_coeff(self.dt)
+        if self.reset:
+            self.lt_state = self.input
+            self.st_state = self.input
+        if not self.freeze:
+            self.lt_state = self.input * self.klt + self.lt_state * (1. - self.klt)
+        self.st_state = self.input * self.kst + self.st_state * (1. - self.kst)
+        self.dltst = self.lt_state - self.st_state
+        if self.dltst <= 0:
+            self.freeze = self.dltst <= self.frz_thr_neg
+            self.fault = self.dltst <= self.flt_thr_neg
+            if self.freeze is np.True_:
+                self.cf = max(min( 1. - (self.frz_thr_neg - self.dltst) / (self.frz_thr_neg - self.flt_thr_neg), 1.), 0.)
+            else:
+                self.cf = 1.
+        else:
+            self.freeze = self.dltst >= self.frz_thr_pos
+            self.fault = self.dltst >= self.flt_thr_pos
+            if self.freeze is np.True_:
+                self.cf = max(min( 1. - (self.dltst - self.frz_thr_pos) / (self.flt_thr_pos - self.frz_thr_pos), 1.), 0.)
+            else:
+                self.cf = 1.
+        return self.fault
+
+
 class Saved1:
     # For plot 1st order filter savings.
     # A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
