@@ -479,6 +479,11 @@ void loop()
               Sen->TrackFilter->setKi(f_value);
               Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
               break;
+            case ( 'l' ):  // al - LTST fault threshold
+              Serial.print("LTST fault threshold from "); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3);
+              Sen->LTST_Filter->set_fault_thr_pos(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_fault_thr_pos(), 3);
+              break;
             case ( 'r' ):  // ar - roll threshold
               Serial.print("Roll threshold from "); Serial.print(Sen->roll_thr(), 3);
               Sen->roll_thr(f_value);
@@ -488,6 +493,11 @@ void loop()
               Serial.print("Pitch threshold from "); Serial.print(Sen->pitch_thr(), 3);
               Sen->pitch_thr(f_value);
               Serial.print(" to "); Serial.println(Sen->pitch_thr(), 3);
+              break;
+            case ( 'z' ):  // az - LTST freeze threshold
+              Serial.print("LTST freeze threshold from "); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3);
+              Sen->LTST_Filter->set_freeze_thr_pos(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_freeze_thr_pos(), 3);
               break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");
@@ -521,37 +531,42 @@ void loop()
         case ( 'h' ):  // h  - help
           plotting_all = false;
           monitoring = false;
-          Serial.println("aXX <val> - adjust");
+          Serial.println("a?<val> - adjust");
           Serial.print("\t p = Mahony proportional gain (Kp="); Serial.print(Sen->TrackFilter->getKp(), 3);Serial.println(")");
           Serial.print("\t i = Mahony integral gain (Ki=");Serial.print(Sen->TrackFilter->getKi(), 3);Serial.println(")");
+          Serial.print("\t l = fault thr pos (fault_thr="); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3);Serial.println(")");
           Serial.print("\t r = roll thr (roll_thr="); Serial.print(Sen->roll_thr(), 3);Serial.println(")");
           Serial.print("\t t = pitch thr (pitch_thr="); Serial.print(Sen->pitch_thr(), 3);Serial.println(")");
-          Serial.println("bX<x> - buzz toggles");
-          Serial.print("\t i<freq> = ir sensor freq, Hz ("); Serial.print(buzz.irFreq());Serial.println(")");
-          Serial.print("\t g<freq> = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq());Serial.println(")");
+          Serial.print("\t z = freeze thr pos (freeze_thr="); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3);Serial.println(")");
+          Serial.println("b?<val> - buzz preferences");
+          Serial.print("\t i = ir sensor freq, Hz ("); Serial.print(buzz.irFreq());Serial.println(")");
+          Serial.print("\t g = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq());Serial.println(")");
           Serial.println("h - this help");
-          Serial.println("ppX - plot all version X");
-          Serial.println("\t X=blank - stop plotting");
-          Serial.println("\t X=0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
-          Serial.println("\t X=1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
-          Serial.println("\t X=2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
-          Serial.println("\t X=3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
-          Serial.println("\t X=4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
-          Serial.println("\t X=5 - quiet filtering metrics (o_quiet, g_quiet)");
-          Serial.println("\t X=6 - total (T_rot, o_filt, T_acc, g_filt)");
-          Serial.println("\t X=7 - roll-pitch-yaw");
-          Serial.println("\t X=8 - buzz");
-          Serial.println("\t X=9 - stream buzz");
-          Serial.println("\t X=10 - summary for plot");
+          Serial.println("pp? - plot all version X");
+          Serial.println("\t blank - stop plotting");
+          Serial.println("\t 0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
+          Serial.println("\t 1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
+          Serial.println("\t 2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
+          Serial.println("\t 3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
+          Serial.println("\t 4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
+          Serial.println("\t 5 - quiet filtering metrics (o_quiet, g_quiet)");
+          Serial.println("\t 6 - total (T_rot, o_filt, T_acc, g_filt)");
+          Serial.println("\t 7 - roll-pitch-yaw");
+          Serial.println("\t 8 - buzz");
+          Serial.println("\t 9 - stream buzz");
+          Serial.println("\t 10 - summary for plot");
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");
           Serial.println("r  - reset cmd toggle");
           Serial.println("s  - print sizes for all (will vary depending on history of collision)");
+          Serial.println("t?<val> - trim attitude");
+          Serial.print("\t p = pitch bias (cp="); Serial.print(Sen->get_delta_pitch(), 3);Serial.println(")");
+          Serial.print("\t r = roll bias (cr="); Serial.print(Sen->get_delta_roll(), 3);Serial.println(")");
           Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
-          Serial.println("vvX  - verbosity debug level");
-          Serial.println("x  - play toggle ( true = real time, false = pulse )");
-          Serial.println("\t X=9  - time trace in Sensors");
+          Serial.println("vv?  - verbosity debug level");
+          Serial.println("x?  - play toggle ( true = real time, false = pulse )");
+          Serial.println("\t 9  - time trace in Sensors");
           break;
         case ( 'm' ):  // m  - print all
           plotting_all = false;
@@ -593,6 +608,24 @@ void loop()
         case ( 's' ):  // s - sizes for all
           print_mem = true;
           break;
+        case ( 't' ):  // t - trim
+          switch ( letter_1 )
+          {
+            case ( 'p' ):  // tp - trim pitch
+              Serial.print("Pitch bias "); Serial.print(Sen->get_delta_pitch(), 3);
+              Sen->set_delta_pitch(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_delta_pitch(), 3);
+              break;
+            case ( 'r' ):  // tr - trim roll
+              Serial.print("Roll bias "); Serial.print(Sen->get_delta_roll(), 3);
+              Sen->set_delta_roll(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_delta_roll(), 3);
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
         case ( 'U' ):
           switch ( letter_1 )
           {

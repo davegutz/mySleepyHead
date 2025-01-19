@@ -465,7 +465,15 @@ public:
   boolean calculate(const double in, const boolean RESET, const double T);
   double dltst() { return (dltst_); };
   boolean freeze() { return (freeze_); };
+  double get_fault_thr_neg() { return (flt_thr_neg_); };
+  double get_fault_thr_pos() { return (flt_thr_pos_); };
+  double get_freeze_thr_neg() { return (frz_thr_neg_); };
+  double get_freeze_thr_pos() { return (frz_thr_pos_); };
   double lt_state() { return (lt_state_); };
+  void set_fault_thr_neg(const double input) { flt_thr_neg_ = input; };
+  void set_fault_thr_pos(const double input) { flt_thr_pos_ = input; };
+  void set_freeze_thr_neg(const double input) { frz_thr_neg_ = input; };
+  void set_freeze_thr_pos(const double input) { frz_thr_pos_ = input; };
   double st_state() { return (st_state_); };
 protected:
   double cf_;

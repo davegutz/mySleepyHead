@@ -88,8 +88,8 @@ void Sensors::filter_head(const boolean reset)
     yaw_filt = TrackFilter->getYaw();
 
     // Head sensor
-    max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
-    max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
+    max_nod_f_ = max( abs(pitch_filt + delta_pitch_)- pitch_thr_f_, abs(roll_filt + delta_roll_) - roll_thr_f_ ) ;
+    max_nod_p_ = max( abs(pitch_filt + delta_pitch_)- pitch_thr_p_, abs(roll_filt + delta_roll_) - roll_thr_p_ ) ;
 
     // Head buzz
     head_buzz_ = max_nod_p_ > 0.;

@@ -71,7 +71,6 @@ const float deg_to_rps = 0.0174533;
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
-#undef  USE_IR_ON_OFF                   // Using a stock IR sensor with on-off behavior fed into same A6/D20 port as the analog modification
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
@@ -80,6 +79,8 @@ const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.)
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
+const float delta_pitch_def = 0.;        // Initial delta pitch (0.)
+const float delta_roll_def = 0.;         // Initial delta roll (0.)
 const float CLOSED_S = 1.0;              // Persistence eye closed IR sense, sec (1.0)  Head needs none; heavily filtered by Mahoney
 const float CLOSED_R = 0.5;              // Persistence eye closed IR sense, sec (0.5)
 const float  TAU_LT = 20.;               // Long term filter time constant, sec (20)
@@ -103,4 +104,3 @@ const uint8_t NREG = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R
 // Analog sensor definitions
 const float v3v3_nom = 3.3;                 // IR detector power supply, v (3.3)
 const int v3v3_units = 4095;            // A/D range, units (1023)
-const float voltage_thr_def = 0.0;      // Threshold sleep detect (0.0 is off), v
