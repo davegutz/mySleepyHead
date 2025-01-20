@@ -34,8 +34,9 @@ extern int debug;
 void Sensors::filter_eye(const boolean reset)
 {
     // IR Sensor
-    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, reset, min(T_eye_, NOM_DT_HEAD));
-    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, CLOSED_S, CLOSED_R, T_eye_, reset);
+    eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
+    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, NOM_DT_HEAD));
+    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
 
     // Eye buzz
     eye_buzz_ = eye_closed_confirmed_;
@@ -199,7 +200,7 @@ void Sensors::plot_all_sum()  // plot pp0
 }
 
 // Print pp8
-void Sensors::plot_buzz()  // print pp8
+void Sensors::plot_buzz()  // plot pp8
 {
   Serial.print("eye_voltage:"); Serial.print(eye_voltage_norm_, 3);
   Serial.print("\tltstate:"); Serial.print(LTST_Filter->lt_state(), 3);
@@ -208,9 +209,9 @@ void Sensors::plot_buzz()  // print pp8
   Serial.print("\teye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
   Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
-  Serial.print("\tmax_nod_f:"); Serial.print(max_nod_f_, 3);
-  Serial.print("\tmax_nod_p:"); Serial.print(max_nod_p_, 3);
-  Serial.print("\thead_buzz:"); Serial.println(head_buzz_);
+  Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
+  Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
+  Serial.print("\teye_cf:"); Serial.println(LTST_Filter->cf(), 3);
 }
 
 // plot pp4

@@ -390,7 +390,7 @@ void loop()
         Sen->plot_all_rpy();
         break;
       case 8:
-        Sen->plot_buzz();
+        Sen->plot_buzz();  // pp8
         break;
       case 9:
         Sen->print_rapid(reset, true, Sen->time_eye_s());
@@ -484,10 +484,20 @@ void loop()
               Sen->LTST_Filter->set_fault_thr_pos(f_value);
               Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_fault_thr_pos(), 3);
               break;
+            case ( 'R' ):  // aR - eye reset time
+              Serial.print("Eye reset time from "); Serial.print(Sen->get_eye_reset_time(), 2);
+              Sen->set_eye_reset_time(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_eye_reset_time(), 2);
+              break;
             case ( 'r' ):  // ar - roll threshold
               Serial.print("Roll threshold from "); Serial.print(Sen->roll_thr(), 3);
               Sen->roll_thr(f_value);
               Serial.print(" to "); Serial.println(Sen->roll_thr(), 3);
+              break;
+            case ( 'S' ):  // aS - eye set time
+              Serial.print("Eye set time from "); Serial.print(Sen->get_eye_set_time(), 2);
+              Sen->set_eye_set_time(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_eye_set_time(), 2);
               break;
             case ( 't' ):  // at - pitch threshold
               Serial.print("Pitch threshold from "); Serial.print(Sen->pitch_thr(), 3);
@@ -535,6 +545,8 @@ void loop()
           Serial.print("\t p = Mahony proportional gain ("); Serial.print(Sen->TrackFilter->getKp(), 3); Serial.println(")");
           Serial.print("\t i = Mahony integral gain ("); Serial.print(Sen->TrackFilter->getKi(), 3); Serial.println(")");
           Serial.print("\t l = LTST fault thr ("); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3); Serial.println(")");
+          Serial.print("\t R = eye RESET time, s ("); Serial.print(Sen->get_eye_reset_time(), 3); Serial.println(")");
+          Serial.print("\t S = eye SET time, s ("); Serial.print(Sen->get_eye_set_time(), 3); Serial.println(")");
           Serial.print("\t r = roll thr ("); Serial.print(Sen->roll_thr(), 3); Serial.println(")");
           Serial.print("\t t = pitch thr ("); Serial.print(Sen->pitch_thr(), 3); Serial.println(")");
           Serial.print("\t z = LTST freeze thr ("); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3); Serial.println(")");
@@ -545,7 +557,7 @@ void loop()
           Serial.println("P? - Print stuff");
           Serial.println("\t L - LTST Filter");
           Serial.println("pp? - plot all version X");
-          Serial.println("\t blank - stop plotting");
+          Serial.println("\t -1 - stop plotting");
           Serial.println("\t 0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
           Serial.println("\t 1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
           Serial.println("\t 2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
