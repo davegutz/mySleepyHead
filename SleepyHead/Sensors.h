@@ -93,6 +93,7 @@ public:
         HeadNodPerP = new TFDelay(true, EVENT_S, EVENT_R, Tfilt_head_init);
         EyeClosedPer = new TFDelay(false, EVENT_S, EVENT_R, Tfilt_eye_init); 
         GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
+        HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init); 
     };
 
     unsigned long long millis;
@@ -190,6 +191,7 @@ protected:
     TFDelay *HeadNodPerF;  // Persistence forte head nod detection
     TFDelay *HeadNodPerP;  // Persistence piano head nod detection
     TFDelay *GlassesOffPer; // Persistence eye glasses off detection, for reset of LTST filter
+    TFDelay *HeadShakePer;  // Persistence head shake detection
     unsigned long long time_acc_last_;
     unsigned long long time_eye_last_;
     unsigned long long time_rot_last_;

@@ -90,6 +90,8 @@ const float FRZ_THR_POS = 0.01;          // LTST filter positive dltst freeze th
 const float OFF_S = 0.04;                // Persistence glasses off IR sense set, sec (0.04)
 const float OFF_R = 3.0;                 // Persistence glasses off IR sense reset, sec (3.0)
 const float GLASSES_OFF_VOLTAGE = 2.5;   // Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
+const float SHAKE_S = 0.2;               // Persistence head shake motion sense set, sec (0.2) update time is 0.1
+const float SHAKE_R = 4.0;               // Persistence head shake motion sense reset, sec (4.0)
 
 // Pui 24a
 // const int   buzz_freq_grav = 3500;       // Buzzer frequency when gravity detected, Hz (2000)
