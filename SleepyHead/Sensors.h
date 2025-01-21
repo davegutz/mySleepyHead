@@ -50,7 +50,9 @@ public:
       roll_filt(0), pitch_filt(0), yaw_filt(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false), head_buzz_(false),
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
-      v3v3Pin_(0), eye_reset_(true), eye_set_time_(0), eye_reset_time_(0)
+      v3v3Pin_(0),
+      eye_reset_(true), event_set_time_(0), event_reset_time_(0),
+      head_reset_(true), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
       const int sensorPin, const String unit, const int v3v3_pin): t_ms(0),
@@ -63,7 +65,8 @@ public:
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
       pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
       unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
-      eye_reset_(true), eye_set_time_(CLOSED_S), eye_reset_time_(CLOSED_R)
+      eye_reset_(true), event_set_time_(EVENT_S), event_reset_time_(EVENT_R),
+      head_reset_(true), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
     {
         // Update time and time constant changed on the fly
         float Tfilt_head_init = HEAD_DELAY/1000.;
@@ -86,7 +89,9 @@ public:
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
         LTST_Filter = new LongTermShortTerm_Filter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS);
-        EyeClosedPer = new TFDelay(false, CLOSED_S, CLOSED_R, Tfilt_eye_init); 
+        HeadNodPerF = new TFDelay(true, EVENT_S, EVENT_R, Tfilt_head_init);
+        HeadNodPerP = new TFDelay(true, EVENT_S, EVENT_R, Tfilt_head_init);
+        EyeClosedPer = new TFDelay(false, EVENT_S, EVENT_R, Tfilt_eye_init); 
         GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
     };
 
@@ -100,13 +105,15 @@ public:
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     float get_delta_pitch() { return delta_pitch_; };
     float get_delta_roll() { return delta_roll_; };
-    float get_eye_reset_time() { return eye_reset_time_; };
-    float get_eye_set_time() { return eye_set_time_; };
+    float get_event_reset_time() { return event_reset_time_; };
+    float get_event_set_time() { return event_set_time_; };
     void header_rapid_9();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
     float max_nod_forte() { return max_nod_f_; };
     float max_nod_piano() { return max_nod_p_; };
+    float max_nod_forte_confirmed() { return max_nod_f_confirmed_; };
+    float max_nod_piano_confirmed() { return max_nod_p_confirmed_; };
     float pitch_thr() { return pitch_thr_f_; };
     void pitch_thr(const float pitch_thr) { pitch_thr_f_ = pitch_thr; };
     void roll_thr(const float roll_thr) { roll_thr_f_ = roll_thr; };
@@ -124,13 +131,13 @@ public:
     void print_all();
     void print_rapid(const boolean reset, const boolean print_now, const float time_s);
     void print_rapid_9(const float time_s);
-    void quiet_decisions(const boolean reset);
+    void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
     void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
     void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
     void set_delta_pitch(const float input) { delta_pitch_ = input; };
     void set_delta_roll(const float input) { delta_roll_ = input; };
-    void set_eye_reset_time(const float input) { eye_reset_time_ = input; };
-    void set_eye_set_time(const float input) { eye_set_time_ = input; };
+    void set_event_reset_time(const float input) { event_reset_time_ = input; };
+    void set_event_set_time(const float input) { event_set_time_ = input; };
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
     float time_eye_s() { return float(time_eye_ms_)/1000.0; };
@@ -180,6 +187,8 @@ protected:
     RateLagExp *GQuietRate;    // Quiet detector
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
     TFDelay *EyeClosedPer; // Persistence eye closed detection
+    TFDelay *HeadNodPerF;  // Persistence forte head nod detection
+    TFDelay *HeadNodPerP;  // Persistence piano head nod detection
     TFDelay *GlassesOffPer; // Persistence eye glasses off detection, for reset of LTST filter
     unsigned long long time_acc_last_;
     unsigned long long time_eye_last_;
@@ -213,6 +222,9 @@ protected:
     float delta_pitch_;
     float delta_roll_;
     boolean eye_reset_;
-    float eye_set_time_;
-    float eye_reset_time_;
+    float event_set_time_;
+    float event_reset_time_;
+    boolean head_reset_;
+    boolean max_nod_f_confirmed_;
+    boolean max_nod_p_confirmed_;
 };

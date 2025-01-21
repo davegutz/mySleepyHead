@@ -65,8 +65,8 @@ const float deg_to_rps = 0.0174533;
 #define MAX_T_Q_FILT          0.02      // Quiet filter max update time, s (0.02)
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
 #define QUIET_S                0.4      // Quiet set persistence, sec (0.4)
-#define O_QUIET_THR           12.0      // rps quiet detection threshold (12.)
-#define G_QUIET_THR            4.0      // g's quiet detection threshold (4.)
+#define O_QUIET_THR            8.0      // rps quiet detection threshold (8.)
+#define G_QUIET_THR            1.2      // g's quiet detection threshold (1.2))
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
@@ -79,12 +79,12 @@ const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.)
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
-const float delta_pitch_def = 0.;        // Initial delta pitch (0.)
-const float delta_roll_def = 0.;         // Initial delta roll (0.)
-const float CLOSED_S = 1.5;              // Persistence eye closed IR sense set, sec (1.5)  Head needs none; heavily filtered by Mahoney
-const float CLOSED_R = 0.5;              // Persistence eye closed IR sense reset, sec (0.5)
-const float  TAU_LT = 20.;               // Long term filter time constant, sec (20)
-const float  TAU_ST = 0.4;               // Short term filter time constant, sec (0.4)
+const float delta_pitch_def = 13.;       // Initial delta pitch (13.)
+const float delta_roll_def = 5.;         // Initial delta roll (5.)
+const float EVENT_S = 1.5;               // Persistence eye closed IR sense set, sec (1.5)  Head needs none; heavily filtered by Mahoney
+const float EVENT_R = 0.5;               // Persistence eye closed IR sense reset, sec (0.5)
+const float TAU_LT = 20.;                // Long term filter time constant, sec (20)
+const float TAU_ST = 0.4;                // Short term filter time constant, sec (0.4)
 const float FLT_THR_POS = 0.04;          // LTST filter positive dltst fault threshold, v (0.04)
 const float FRZ_THR_POS = 0.01;          // LTST filter positive dltst freeze threshold, v (0.01)
 const float OFF_S = 0.04;                // Persistence glasses off IR sense set, sec (0.04)

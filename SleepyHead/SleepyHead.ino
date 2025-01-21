@@ -217,6 +217,8 @@ void loop()
   static boolean eye_closed = false;
   static boolean buzz_en_ir = true;
   static boolean buzz_en_grav = true;
+  static float o_quiet_thr = O_QUIET_THR;
+  static float g_quiet_thr = G_QUIET_THR;
 
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
@@ -265,7 +267,7 @@ void loop()
   {
     Sen->sample_head(reset, millis(), time_start, now());
     Sen->filter_head(reset);
-    Sen->quiet_decisions(reset);
+    Sen->quiet_decisions(reset, o_quiet_thr, g_quiet_thr);
     L->put_precursor(Sen);
 
     // Logic
@@ -479,15 +481,25 @@ void loop()
               Sen->TrackFilter->setKi(f_value);
               Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
               break;
+            case ( 'g' ):  // ag - G quiet threshold
+              Serial.print("G quiet threshold from "); Serial.print(g_quiet_thr, 3);
+              g_quiet_thr = f_value;
+              Serial.print(" to "); Serial.print(g_quiet_thr, 3);
+              break;
             case ( 'l' ):  // al - LTST fault threshold
               Serial.print("LTST fault threshold from "); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3);
               Sen->LTST_Filter->set_fault_thr_pos(f_value);
               Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_fault_thr_pos(), 3);
               break;
+            case ( 'o' ):  // ao - Angular speed quiet threshold
+              Serial.print("O quiet threshold from "); Serial.print(o_quiet_thr, 3);
+              o_quiet_thr = f_value;
+              Serial.print(" to "); Serial.print(o_quiet_thr, 3);
+              break;
             case ( 'R' ):  // aR - eye reset time
-              Serial.print("Eye reset time from "); Serial.print(Sen->get_eye_reset_time(), 2);
-              Sen->set_eye_reset_time(f_value);
-              Serial.print(" to "); Serial.println(Sen->get_eye_reset_time(), 2);
+              Serial.print("Eye reset time from "); Serial.print(Sen->get_event_reset_time(), 2);
+              Sen->set_event_reset_time(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_event_reset_time(), 2);
               break;
             case ( 'r' ):  // ar - roll threshold
               Serial.print("Roll threshold from "); Serial.print(Sen->roll_thr(), 3);
@@ -495,9 +507,9 @@ void loop()
               Serial.print(" to "); Serial.println(Sen->roll_thr(), 3);
               break;
             case ( 'S' ):  // aS - eye set time
-              Serial.print("Eye set time from "); Serial.print(Sen->get_eye_set_time(), 2);
-              Sen->set_eye_set_time(f_value);
-              Serial.print(" to "); Serial.println(Sen->get_eye_set_time(), 2);
+              Serial.print("Eye set time from "); Serial.print(Sen->get_event_set_time(), 2);
+              Sen->set_event_set_time(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_event_set_time(), 2);
               break;
             case ( 't' ):  // at - pitch threshold
               Serial.print("Pitch threshold from "); Serial.print(Sen->pitch_thr(), 3);
@@ -544,9 +556,11 @@ void loop()
           Serial.println("a?<val> - adjust");
           Serial.print("\t p = Mahony proportional gain ("); Serial.print(Sen->TrackFilter->getKp(), 3); Serial.println(")");
           Serial.print("\t i = Mahony integral gain ("); Serial.print(Sen->TrackFilter->getKi(), 3); Serial.println(")");
+          Serial.print("\t g = G quiet thr ("); Serial.print(g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t l = LTST fault thr ("); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3); Serial.println(")");
-          Serial.print("\t R = eye RESET time, s ("); Serial.print(Sen->get_eye_reset_time(), 3); Serial.println(")");
-          Serial.print("\t S = eye SET time, s ("); Serial.print(Sen->get_eye_set_time(), 3); Serial.println(")");
+          Serial.print("\t o = O angular speed quiet thr ("); Serial.print(o_quiet_thr, 3); Serial.println(")");
+          Serial.print("\t R = event RESET time, s ("); Serial.print(Sen->get_event_reset_time(), 3); Serial.println(")");
+          Serial.print("\t S = event SET time, s ("); Serial.print(Sen->get_event_set_time(), 3); Serial.println(")");
           Serial.print("\t r = roll thr ("); Serial.print(Sen->roll_thr(), 3); Serial.println(")");
           Serial.print("\t t = pitch thr ("); Serial.print(Sen->pitch_thr(), 3); Serial.println(")");
           Serial.print("\t z = LTST freeze thr ("); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3); Serial.println(")");

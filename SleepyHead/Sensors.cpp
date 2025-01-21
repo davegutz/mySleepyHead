@@ -36,7 +36,7 @@ void Sensors::filter_eye(const boolean reset)
     // IR Sensor
     eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, NOM_DT_HEAD));
-    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
+    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, event_set_time_, event_reset_time_, T_eye_, eye_reset_);
 
     // Eye buzz
     eye_buzz_ = eye_closed_confirmed_;
@@ -84,16 +84,20 @@ void Sensors::filter_head(const boolean reset)
       if ( count == 0 ) turn = !turn;
     }
 
-    roll_filt = TrackFilter->getRoll();
-    pitch_filt = TrackFilter->getPitch();
+    roll_filt = TrackFilter->getRoll() + delta_roll_;
+    pitch_filt = TrackFilter->getPitch() + delta_pitch_;
     yaw_filt = TrackFilter->getYaw();
 
     // Head sensor
-    max_nod_f_ = max( abs(pitch_filt + delta_pitch_)- pitch_thr_f_, abs(roll_filt + delta_roll_) - roll_thr_f_ ) ;
-    max_nod_p_ = max( abs(pitch_filt + delta_pitch_)- pitch_thr_p_, abs(roll_filt + delta_roll_) - roll_thr_p_ ) ;
+    max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
+    max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
+
+    head_reset_ = reset || !(o_quiet && g_quiet);
+    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
+    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
 
     // Head buzz
-    head_buzz_ = max_nod_p_ > 0.;
+    head_buzz_ = max_nod_p_confirmed_;
 }
 
 // Print publish
@@ -170,8 +174,8 @@ void Sensors::plot_all_rpy()  // plot pp7
   // Serial.print("\troll_filt:"); Serial.print(roll_filt, 3);
   // Serial.print("\tpitch_filt:"); Serial.print(pitch_filt, 3);
   // Serial.print("\tyaw_filt:"); Serial.println(yaw_filt, 3);
-  Serial.print("\troll_filt:"); Serial.print(TrackFilter->getRoll(), 3);
-  Serial.print("\tpitch_filt:"); Serial.print(TrackFilter->getPitch(), 3);
+  Serial.print("\troll_filt:"); Serial.print(TrackFilter->getRoll() + delta_roll_, 3);
+  Serial.print("\tpitch_filt:"); Serial.print(TrackFilter->getPitch() + delta_pitch_, 3);
   Serial.print("\tyaw_filt:"); Serial.print(TrackFilter->getYaw(), 3);
   // Serial.print("\thalfex:"); Serial.print(TrackFilter->getHalfex(), 3);
   // Serial.print("\thalfey:"); Serial.print(TrackFilter->getHalfey(), 3);
@@ -276,11 +280,11 @@ void Sensors::print_all_header()
 // Detect no signal present based on detection of quiet signal.
 // Research by sound industry found that 2-pole filtering is the sweet spot between seeing noise
 // and actual motion without 'guilding the lily'
-void Sensors::quiet_decisions(const boolean reset)
+void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr)
 {
-  o_is_quiet_ = o_quiet <= O_QUIET_THR;  // o_filt is rss
+  o_is_quiet_ = o_quiet <= o_quiet_thr;  // o_filt is rss
   o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
-  g_is_quiet_ = g_quiet <= G_QUIET_THR;  // g_filt is rss
+  g_is_quiet_ = g_quiet <= g_quiet_thr;  // g_filt is rss
   g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
   static int count = 0;
 }
@@ -295,7 +299,9 @@ void Sensors::header_rapid_9()
   Serial.print("eye_closed,");
   Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");
+  Serial.print("max_nod_f_confirmed,");
   Serial.print("max_nod_p,");
+  Serial.print("max_nod_p_confirmed,");
   Serial.print("head_buzz,");
   Serial.print("eye_buzz,");
   Serial.print("lt_state,");
@@ -315,7 +321,9 @@ void Sensors::print_rapid_9(const float time)
   Serial.print(eye_closed_); Serial.print(",");
   Serial.print(eye_closed_confirmed_); Serial.print(",");
   Serial.print(max_nod_f_, 3); Serial.print(",");
+  Serial.print(max_nod_f_confirmed_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
+  Serial.print(max_nod_p_confirmed_, 3); Serial.print(",");
   Serial.print(head_buzz_); Serial.print(",");
   Serial.print(eye_buzz_); Serial.print(",");
   Serial.print(LTST_Filter->lt_state(), 4); Serial.print(",");
