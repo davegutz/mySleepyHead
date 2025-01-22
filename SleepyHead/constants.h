@@ -32,7 +32,6 @@
 #define SAVE_RAW
 
 // Setup
-#include "local_config.h"
 #include <SafeString.h>
 #include "local_config.h"
 const String unit_key = version + "_" + HDWE_UNIT;
@@ -79,8 +78,6 @@ const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.)
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
-const float delta_pitch_def = 13.;       // Initial delta pitch (13.)
-const float delta_roll_def = 5.;         // Initial delta roll (5.)
 const float EVENT_S = 1.5;               // Persistence eye closed IR sense set, sec (1.5)  Head needs none; heavily filtered by Mahoney
 const float EVENT_R = 0.5;               // Persistence eye closed IR sense reset, sec (0.5)
 const float TAU_LT = 20.;                // Long term filter time constant, sec (20)

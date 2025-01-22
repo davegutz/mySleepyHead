@@ -865,7 +865,8 @@ void LongTermShortTerm_Filter::pretty_print()
   Serial.print("\tflt_thr_pos_\t"); Serial.println(flt_thr_pos_);
   Serial.print("\tfreeze_\t\t"); Serial.println(freeze_);
   Serial.print("\tfault_\t\t"); Serial.println(fault_);
-  Serial.print("\tcf_\t\t"); Serial.println(cf_, 3);
+  Serial.print("\tcf_\t\t"); Serial.print(cf_, 3);
+  Serial.println("");
 }
 
 

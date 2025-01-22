@@ -94,8 +94,8 @@ void Sensors::filter_head(const boolean reset)
 
     head_reset_ = reset || HeadShakePer->calculate(!(o_quiet && g_quiet), SHAKE_S, SHAKE_R, T_eye_, reset);
 
-    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
-    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
+    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0, event_set_time_, event_reset_time_, T_acc_, head_reset_);
+    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0, event_set_time_, event_reset_time_, T_acc_, head_reset_);
 
     // Head buzz
     head_buzz_ = max_nod_p_confirmed_;
@@ -120,7 +120,8 @@ void Sensors::plot_all()  // plot pp3
   Serial.print("\t\ta_filt:"); Serial.print(a_filt, 3);
   Serial.print("\tb_filt:"); Serial.print(b_filt, 3);
   Serial.print("\tc_filt:"); Serial.print(c_filt, 3);
-  Serial.print("\to_filt:"); Serial.println(o_filt, 3);
+  Serial.print("\to_filt:"); Serial.print(o_filt, 3);
+  Serial.println("");
 }
 
 // plot pp1
@@ -136,7 +137,8 @@ void Sensors::plot_all_acc()  // plot pp1
   Serial.print("\tz_filt:"); Serial.print(z_filt, 3);
   Serial.print("\tg_filt-1:"); Serial.print(g_filt-1., 3);
   Serial.print("\tg_is_quiet-2:"); Serial.print(g_q, 3);
-  Serial.print("\tg_is_quiet_sure-2:"); Serial.println(g_q_s, 3);
+  Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
+  Serial.println("");
 }
 
 // plot pp2
@@ -152,7 +154,8 @@ void Sensors::plot_all_rot()  // plot pp2
   Serial.print("\tc_filt:"); Serial.print(c_filt, 3);
   Serial.print("\to_filt:"); Serial.print(o_filt, 3);
   Serial.print("\to_is_quiet-4:"); Serial.print(o_q, 3);
-  Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s, 3);
+  Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
+  Serial.println("");
 }
 
 // plot pp7
@@ -184,7 +187,8 @@ void Sensors::plot_all_rpy()  // plot pp7
   Serial.print("\tq0:"); Serial.print(TrackFilter->q0(), 5);
   Serial.print("\tq1:"); Serial.print(TrackFilter->q1(), 5);
   Serial.print("\tq2:"); Serial.print(TrackFilter->q2(), 5);
-  Serial.print("\tq3:"); Serial.println(TrackFilter->q3(), 5);
+  Serial.print("\tq3:"); Serial.print(TrackFilter->q3(), 5);
+  Serial.println("");
 }
 
 // plot pp0
@@ -201,11 +205,29 @@ void Sensors::plot_all_sum()  // plot pp0
   Serial.print("\to_raw:"); Serial.print(o_raw, 3);
   Serial.print("\to_filt:"); Serial.print(o_filt, 3);
   Serial.print("\to_quiet:"); Serial.print(o_quiet, 3);
-  Serial.print("\to_is_quiet_sure-4:"); Serial.println(o_q_s, 3);
+  Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
+  Serial.println("");
 }
 
-// Print pp8
-void Sensors::plot_buzz()  // plot pp8
+// Plot pp8
+void Sensors::plot_head_buzz()  // plot pp8
+{
+  float g_q_s = -2.; 
+  if ( g_is_quiet_sure_ ) g_q_s = -1;
+  float o_q_s = -4.; 
+  if ( o_is_quiet_sure_ ) o_q_s = -3;
+  Serial.print("g_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
+  Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
+  Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
+  Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
+  Serial.print("\thead_buzz:"); Serial.print(head_buzz_);
+  Serial.print("\teye_cf:"); Serial.print(LTST_Filter->cf(), 3);
+  Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
+  Serial.println("");
+}
+
+// Plot pp9
+void Sensors::plot_eye_buzz()  // plot pp9
 {
   Serial.print("eye_voltage:"); Serial.print(eye_voltage_norm_, 3);
   Serial.print("\tltstate:"); Serial.print(LTST_Filter->lt_state(), 3);
@@ -216,7 +238,8 @@ void Sensors::plot_buzz()  // plot pp8
   Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
   Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
-  Serial.print("\teye_cf:"); Serial.println(LTST_Filter->cf(), 3);
+  Serial.print("\teye_cf:"); Serial.print(LTST_Filter->cf(), 3);
+  Serial.println("");
 }
 
 // plot pp4
@@ -237,14 +260,16 @@ void Sensors::plot_quiet()  // plot pp4
   Serial.print("\t\tT_acc*100:"); Serial.print(T_acc_*100., 3);
   Serial.print("\tg_filt:"); Serial.print(g_filt-1., 3);
   Serial.print("\tg_quiet:"); Serial.print(g_quiet, 3);
-  Serial.print("\tg_is_quiet_sure-2:"); Serial.println(g_q_s, 3);
+  Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
+  Serial.println("");
 }
 
 // Print publish
 void Sensors::plot_quiet_raw()
 {
   Serial.print("o_quiet:"); Serial.print(o_quiet, 3);
-  Serial.print("\t\tg_quiet:"); Serial.println(g_quiet, 3);
+  Serial.print("\t\tg_quiet:"); Serial.print(g_quiet, 3);
+  Serial.println("");
 }
 
 // Print publish
@@ -253,7 +278,21 @@ void Sensors::plot_total()
   Serial.print("T_rot_*100:"); Serial.print(T_rot_*100., 3);
   Serial.print("\to_filt:"); Serial.print(o_filt, 3);
   Serial.print("\t\tT_acc_*100:"); Serial.print(T_acc_*100., 3);
-  Serial.print("\tg_filt:"); Serial.println(g_filt-1., 3);
+  Serial.print("\tg_filt:"); Serial.print(g_filt-1., 3);
+  Serial.println("");
+}
+
+void Sensors::pretty_print_head()
+{
+  Serial.println("Head:");
+  Serial.print("\thead_reset\t"); Serial.println(head_reset_, 3);
+  Serial.print("\tpitch\t\t"); Serial.println(pitch_filt, 3);
+  Serial.print("\troll\t\t"); Serial.println(roll_filt, 3);
+  Serial.print("\tmax_nod_p\t"); Serial.println(max_nod_p_, 3);
+  Serial.print("\tmax_nod_f\t"); Serial.println(max_nod_f_, 3);
+  Serial.print("\tnod_p_conf\t"); Serial.println(max_nod_p_confirmed_, 2);
+  Serial.print("\tnod_f_conf\t"); Serial.println(max_nod_f_confirmed_, 2);
+  Serial.print("\thead_buzz\t"); Serial.println(head_buzz_, 2);
 }
 
 void Sensors::print_all()
@@ -271,7 +310,8 @@ void Sensors::print_all()
   Serial.print(z_filt, 3); Serial.print('\t');
   Serial.print(g_filt, 3); Serial.print('\t');
   Serial.print(g_is_quiet_, 3); Serial.print('\t');
-  Serial.println(g_is_quiet_sure_, 3);
+  Serial.print(g_is_quiet_sure_, 3);
+  Serial.println("");
 }
 
 void Sensors::print_all_header()
@@ -291,7 +331,7 @@ void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, cons
 }
 
 // Print pp9 header
-void Sensors::header_rapid_9()
+void Sensors::header_rapid_10()
 {
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
@@ -313,7 +353,7 @@ void Sensors::header_rapid_9()
 }
 
 // Print pp9
-void Sensors::print_rapid_9(const float time)
+void Sensors::print_rapid_10(const float time)
 {
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
@@ -342,11 +382,11 @@ void Sensors::print_rapid(const boolean reset, const boolean print_now, const fl
   {
     if ( reset || (last_read_debug != debug) )
     {
-      header_rapid_9();
+      header_rapid_10();
     }
     if ( print_now )
     {
-      print_rapid_9(time_s);
+      print_rapid_10(time_s);
     }
   }
   last_read_debug = debug;

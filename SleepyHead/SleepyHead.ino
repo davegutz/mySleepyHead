@@ -368,40 +368,41 @@ void loop()
       switch ( plot_num )
       {
       case 0:
-        Sen->plot_all_sum();
+        Sen->plot_all_sum(); // pp0
         break;
       case 1:
-        Sen->plot_all_acc();
+        Sen->plot_all_acc(); // pp1
         break;
       case 2:
-        Sen->plot_all_rot();
+        Sen->plot_all_rot(); // pp2
         break;
       case 3:
-        Sen->plot_all();
+        Sen->plot_all(); // pp3
         break;
       case 4:
-        Sen->plot_quiet();
+        Sen->plot_quiet(); // pp4
         break;
       case 5:
-        Sen->plot_quiet_raw();
+        Sen->plot_quiet_raw();  // pp5
         break;
       case 6:
-        Sen->plot_total();
+        Sen->plot_total();  // pp6
         break;
       case 7:
-        Sen->plot_all_rpy();
+        Sen->plot_all_rpy();  // pp7
         break;
       case 8:
-        Sen->plot_buzz();  // pp8
+        Sen->plot_head_buzz();  // pp8
         break;
       case 9:
-        Sen->print_rapid(reset, true, Sen->time_eye_s());
-        debug = 9;
+        Sen->plot_eye_buzz();  // pp9
         break;
       case 10:
+        Sen->print_rapid(reset, true, Sen->time_eye_s());  // pp10
+        debug = 10;
         break;
       default:
-        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (buzz), pp9 (buzz list) or pp10 (sum plot)");
+        Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
         break;
       }
     }
@@ -580,9 +581,9 @@ void loop()
           Serial.println("\t 5 - quiet filtering metrics (o_quiet, g_quiet)");
           Serial.println("\t 6 - total (T_rot, o_filt, T_acc, g_filt)");
           Serial.println("\t 7 - roll-pitch-yaw(T_acc, tx_raw, ty_raw, tz_raw, roll_filt, pitch_filt, yaw_filt, q0, q1, q2, q3)");
-          Serial.println("\t 8 - buzz (eye_voltage, ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, head_buzz)");
-          Serial.println("\t 9 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
-          Serial.println("\t 10 - summary for plot");
+          Serial.println("\t 8 - head buzz (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
+          Serial.println("\t 9 - eye buzz (eye_voltage, ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, head_buzz)");
+          Serial.println("\t 10 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
           Serial.println("ph - print history");
           Serial.println("pr - print registers");
           Serial.println("m  - print all");
@@ -603,6 +604,9 @@ void loop()
         case ( 'P' ):  // P - print
           switch ( letter_1 )
           {
+            case ( 'H' ):  // PH - Print Head data
+              Sen->pretty_print_head();
+              break;
             case ( 'L' ):  // PL - Print LTST Filter
               Sen->LTST_Filter->pretty_print();
               break;
@@ -617,13 +621,13 @@ void loop()
             case ( 'p' ):  // pp - plot all filtered
               switch ( i_value )
               {
-                case 0 ... 9:
+                case 0 ... 10:
                   plot_num = i_value;
                   plotting_all = true;
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (buzz), pp9 (buzz list) or pp10 (sum plot)");
+                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
                   plotting_all = false;
                   break;
               }

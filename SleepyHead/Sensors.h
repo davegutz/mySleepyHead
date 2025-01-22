@@ -108,7 +108,7 @@ public:
     float get_delta_roll() { return delta_roll_; };
     float get_event_reset_time() { return event_reset_time_; };
     float get_event_set_time() { return event_set_time_; };
-    void header_rapid_9();
+    void header_rapid_10();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
     float max_nod_forte() { return max_nod_f_; };
@@ -124,14 +124,16 @@ public:
     void plot_all_rot();
     void plot_all_rpy();
     void plot_all_sum();
-    void plot_buzz();
+    void plot_eye_buzz();
+    void plot_head_buzz();
     void plot_quiet();
     void plot_quiet_raw();
     void plot_total();
+    void pretty_print_head();
     void print_all_header();
     void print_all();
     void print_rapid(const boolean reset, const boolean print_now, const float time_s);
-    void print_rapid_9(const float time_s);
+    void print_rapid_10(const float time_s);
     void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
     void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
     void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
