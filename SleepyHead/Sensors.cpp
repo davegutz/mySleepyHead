@@ -66,7 +66,7 @@ void Sensors::filter_head(const boolean reset)
         c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
         o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
         o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_T_Q_FILT));     
-        o_quiet =OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
+        o_quiet = OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }
 
     // Mahony Tracking Filter
@@ -92,13 +92,14 @@ void Sensors::filter_head(const boolean reset)
     max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
     max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
 
-    head_reset_ = reset || HeadShakePer->calculate(!(o_quiet && g_quiet), SHAKE_S, SHAKE_R, T_eye_, reset);
+    head_reset_ = reset || HeadShakePer->calculate(!(o_is_quiet_sure_ && g_is_quiet_sure_), SHAKE_S, SHAKE_R, T_acc_, reset);
 
-    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0, event_set_time_, event_reset_time_, T_acc_, head_reset_);
-    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0, event_set_time_, event_reset_time_, T_acc_, head_reset_);
+    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0 && !head_reset_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
+    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0 && !head_reset_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
 
     // Head buzz
-    head_buzz_ = max_nod_p_confirmed_;
+    head_buzz_f_ = max_nod_f_confirmed_;
+    head_buzz_p_ = max_nod_p_confirmed_;
 }
 
 // Print publish
@@ -216,13 +217,16 @@ void Sensors::plot_head_buzz()  // plot pp8
   if ( g_is_quiet_sure_ ) g_q_s = -1;
   float o_q_s = -4.; 
   if ( o_is_quiet_sure_ ) o_q_s = -3;
-  Serial.print("g_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
+  Serial.print("head_reset:"); Serial.print(head_reset_, 3);
+  Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
   Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
   Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
-  Serial.print("\thead_buzz:"); Serial.print(head_buzz_);
+  Serial.print("\thead_buzz_f:"); Serial.print(head_buzz_f_);
+  Serial.print("\thead_buzz_p:"); Serial.print(head_buzz_p_);
   Serial.print("\teye_cf:"); Serial.print(LTST_Filter->cf(), 3);
   Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
+  // Serial.print("\t HeadShakePer:"); HeadShakePer->repr();
   Serial.println("");
 }
 
@@ -292,7 +296,8 @@ void Sensors::pretty_print_head()
   Serial.print("\tmax_nod_f\t"); Serial.println(max_nod_f_, 3);
   Serial.print("\tnod_p_conf\t"); Serial.println(max_nod_p_confirmed_, 2);
   Serial.print("\tnod_f_conf\t"); Serial.println(max_nod_f_confirmed_, 2);
-  Serial.print("\thead_buzz\t"); Serial.println(head_buzz_, 2);
+  Serial.print("\thead_buzz_f\t"); Serial.println(head_buzz_f_, 2);
+  Serial.print("\thead_buzz_p\t"); Serial.println(head_buzz_p_, 2);
 }
 
 void Sensors::print_all()
@@ -343,7 +348,8 @@ void Sensors::header_rapid_10()
   Serial.print("max_nod_f_confirmed,");
   Serial.print("max_nod_p,");
   Serial.print("max_nod_p_confirmed,");
-  Serial.print("head_buzz,");
+  Serial.print("head_buzz_f,");
+  Serial.print("head_buzz_p,");
   Serial.print("eye_buzz,");
   Serial.print("lt_state,");
   Serial.print("st_state,");
@@ -365,7 +371,8 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(max_nod_f_confirmed_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
   Serial.print(max_nod_p_confirmed_, 3); Serial.print(",");
-  Serial.print(head_buzz_); Serial.print(",");
+  Serial.print(head_buzz_f_); Serial.print(",");
+  Serial.print(head_buzz_p_); Serial.print(",");
   Serial.print(eye_buzz_); Serial.print(",");
   Serial.print(LTST_Filter->lt_state(), 4); Serial.print(",");
   Serial.print(LTST_Filter->st_state(), 4); Serial.print(",");

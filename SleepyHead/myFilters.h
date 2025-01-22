@@ -118,6 +118,7 @@ public:
   boolean calculate(const boolean in, const double Tt, const double Tf, const double T);
   boolean calculate(const boolean in, const double Tt, const double Tf, const int RESET);
   boolean calculate(const boolean in, const double Tt, const double Tf, const double T, const int RESET);
+  void repr();
   boolean state() { return ( timer_> 0 ); };
   int timer() { return timer_; };
   int nt() { return nt_; };
@@ -130,6 +131,11 @@ protected:
   int nf_;
   double T_;
   double T_init_;
+  boolean reset_;
+  boolean input_;
+  double Tt_;
+  double Tf_;
+  boolean result_;
 };
 
 

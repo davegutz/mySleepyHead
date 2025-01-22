@@ -154,16 +154,27 @@ boolean TFDelay::calculate(const boolean in, const double Tt, const double Tf, c
 boolean TFDelay::calculate(const boolean in, const double Tt, const double Tf, const double T, const int RESET)
 {
   double T_loc = T;
+  input_ = in;
+  reset_ = RESET;
+  Tt_ = Tt;
+  Tf_ = Tf;
   if (RESET>0)
   {
     if ( in ) timer_ = nf_;
     else timer_ = -nt_;
     T_loc = T_init_;
   }
-  boolean res = TFDelay::calculate(in, Tt, Tf, T_loc);
-  return(res);
+  result_ = TFDelay::calculate(in, Tt_, Tf_, T_loc);
+  return(result_);
 }
-
+void TFDelay::repr()
+{
+  Serial.print("RESET:"); Serial.print(reset_);
+  Serial.print("\tinput:"); Serial.print(input_);
+  Serial.print("\tTt:"); Serial.print(Tt_, 3);
+  Serial.print("\tTf:"); Serial.print(Tf_, 3);
+  Serial.print("\tresult:"); Serial.print(result_);
+}
 
 // class SRLatch
 // constructors

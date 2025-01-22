@@ -271,7 +271,7 @@ void loop()
     L->put_precursor(Sen);
 
     // Logic
-    if ( Sen->both_not_quiet() && !logging )
+    if ( ENABLE_LOGGING && Sen->both_not_quiet() && !logging )
     {
       logging = true;
       new_event = Sen->t_ms;
@@ -339,11 +339,11 @@ void loop()
     }
     else
     {
-      if ( Sen->max_nod_piano() > 0 )
+      if ( Sen->head_buzz_p() > 0 )
       {
         digitalWrite(motorPin, HIGH);
         digitalWrite(LED_BUILTIN, HIGH);
-        if ( buzz_en_grav && Sen->max_nod_forte() > 0 )
+        if ( buzz_en_grav && Sen->head_buzz_f() > 0 )
         {
           if ( !buzz.isPlaying() ) buzz.play_grav();
         }

@@ -48,7 +48,8 @@ public:
       time_acc_last_(0ULL), time_eye_last_(0LL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
-      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false), head_buzz_(false),
+      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false),
+      head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
       v3v3Pin_(0),
       eye_reset_(true), event_set_time_(0), event_reset_time_(0),
@@ -61,7 +62,8 @@ public:
       time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
       roll_filt(0), pitch_filt(0), yaw_filt(0),
-      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_buzz_(false), head_buzz_(false),
+      eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_buzz_(false),
+      head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
       pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
       unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
@@ -111,8 +113,8 @@ public:
     void header_rapid_10();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
-    float max_nod_forte() { return max_nod_f_; };
-    float max_nod_piano() { return max_nod_p_; };
+    boolean head_buzz_f() { return head_buzz_f_; };
+    boolean head_buzz_p() { return head_buzz_p_; };
     float max_nod_forte_confirmed() { return max_nod_f_confirmed_; };
     float max_nod_piano_confirmed() { return max_nod_p_confirmed_; };
     float pitch_thr() { return pitch_thr_f_; };
@@ -212,7 +214,8 @@ protected:
     boolean eye_closed_confirmed_;
     int sensorPin_;
     boolean eye_buzz_;
-    boolean head_buzz_;
+    boolean head_buzz_f_;
+    boolean head_buzz_p_;
     float pitch_thr_f_;
     float roll_thr_f_;
     float pitch_thr_p_;
