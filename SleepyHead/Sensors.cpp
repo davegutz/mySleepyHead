@@ -213,13 +213,16 @@ void Sensors::plot_all_sum()  // plot pp0
 // Plot pp8
 void Sensors::plot_head_buzz()  // plot pp8
 {
-  float g_q_s = -2.; 
-  if ( g_is_quiet_sure_ ) g_q_s = -1;
-  float o_q_s = -4.; 
-  if ( o_is_quiet_sure_ ) o_q_s = -3;
+  // float g_q_s = -2.; 
+  // if ( g_is_quiet_sure_ ) g_q_s = -1;
+  // float o_q_s = -4.; 
+  // if ( o_is_quiet_sure_ ) o_q_s = -3;
+  float all_quiet = -2;
+  if ( g_is_quiet_sure_ && g_is_quiet_sure_ ) all_quiet = -1;
   Serial.print("head_reset:"); Serial.print(head_reset_, 3);
-  Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
-  Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
+  // Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
+  // Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
+  Serial.print("\tall_quiet-2:"); Serial.print(all_quiet);
   Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
   Serial.print("\thead_buzz_f:"); Serial.print(head_buzz_f_);
