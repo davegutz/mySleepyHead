@@ -68,3 +68,19 @@ boolean init_serial(const unsigned int baud)
   }
   else return false;
 }
+
+// Time synchro so printed decimal times align with hms rolls
+void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip)
+{
+  *last_sync = millis();
+
+  // Refresh millis() at turn of Time.now
+  int count = 0;
+  long time_begin = now();  // Seconds since start of epoch
+  while ( now()==time_begin && ++count<1100 )  // Time.now() truncates to seconds
+  {
+    delay(1);
+    *millis_flip = millis()%1000;
+  }
+}
+
