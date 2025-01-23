@@ -32,10 +32,9 @@
 #endif
 
 #include "MahonyAHRS.h"
+#include "src/Filters/myFilters.h"
 
-#include "myFilters.h"
 extern int debug;
-
 
 
 // Sensors (like a big struct with public access)

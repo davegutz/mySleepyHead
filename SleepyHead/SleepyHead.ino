@@ -1,7 +1,7 @@
 /*
   Uses LSM6DS3 in Arduino Nano 33 IoT
   This unit is reported to have BLE but I have not confirmed.
-  This unit requires special EEPROM handling using FlashStorage library.
+  This unit requires special EEPROM handling using FlashStorage library.  But not used SleepyHead
 
   The circuit:
   - Arduino Uno WiFi Rev 2 or Arduino Nano 33 IoT
@@ -13,43 +13,23 @@
   Arduino board for CTE Nano:
   - Arduino Nano 33 IoT in Afduino SAMD library
  
-  created 10 Jul 2024
+  created 1 Feb 2025
   by Dave Gutz
 
   This example code is in the public domain.
 
   Requirements:
-  1.  >500 Hz sampling of 6 dof IMU to support 25 Hz high fidelity analysis
-  2.  Capture and store and limited number of collisions for post download and analysis
-  3.  5 collisions for now
-  4.  Button cell battery
-  5.  UT managed by EEPROM.  OK to synchronize on restart before use.
-  6.  Store 'worst' 2 collisions in EEPROM.
-
+  1.
   Notes:
   1.  IMU in Nano captures 6 dof IMU at 100 Hz.   Too slow but good for 20 Hz analysis
-  2.  A collision is approximately 3 seconds = 300 samples of 7 variables (6 dof + integer time).
-    Use experience to scale to 16 bit integers for storage of several collisions possible.  Need experiment soon.
-    Each collision would need 7 * 16 * 300 bits ~ 32k bits
-  3. Don't know how big EEPROM is.  Want to save 'worst' collision in EEPROM.  Always preserve 'worst'
-  in both EEPROM and RAM.
-  4. Arduino compiler with this barebones program says 27400 bytes left in RAM = 220 k bits enough for 4 collisions.
-  5. Arduino specs say EEPROM storage is 520 KB SRAM.
-    AMD21G18A Processor
-    256 kB Flash 32 kB Flash (256 is future possible EEPROM.  32 is now.)
-    Arduino reports:
-    EEPROM size: 201
-    EEPROM PAGE_SIZE: 64
-    EEPROM PAGES: 4096
-    EEPROM MAX_FLASH: 262144 bits = 32 kB  = 262144 / 7 / 16 = 2340 samples ~8 collisions.  Confirms info about 2nd Flash being available for EEPROM.
-    EEPROM ROW_SIZE: 256
 
 */
 
-#include <SafeString.h>
-#include "FlashStorage.h"
+// Defines and constants
 #include "constants.h"
 
+// Include libraries
+#include <SafeString.h>
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
   #include <Arduino_LSM6DS3.h>
@@ -58,13 +38,13 @@
   #include "application.h"  // Particle
 #endif
 
-// Dependent includes.   Easier to sp.debug code if remove unused include files
+// User defined functions
 #include "Sync.h"
-#include "myFilters.h"
+#include "src/Filters/myFilters.h"
 #include "Sensors.h"
-#include "TimeLib.h"
+#include "src/Time/TimeLib.h"
 
-// Global
+// Global variables
 cSF(unit, INPUT_BYTES);
 cSF(serial_str, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
@@ -80,15 +60,14 @@ unsigned long long last_sync = millis();   // Timekeeping
 const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
 const int buzzerPin = A3;     // Pin connected to the buzzer
 const int motorPin = 21;     // Pin connected to the buzzer
-
-extern int debug;
-extern boolean run;
 int debug = 0;
 boolean print_mem = false;
-
-// Instantiate buzz
 #include "src/Tones/Tones.h"  // depends on some things above
 Tone buzz = Tone(buzzerPin);
+
+// External variables
+extern int debug;
+extern boolean run;
 
 // Setup
 void setup()
