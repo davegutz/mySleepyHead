@@ -25,7 +25,6 @@
 #include "constants.h"
 #include "Sensors.h"
 #include "TimeLib.h"
-#include "CollDatum.h"
 
 extern boolean run;
 extern int debug;
@@ -36,7 +35,7 @@ void Sensors::filter_eye(const boolean reset)
     // IR Sensor
     eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, NOM_DT_HEAD));
-    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, event_set_time_, event_reset_time_, T_eye_, eye_reset_);
+    eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
 
     // Eye buzz
     eye_buzz_ = eye_closed_confirmed_;
@@ -94,8 +93,8 @@ void Sensors::filter_head(const boolean reset)
 
     head_reset_ = reset || HeadShakePer->calculate(!(o_is_quiet_sure_ && g_is_quiet_sure_), SHAKE_S, SHAKE_R, T_acc_, reset);
 
-    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0 && !head_reset_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
-    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0 && !head_reset_, event_set_time_, event_reset_time_, T_acc_, head_reset_);
+    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
+    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
 
     // Head buzz
     head_buzz_f_ = max_nod_f_confirmed_;
@@ -461,17 +460,6 @@ void Sensors::sample_head(const boolean reset, const unsigned long long time_now
     else rot_available_ = false;
     T_rot_ = double(time_head_ms_ - time_rot_last_) / 1000.;
 
-    // Time stamp
-    t_ms = time_head_ms_ - time_start_ms + (unsigned long long)now_hms*1000;
-    if ( debug==10 )
-    {
-      cSF(prn_buff, INPUT_BYTES, "");
-      time_long_2_str(t_ms, prn_buff);
-      Serial.print("t_ms: "); Serial.print(prn_buff); Serial.print(" "); Serial.print(t_ms, 3); Serial.print(" = ");
-      Serial.print(time_head_ms_); Serial.print(" - "); Serial.print(time_start_ms, 3); Serial.print(" + "); Serial.print((unsigned long long)now_hms);
-      time_long_2_str((unsigned long long)now_hms*1000, prn_buff); Serial.print(" "); Serial.println(prn_buff);
-
-    }
     if ( acc_available_ ) time_acc_last_ = time_head_ms_;
     if ( rot_available_ ) time_rot_last_ = time_head_ms_;
 

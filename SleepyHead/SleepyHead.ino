@@ -62,7 +62,6 @@
 #include "Sync.h"
 #include "myFilters.h"
 #include "Sensors.h"
-#include "CollDatum.h"
 #include "TimeLib.h"
 
 // Global
@@ -124,9 +123,8 @@ void setBuzzerVolume(int volume)
 // Setup
 void setup()
 {
-  unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
   setTime(time_initial);
-
+  unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
 
   // Serial
   Serial.println("Serial starting over USB...");
@@ -156,18 +154,16 @@ void setup()
 
   // IR
   Serial.print("IR starting at pin "); Serial.print(sensorPin); Serial.print("...");
-  pinMode(sensorPin, INPUT);   // Set sensorPin as an INPUT
+  pinMode(sensorPin, INPUT);  // Set sensorPin as an INPUT
+  analogReadResolution(12);  // change the resolution to 12 bits (4095)
   Serial.println(" done");
-  // change the resolution to 12 bits (4095)
-  analogReadResolution(12);
   delay(5);
  
   // v3v3
   Serial.print("v3v3_nom starting at pin "); Serial.print(v3v3Pin); Serial.print("...");
-  pinMode(v3v3Pin, INPUT);   // Set sensorPin as an INPUT
+  pinMode(v3v3Pin, INPUT);  // Set sensorPin as an INPUT
+  analogReadResolution(12);  // change the resolution to 12 bits (4095)
   Serial.println(" done");
-  // change the resolution to 12 bits (4095)
-  analogReadResolution(12);
   delay(5);
 
   // Motor
@@ -176,9 +172,7 @@ void setup()
   Serial.println(" done");
   delay(5);
 
-  // Say 'Hello'
   say_hello();
-
 }
 
 
@@ -207,12 +201,7 @@ void loop()
   boolean gyro_ready = false;
   boolean accel_ready = false;
   static boolean monitoring_past = monitoring;
-  static time_t new_event = 0;
   static Sensors *Sen = new Sensors(millis(), double(NOM_DT_EYE), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
-  static Data_st *L = new Data_st(NDATUM, NHOLD, NREG);  // Event log
-  static boolean logging = false;
-  static boolean logging_past = false;
-  static uint16_t log_size = 0;
   boolean plotting = false;
   static boolean eye_closed = false;
   static boolean buzz_en_ir = true;
@@ -237,26 +226,6 @@ void loop()
   plotting = plotting_all;
   boolean inhibit_talk = plotting_all && plot_num==10;
 
-  if ( reset )
-  {
-    Serial.print("size of ram NDATUM="); Serial.println(NDATUM);
-    Serial.print("num precursors NHOLD="); Serial.println(NHOLD);
-    Serial.print("num reg entries NREG="); Serial.println(NREG);
-    Serial.print("iR="); Serial.println(L->iR());
-    Serial.print("iRg="); Serial.println(L->iRg());
-  }
-
-  if ( print_mem )
-  {
-    Serial.print("size of ram NDATUM="); Serial.println(NDATUM);
-    Serial.print("num precursors NHOLD="); Serial.println(NHOLD);
-    Serial.print("num reg entries NREG="); Serial.println(NREG);
-    Serial.print("iR="); Serial.println(L->iR());
-    Serial.print("iRg="); Serial.println(L->iRg());
-    Serial.print("Data_st size: "); Serial.println(L->size());
-    print_mem = false;  // print once
-  }
-
   // Read sensors
   if ( read_eye )
   {
@@ -268,60 +237,6 @@ void loop()
     Sen->sample_head(reset, millis(), time_start, now());
     Sen->filter_head(reset);
     Sen->quiet_decisions(reset, o_quiet_thr, g_quiet_thr);
-    L->put_precursor(Sen);
-
-    // Logic
-    if ( ENABLE_LOGGING && Sen->both_not_quiet() && !logging )
-    {
-      logging = true;
-      new_event = Sen->t_ms;
-      log_size++;
-    }
-    else
-    {
-      if ( Sen->both_are_quiet() && logging )
-      {
-        logging = false;  // This throws out the last event
-      }
-      log_size = 0;
-    }
-
-    // Log data - full resolution since part of 'read_head' frame
-    if ( logging && !logging_past)
-    {
-      L->register_lock(inhibit_talk, Sen);  // after move_precursor so has values on first save
-      if ( !inhibit_talk ) { Serial.println(""); Serial.println("Logging started"); }
-  
-      L->move_precursor();
-      L->put_ram(Sen);
-    }
-    else if ( !logging && logging_past )
-    {
-      L->put_ram(Sen);
-      if ( !inhibit_talk ) Serial.println("Logging stopped");
-      L->register_unlock(inhibit_talk, Sen);
-      if ( !plotting )
-      {
-        // Serial.println("All ram");
-        // L->print_ram();
-        Serial.println("Latest ram");
-        L->print_latest_ram();
-        Serial.println("Registers");
-        L->print_all_registers();
-        Serial.println("Latest register");
-        L->print_latest_register();
-      }
-      else if ( plotting_all && plot_num==10 )
-      {
-        L->plot_latest_ram();  // pp10
-      }
-    }
-    else if ( logging )
-    {
-      L->put_ram(Sen);
-    }
-
-    logging_past = logging;
 
   }  // end read_head
 
@@ -416,37 +331,6 @@ void loop()
   // Initialize complete once sensors and models started and summary written
   if ( read_head ) reset = false;
 
-  // Blink when threshold breached and therefore logging
-  if ( blink )
-  {
-    if ( !logging )
-    {
-      blink_on = false;
-    }
-    else
-    {
-      blink_on = !blink_on;
-    }
-    if ( blink_on ) digitalWrite(LED_BUILTIN, HIGH);
-    else digitalWrite(LED_BUILTIN, LOW);
-  }
-
-  if ( active )
-  {
-    static int i_count = 0;
-
-    // Blink number of stored registers
-    if ( L->num_active_registers() > 0 )   // num_active_registers
-    {
-      if ( i_count < L->num_active_registers() ) blink_on = !blink_on;
-      if ( blink_on ) digitalWrite(LED_BUILTIN, HIGH);
-      else digitalWrite(LED_BUILTIN, LOW);
- 
-      // Reset counter on over-wrap
-      if ( ++i_count >= int(NREG) ) i_count = 0;
-    }
-  }
-
   if ( chitchat )
   {
     // Serial.println("chitchat");
@@ -498,9 +382,9 @@ void loop()
               Serial.print(" to "); Serial.print(o_quiet_thr, 3);
               break;
             case ( 'R' ):  // aR - eye reset time
-              Serial.print("Eye reset time from "); Serial.print(Sen->get_event_reset_time(), 2);
-              Sen->set_event_reset_time(f_value);
-              Serial.print(" to "); Serial.println(Sen->get_event_reset_time(), 2);
+              Serial.print("Eye reset time from "); Serial.print(Sen->get_eye_reset_time(), 2);
+              Sen->set_eye_reset_time(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_eye_reset_time(), 2);
               break;
             case ( 'r' ):  // ar - roll threshold
               Serial.print("Roll threshold from "); Serial.print(Sen->roll_thr(), 3);
@@ -508,9 +392,9 @@ void loop()
               Serial.print(" to "); Serial.println(Sen->roll_thr(), 3);
               break;
             case ( 'S' ):  // aS - eye set time
-              Serial.print("Eye set time from "); Serial.print(Sen->get_event_set_time(), 2);
-              Sen->set_event_set_time(f_value);
-              Serial.print(" to "); Serial.println(Sen->get_event_set_time(), 2);
+              Serial.print("Eye set time from "); Serial.print(Sen->get_eye_set_time(), 2);
+              Sen->set_eye_set_time(f_value);
+              Serial.print(" to "); Serial.println(Sen->get_eye_set_time(), 2);
               break;
             case ( 't' ):  // at - pitch threshold
               Serial.print("Pitch threshold from "); Serial.print(Sen->pitch_thr(), 3);
@@ -560,8 +444,8 @@ void loop()
           Serial.print("\t g = G quiet thr ("); Serial.print(g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t l = LTST fault thr ("); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3); Serial.println(")");
           Serial.print("\t o = O angular speed quiet thr ("); Serial.print(o_quiet_thr, 3); Serial.println(")");
-          Serial.print("\t R = event RESET time, s ("); Serial.print(Sen->get_event_reset_time(), 3); Serial.println(")");
-          Serial.print("\t S = event SET time, s ("); Serial.print(Sen->get_event_set_time(), 3); Serial.println(")");
+          Serial.print("\t R = event RESET time, s ("); Serial.print(Sen->get_eye_reset_time(), 3); Serial.println(")");
+          Serial.print("\t S = event SET time, s ("); Serial.print(Sen->get_eye_set_time(), 3); Serial.println(")");
           Serial.print("\t r = roll thr ("); Serial.print(Sen->roll_thr(), 3); Serial.println(")");
           Serial.print("\t t = pitch thr ("); Serial.print(Sen->pitch_thr(), 3); Serial.println(")");
           Serial.print("\t z = LTST freeze thr ("); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3); Serial.println(")");
@@ -584,15 +468,10 @@ void loop()
           Serial.println("\t 8 - head buzz (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
           Serial.println("\t 9 - eye buzz (eye_voltage, ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, head_buzz)");
           Serial.println("\t 10 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
-          Serial.println("ph - print history");
-          Serial.println("pr - print registers");
-          Serial.println("m  - print all");
-          Serial.println("r  - reset cmd toggle");
-          Serial.println("s  - print sizes for all (will vary depending on history of collision)");
+          Serial.println("r  - soft reset");
           Serial.println("t?<val> - trim attitude");
           Serial.print("\t p = pitch bias nodding ("); Serial.print(Sen->get_delta_pitch(), 3); Serial.println(")");
           Serial.print("\t r = roll bias tilting ("); Serial.print(Sen->get_delta_roll(), 3); Serial.println(")");
-          Serial.println("UTxxxxxxx - set time to x (x is integer from https://www.epochconverter.com/)");
           Serial.println("vv?  - verbosity debug level");
           Serial.println("x?  - play toggle ( true = real time, false = pulse )");
           Serial.println("\t 9  - time trace in Sensors");
@@ -632,24 +511,13 @@ void loop()
                   break;
               }
               break;
-            case ( 'h' ):  // ph - print history
-              Serial.println("History:");
-              L->print_ram();
-              break;
-            case ( 'r' ):  // pr - print registers
-              Serial.println("Registers:");
-              L->print_all_registers();
-              break;
             default:
               Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
               break;
           }
           break;
-        case ( 'r' ):  // r - reset command toggles
+        case ( 'r' ):  // r - reset command toggle
           reset = true;
-          break;
-        case ( 's' ):  // s - sizes for all
-          print_mem = true;
           break;
         case ( 't' ):  // t - trim
           switch ( letter_1 )
@@ -669,22 +537,6 @@ void loop()
               break;
           }
           break;          
-        case ( 'U' ):
-          switch ( letter_1 )
-          {
-            case ( 'T' ):
-              input_str.substring(input_str, 2).toInt(i_value);
-              time_initial = time_t ( i_value );
-              setTime(time_initial);
-              prn_buff = "---";
-              time_long_2_str(time_initial*1000, prn_buff);
-              Serial.println("Time set to: "); Serial.print(time_initial); Serial.print(" = "); Serial.println(prn_buff);
-              break;
-            default:
-              Serial.print(input_str.charAt(1)); Serial.println(" unknown");
-              break;
-          }
-          break;
         case ( 'v' ):
           switch ( letter_1 )
           {

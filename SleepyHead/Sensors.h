@@ -42,7 +42,7 @@ extern int debug;
 class Sensors
 {
 public:
-    Sensors(): t_ms(0),
+    Sensors():
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(0ULL), time_eye_last_(0LL), time_rot_last_(0ULL),
@@ -52,11 +52,11 @@ public:
       head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
       v3v3Pin_(0),
-      eye_reset_(true), event_set_time_(0), event_reset_time_(0),
-      head_reset_(true), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
+      eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
+      head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
-      const int sensorPin, const String unit, const int v3v3_pin): t_ms(0),
+      const int sensorPin, const String unit, const int v3v3_pin):
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
@@ -67,8 +67,8 @@ public:
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
       pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
       unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
-      eye_reset_(true), event_set_time_(EVENT_S), event_reset_time_(EVENT_R),
-      head_reset_(true), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
+      eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
+      head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
     {
         // Update time and time constant changed on the fly
         float Tfilt_head_init = HEAD_DELAY/1000.;
@@ -91,9 +91,9 @@ public:
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
         LTST_Filter = new LongTermShortTerm_Filter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS);
-        HeadNodPerF = new TFDelay(true, EVENT_S, EVENT_R, Tfilt_head_init);
-        HeadNodPerP = new TFDelay(true, EVENT_S, EVENT_R, Tfilt_head_init);
-        EyeClosedPer = new TFDelay(false, EVENT_S, EVENT_R, Tfilt_eye_init); 
+        HeadNodPerF = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
+        HeadNodPerP = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
+        EyeClosedPer = new TFDelay(false, EYE_S, EYE_R, Tfilt_eye_init); 
         GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
         HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init); 
     };
@@ -108,8 +108,8 @@ public:
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     float get_delta_pitch() { return delta_pitch_; };
     float get_delta_roll() { return delta_roll_; };
-    float get_event_reset_time() { return event_reset_time_; };
-    float get_event_set_time() { return event_set_time_; };
+    float get_eye_reset_time() { return eye_reset_time_; };
+    float get_eye_set_time() { return eye_set_time_; };
     void header_rapid_10();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
@@ -141,14 +141,13 @@ public:
     void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);
     void set_delta_pitch(const float input) { delta_pitch_ = input; };
     void set_delta_roll(const float input) { delta_roll_ = input; };
-    void set_event_reset_time(const float input) { event_reset_time_ = input; };
-    void set_event_set_time(const float input) { event_set_time_ = input; };
+    void set_eye_reset_time(const float input) { eye_reset_time_ = input; };
+    void set_eye_set_time(const float input) { eye_set_time_ = input; };
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
     float time_eye_s() { return float(time_eye_ms_)/1000.0; };
     float time_now_s() { return float(time_head_ms_)/1000.0; };
 
-    time_t t_ms;
     // Gyroscope in radians/second
     float a_raw;
     float b_raw;
@@ -229,9 +228,11 @@ protected:
     float delta_pitch_;
     float delta_roll_;
     boolean eye_reset_;
-    float event_set_time_;
-    float event_reset_time_;
+    float eye_set_time_;
+    float eye_reset_time_;
     boolean head_reset_;
+    float head_set_time_;
+    float head_reset_time_;
     boolean max_nod_f_confirmed_;
     boolean max_nod_p_confirmed_;
 };

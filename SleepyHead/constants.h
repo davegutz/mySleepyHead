@@ -71,7 +71,6 @@ const float deg_to_rps = 0.0174533;
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
-#define ENABLE_LOGGING   false          // Log head impacts based on quiet, for myCTE app  (false)
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
 const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
@@ -79,8 +78,8 @@ const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.)
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
 const float roll_thr_def_piano = 12.;    // Threshold sleep detect buzz only (12.), deg
-const float EVENT_S = 1.5;               // Persistence eye closed IR sense set, sec (1.5)  Head needs none; heavily filtered by Mahoney
-const float EVENT_R = 0.5;               // Persistence eye closed IR sense reset, sec (0.5)
+const float EYE_S = 1.5;               // Persistence eye closed IR sense set, sec (1.5)
+const float EYE_R = 0.5;               // Persistence eye closed IR sense reset, sec (0.5)
 const float TAU_LT = 20.;                // Long term filter time constant, sec (20)
 const float TAU_ST = 0.4;                // Short term filter time constant, sec (0.4)
 const float FLT_THR_POS = 0.04;          // LTST filter positive dltst fault threshold, v (0.04)
@@ -88,6 +87,8 @@ const float FRZ_THR_POS = 0.01;          // LTST filter positive dltst freeze th
 const float OFF_S = 0.04;                // Persistence glasses off IR sense set, sec (0.04)
 const float OFF_R = 3.0;                 // Persistence glasses off IR sense reset, sec (3.0)
 const float GLASSES_OFF_VOLTAGE = 2.5;   // Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
+const float HEAD_S = 0.04;               // Persistence head sense set, sec (0.04)  Head needs little; heavily filtered by Mahoney
+const float HEAD_R = 0.04;               // Persistence head sense reset, sec (0.04)
 const float SHAKE_S = 0.2;               // Persistence head shake motion sense set, sec (0.2) update time is 0.1
 const float SHAKE_R = 4.0;               // Persistence head shake motion sense reset, sec (4.0)
 
