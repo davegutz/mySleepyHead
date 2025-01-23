@@ -366,20 +366,10 @@ void loop()
               Sen->TrackFilter->setKi(f_value);
               Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
               break;
-            case ( 'g' ):  // ag - G quiet threshold
-              Serial.print("G quiet threshold from "); Serial.print(g_quiet_thr, 3);
-              g_quiet_thr = f_value;
-              Serial.print(" to "); Serial.print(g_quiet_thr, 3);
-              break;
             case ( 'l' ):  // al - LTST fault threshold
               Serial.print("LTST fault threshold from "); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3);
               Sen->LTST_Filter->set_fault_thr_pos(f_value);
               Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_fault_thr_pos(), 3);
-              break;
-            case ( 'o' ):  // ao - Angular speed quiet threshold
-              Serial.print("O quiet threshold from "); Serial.print(o_quiet_thr, 3);
-              o_quiet_thr = f_value;
-              Serial.print(" to "); Serial.print(o_quiet_thr, 3);
               break;
             case ( 'R' ):  // aR - eye reset time
               Serial.print("Eye reset time from "); Serial.print(Sen->get_eye_reset_time(), 2);
@@ -441,11 +431,9 @@ void loop()
           Serial.println("a?<val> - adjust");
           Serial.print("\t p = Mahony proportional gain ("); Serial.print(Sen->TrackFilter->getKp(), 3); Serial.println(")");
           Serial.print("\t i = Mahony integral gain ("); Serial.print(Sen->TrackFilter->getKi(), 3); Serial.println(")");
-          Serial.print("\t g = G quiet thr ("); Serial.print(g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t l = LTST fault thr ("); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3); Serial.println(")");
-          Serial.print("\t o = O angular speed quiet thr ("); Serial.print(o_quiet_thr, 3); Serial.println(")");
-          Serial.print("\t R = event RESET time, s ("); Serial.print(Sen->get_eye_reset_time(), 3); Serial.println(")");
-          Serial.print("\t S = event SET time, s ("); Serial.print(Sen->get_eye_set_time(), 3); Serial.println(")");
+          Serial.print("\t R = eye RESET time, s ("); Serial.print(Sen->get_eye_reset_time(), 3); Serial.println(")");
+          Serial.print("\t S = eye SET time, s ("); Serial.print(Sen->get_eye_set_time(), 3); Serial.println(")");
           Serial.print("\t r = roll thr ("); Serial.print(Sen->roll_thr(), 3); Serial.println(")");
           Serial.print("\t t = pitch thr ("); Serial.print(Sen->pitch_thr(), 3); Serial.println(")");
           Serial.print("\t z = LTST freeze thr ("); Serial.print(Sen->LTST_Filter->get_freeze_thr_pos(), 3); Serial.println(")");
@@ -470,6 +458,8 @@ void loop()
           Serial.println("\t 10 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
           Serial.println("r  - soft reset");
           Serial.println("t?<val> - trim attitude");
+          Serial.print("\t g = G quiet thr, small more sensitive ("); Serial.print(g_quiet_thr, 3); Serial.println(")");
+          Serial.print("\t o = O angular speed quiet thr, small more sensitive ("); Serial.print(o_quiet_thr, 3); Serial.println(")");
           Serial.print("\t p = pitch bias nodding ("); Serial.print(Sen->get_delta_pitch(), 3); Serial.println(")");
           Serial.print("\t r = roll bias tilting ("); Serial.print(Sen->get_delta_roll(), 3); Serial.println(")");
           Serial.println("vv?  - verbosity debug level");
@@ -522,6 +512,16 @@ void loop()
         case ( 't' ):  // t - trim
           switch ( letter_1 )
           {
+            case ( 'g' ):  // tg - G quiet threshold
+              Serial.print("G quiet threshold from "); Serial.print(g_quiet_thr, 3);
+              g_quiet_thr = f_value;
+              Serial.print(" to "); Serial.print(g_quiet_thr, 3);
+              break;
+            case ( 'o' ):  // to - Angular speed quiet threshold
+              Serial.print("O quiet threshold from "); Serial.print(o_quiet_thr, 3);
+              o_quiet_thr = f_value;
+              Serial.print(" to "); Serial.print(o_quiet_thr, 3);
+              break;
             case ( 'p' ):  // tp - trim pitch
               Serial.print("Pitch bias "); Serial.print(Sen->get_delta_pitch(), 3);
               Sen->set_delta_pitch(f_value);
