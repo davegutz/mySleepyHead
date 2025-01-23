@@ -77,7 +77,6 @@ boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
-const int v3v3Pin = 14;     // Pin connected to the IR sensor (or eye detection sensor)
 const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
 const int buzzerPin = A3;     // Pin connected to the buzzer
 const int motorPin = 21;     // Pin connected to the buzzer
@@ -87,38 +86,9 @@ extern boolean run;
 int debug = 0;
 boolean print_mem = false;
 
-
-// Generate tones
-class Tone
-{
-  public:
-    Tone(const int pin): buzzerPin_(pin), buzz_freq_grav_(buzz_freq_grav), buzz_freq_ir_(buzz_freq_ir), isPlaying_(false) {}
-    void begin()
-    {
-      pinMode(buzzerPin_, OUTPUT);
-      digitalWrite(buzzerPin_, LOW);
-    }
-    int gravityFreq() { return buzz_freq_grav_; }
-    void gravityFreq(const int inp) { buzz_freq_grav_ = inp; }
-    int irFreq() { return buzz_freq_ir_; }
-    void irFreq(const int inp) { buzz_freq_ir_ = inp; }
-    boolean isPlaying() { return isPlaying_; }
-    void play_grav() { tone(buzzerPin_, buzz_freq_grav_); Serial.println("grav tone played"); isPlaying_ = true; }
-    void play_ir() { tone(buzzerPin_, buzz_freq_ir_); Serial.println("ir tone played"); isPlaying_ = true; }
-    void stop() { noTone(buzzerPin_); Serial.println("tone stopped"); isPlaying_ = false; }
-
-  private:
-    int buzzerPin_;
-    int buzz_freq_grav_;
-    int buzz_freq_ir_;
-    boolean isPlaying_;
-} buzz(buzzerPin);
-
-// Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
-void setBuzzerVolume(int volume)
-{
-  analogWrite(buzzerPin, volume);
-}
+// Instantiate buzz
+#include "src/Tones/Tones.h"  // depends on some things above
+Tone buzz = Tone(buzzerPin);
 
 // Setup
 void setup()
@@ -126,51 +96,17 @@ void setup()
   setTime(time_initial);
   unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
 
-  // Serial
-  Serial.println("Serial starting over USB...");
-  Serial.begin(SERIAL_BAUD);
-  delay_no_block(2000UL);  // Usually takes less than 700 ms
-  if (Serial) Serial.println("Serial ready");
+  init_serial(SERIAL_BAUD);
 
-  // LED
-  Serial.print("LED starting at pin "); Serial.print(LED_BUILTIN); Serial.print("...");
-  pinMode(LED_BUILTIN, OUTPUT);
-  Serial.println(" done");
+  init_LED();
 
-  // IMU
-  if ( !IMU.begin() )
-  {
-    Serial.println("Failed to initialize IMU!");
-    while (1);
-  }
-  Serial.println("IMU ready");
-  delay(50);
+  init_imu();
 
-  // Buzzer
-  Serial.print("Buzzer starting at pin "); Serial.print(buzzerPin); Serial.print("...");
-  buzz.begin();
-  Serial.println(" done");
-  delay(5);
+  init_buzzer();
 
-  // IR
-  Serial.print("IR starting at pin "); Serial.print(sensorPin); Serial.print("...");
-  pinMode(sensorPin, INPUT);  // Set sensorPin as an INPUT
-  analogReadResolution(12);  // change the resolution to 12 bits (4095)
-  Serial.println(" done");
-  delay(5);
- 
-  // v3v3
-  Serial.print("v3v3_nom starting at pin "); Serial.print(v3v3Pin); Serial.print("...");
-  pinMode(v3v3Pin, INPUT);  // Set sensorPin as an INPUT
-  analogReadResolution(12);  // change the resolution to 12 bits (4095)
-  Serial.println(" done");
-  delay(5);
+  init_IR();
 
-  // Motor
-  Serial.print("Motor starting at pin "); Serial.print(motorPin); Serial.print("...");
-  pinMode(motorPin, OUTPUT);   // Set motorPin as an OUTPUT
-  Serial.println(" done");
-  delay(5);
+  init_motor();
 
   say_hello();
 }
@@ -179,6 +115,7 @@ void setup()
 // Loop
 void loop()
 {
+  // Timekeeping
   static unsigned long long now_ms = (unsigned long long) millis();
   boolean chitchat = false;
   static Sync *Talk = new Sync(TALK_DELAY);
@@ -197,11 +134,13 @@ void loop()
   static Sync *ActiveSync = new Sync(ACTIVE_DELAY);
   unsigned long long elapsed = 0;
   static boolean reset = true;
-    static unsigned long long time_start = millis();
+  static unsigned long long time_start = millis();
+  static boolean monitoring_past = monitoring;
+
+  // Sensors
   boolean gyro_ready = false;
   boolean accel_ready = false;
-  static boolean monitoring_past = monitoring;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT_EYE), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid", v3v3Pin);
+  static Sensors *Sen = new Sensors(millis(), double(NOM_DT_EYE), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid");
   boolean plotting = false;
   static boolean eye_closed = false;
   static boolean buzz_en_ir = true;

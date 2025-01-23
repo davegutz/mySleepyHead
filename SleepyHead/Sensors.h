@@ -51,12 +51,11 @@ public:
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false),
       head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
-      v3v3Pin_(0),
       eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
       head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
-      const int sensorPin, const String unit, const int v3v3_pin):
+      const int sensorPin, const String unit):
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
@@ -66,7 +65,7 @@ public:
       head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
       pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
-      unit_(unit), v3v3_(v3v3_nom), v3v3Pin_(v3v3_pin), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
+      unit_(unit), v3v3_(v3v3_nom), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
       eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
       head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
     {
@@ -224,7 +223,6 @@ protected:
     unsigned long long time_head_ms_;
     String unit_;
     float v3v3_;
-    int v3v3Pin_;
     float delta_pitch_;
     float delta_roll_;
     boolean eye_reset_;
