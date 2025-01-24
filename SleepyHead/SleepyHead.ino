@@ -43,6 +43,7 @@
 #include "src/Filters/myFilters.h"
 #include "Sensors.h"
 #include "src/Time/TimeLib.h"
+#include "src/Tones/Tones.h"  // depends on some things above
 
 // Global variables
 cSF(unit, INPUT_BYTES);
@@ -51,23 +52,16 @@ cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting_all = false;
-boolean run = true;
 uint8_t plot_num = 0;
 boolean monitoring = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
-const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
-const int buzzerPin = A3;     // Pin connected to the buzzer
-const int motorPin = 21;     // Pin connected to the buzzer
 int debug = 0;
-boolean print_mem = false;
-#include "src/Tones/Tones.h"  // depends on some things above
 Tone buzz = Tone(buzzerPin);
 
 // External variables
 extern int debug;
-extern boolean run;
 
 // Setup
 void setup()
@@ -143,6 +137,7 @@ void loop()
   publishing = Plotting->update(millis(), reset);
   plotting = plotting_all;
   boolean inhibit_talk = plotting_all && plot_num==10;
+  static boolean run = true;  // Manual test feature for debugging Mahony filter
 
   // Read sensors
   if ( read_eye )
@@ -153,7 +148,7 @@ void loop()
   if ( read_head )
   {
     Sen->sample_head(reset, millis(), time_start, now());
-    Sen->filter_head(reset);
+    Sen->filter_head(reset, run);
     Sen->quiet_decisions(reset, o_quiet_thr, g_quiet_thr);
 
   }  // end read_head
@@ -381,8 +376,7 @@ void loop()
           Serial.print("\t p = pitch bias nodding ("); Serial.print(Sen->get_delta_pitch(), 3); Serial.println(")");
           Serial.print("\t r = roll bias tilting ("); Serial.print(Sen->get_delta_roll(), 3); Serial.println(")");
           Serial.println("vv?  - verbosity debug level");
-          Serial.println("x?  - play toggle ( true = real time, false = pulse )");
-          Serial.println("\t 9  - time trace in Sensors");
+          Serial.println("x?  - manually test Mahony tracking filter ( true = real time, false = pulse )");
           break;
         case ( 'm' ):  // m  - print all
           plotting_all = false;
@@ -466,7 +460,7 @@ void loop()
               break;
           }
           break;
-        case ( 'x' ):  // x - play command toggles
+        case ( 'x' ):  // x - manually test toggle of Mahony filter
           run = !run;
           break;
         default:
@@ -481,103 +475,3 @@ void loop()
 
 }  // loop
 
-
-// Read serial for chitchat
-void read_serial()
-{
-  boolean serial_ready = false;
-  serial_str = "";
-
-  // Each pass try to complete input from avaiable
-  while ( !serial_ready && Serial.available() )
-  {
-    char in_char = (char)Serial.read();  // get the new byte
-
-    // Intake
-    // if the incoming character to finish, add a ';' and set flags so the main loop can do something about it:
-    if ( is_finished(in_char) )
-    {
-        if ( serial_str.length() ) serial_str.concat(';');
-        serial_ready = true;
-        break;
-    }
-
-    else if ( in_char == '\r' )
-    {
-        Serial.println("\n");  // scroll user terminal
-    }
-
-    else if ( in_char == '\b' && serial_str.length() )
-    {
-        Serial.print("\b \b");  // scroll user terminal
-        serial_str.remove(serial_str.length() -1 );  // backspace
-    }
-
-    else
-    {
-        serial_str += in_char;  // process new valid character
-    }
-
-  }
-
-  // Pass info to serial_str
-  if ( serial_ready )
-  {
-    input_str += serial_str.c_str();
-    finish_request(input_str);
-    serial_ready = false;
-    serial_str = "";
-  }
-}
-
-// Cleanup string for final processing by chitchat
-void finish_request(SafeString &str)
-{
-  // Remove whitespace
-  str.trim();
-  str.replace("\n", "");
-  str.replace("\0", "");
-  str.replace("", "");
-  str.replace(",", "");
-  str.replace(" ", "");
-  str.replace("=", "");
-  str.replace(";", "");
-}
-
-// Test for string completion character
-boolean is_finished(const char in_char)
-{
-    return  in_char == '\n' ||
-            in_char == '\0' ||
-            in_char == ';'  ||
-            in_char == ',';    
-}
-
-// Say hello
-void say_hello()
-{
-  Serial.println("");
-  Serial.println("Hello!");
-  Serial.println();
-  Serial.print("Gyroscope sample rate = ");
-  Serial.print(IMU.gyroscopeSampleRate());
-  Serial.println(" Hz");
-  Serial.println("Gyroscope in degrees/second");
-  Serial.println();
-  Serial.print("Accelerometer sample rate = ");
-  Serial.print(IMU.accelerationSampleRate());
-  Serial.println(" Hz");
-  Serial.println("Acceleration in g's");
-  Serial.println();
-}
-
-// Non-blocking delay
-void delay_no_block(const unsigned long long interval)
-{
-  unsigned long long previousMillis = millis();
-  unsigned long long currentMillis = previousMillis;
-  while( currentMillis - previousMillis < interval )
-  {
-    currentMillis = millis();
-  }
-}

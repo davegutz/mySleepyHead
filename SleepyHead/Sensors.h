@@ -102,7 +102,7 @@ public:
     boolean both_are_quiet() { return o_is_quiet_sure_ && g_is_quiet_sure_; };
     boolean both_not_quiet() { return ( !o_is_quiet_sure_ && !g_is_quiet_sure_ ); };
     void filter_eye(const boolean reset);
-    void filter_head(const boolean reset);
+    void filter_head(const boolean reset, const boolean run);
     boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
     float get_delta_pitch() { return delta_pitch_; };
     float get_delta_roll() { return delta_roll_; };
@@ -132,7 +132,7 @@ public:
     void pretty_print_head();
     void print_all_header();
     void print_all();
-    void print_rapid(const boolean reset, const boolean print_now, const float time_s);
+    void print_rapid(const boolean reset, const boolean print_now, const float time_s);  // pp10
     void print_rapid_10(const float time_s);
     void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
     void sample_eye(const boolean reset, const unsigned long long time_eye_ms);

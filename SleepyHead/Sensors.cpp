@@ -26,7 +26,6 @@
 #include "Sensors.h"
 #include "src/Time/TimeLib.h"
 
-extern boolean run;
 extern int debug;
 
 // Filter noise eye
@@ -42,7 +41,7 @@ void Sensors::filter_eye(const boolean reset)
 }
 
 // Filter noise head
-void Sensors::filter_head(const boolean reset)
+void Sensors::filter_head(const boolean reset, const boolean run)
 {
     static int count = 0;
     static boolean turn = false;
@@ -71,7 +70,7 @@ void Sensors::filter_head(const boolean reset)
     // Mahony Tracking Filter
     if ( run )
       TrackFilter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
-    else
+    else  // Manual testing
     {
       if ( turn )
       {
@@ -384,7 +383,7 @@ void Sensors::print_rapid_10(const float time)
 }
 
 // Manage IR sensor data streaming
-void Sensors::print_rapid(const boolean reset, const boolean print_now, const float time_s)
+void Sensors::print_rapid(const boolean reset, const boolean print_now, const float time_s)  // pp10
 {
   static uint8_t last_read_debug = 0;     // Remember first time with new debug to print headers
   if ( ( debug==9 ) )
