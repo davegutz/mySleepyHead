@@ -173,6 +173,51 @@ void read_serial_add_verify(String *src, const String addend)
   }
 }
 
+// Request plot
+void request_plot(const uint8_t plot_num, Sensors *Sen, const boolean reset)
+{
+  switch ( plot_num )
+  {
+  case 0:
+    Sen->plot_all_sum(); // pp0
+    break;
+  case 1:
+    Sen->plot_all_acc(); // pp1
+    break;
+  case 2:
+    Sen->plot_all_rot(); // pp2
+    break;
+  case 3:
+    Sen->plot_all(); // pp3
+    break;
+  case 4:
+    Sen->plot_quiet(); // pp4
+    break;
+  case 5:
+    Sen->plot_quiet_raw();  // pp5
+    break;
+  case 6:
+    Sen->plot_total();  // pp6
+    break;
+  case 7:
+    Sen->plot_all_rpy();  // pp7
+    break;
+  case 8:
+    Sen->plot_head_buzz();  // pp8
+    break;
+  case 9:
+    Sen->plot_eye_buzz();  // pp9
+    break;
+  case 10:
+    Sen->print_rapid(reset, true, Sen->time_eye_s());  // pp10
+    debug = 10;
+    break;
+  default:
+    Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
+    break;
+  }
+}
+
 // Say hello
 void say_hello()
 {
