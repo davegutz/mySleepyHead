@@ -12,21 +12,7 @@ void delay_no_block(const unsigned long long interval)
   }
 }
 
-// Cleanup string for final processing by chitchat
-void finish_request(SafeString &str)
-{
-  // Remove whitespace
-  str.trim();
-  str.replace("\n", "");
-  str.replace("\0", "");
-  str.replace("", "");
-  str.replace(",", "");
-  str.replace(" ", "");
-  str.replace("=", "");
-  str.replace(";", "");
-}
-
-  // Buzzer
+// Buzzer
 boolean init_buzzer()
 {
   Serial.print("Buzzer starting at pin "); Serial.print(buzzerPin); Serial.print("...");

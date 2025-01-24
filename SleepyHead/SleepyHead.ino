@@ -8,7 +8,7 @@
   - USB for monitor and power
 
   The Arduino Libraries:
-  - Arduino_LSM6DS3, AceCommon, AceCRC, AceRoutine, AceUtils, Adafruit BusIO, Adafruit LSMDS?, SafeString
+  - Arduino_LSM6DS3, AceCommon, AceCRC, AceRoutine, AceUtils, Adafruit BusIO, Adafruit LSMDS?
   
   Arduino board for CTE Nano:
   - Arduino Nano 33 IoT in Afduino SAMD library
@@ -36,21 +36,19 @@
   #error "Only Arduino nano 33 iot has built in IMU"
   #include "application.h"  // Particle
 #endif
-#include <SafeString.h>
 
 // User defined functions
+#include "command.h"
 #include "Sync.h"
-#include "src/Filters/myFilters.h"
+#include "Sequence.h"
 #include "Sensors.h"
+#include "src/Filters/myFilters.h"
 #include "src/Time/TimeLib.h"
 #include "src/Tones/Tones.h"  // depends on some things above
-#include "command.h"
-#include "Sequence.h"
 
 // Global variables
 String serial_str;
-cSF(unit, INPUT_BYTES);
-cSF(prn_buff, INPUT_BYTES, "");
+String unit;
 boolean string_cpt = false;
 boolean plotting_all = false;
 uint8_t plot_num = 0;
@@ -93,23 +91,6 @@ void loop()
 {
   // Timekeeping
   static Sequence *S = new Sequence();
-  static unsigned long long now_ms = (unsigned long long) millis();
-  boolean chitchat = false;
-  static Sync *Talk = new Sync(TALK_DELAY);
-  boolean read_eye = false;
-  static Sync *ReadEye = new Sync(EYE_DELAY);
-  boolean read_head = false;
-  static Sync *ReadHead = new Sync(HEAD_DELAY);
-  // boolean publishing = false;
-  // static Sync *Plotting = new Sync(PUBLISH_DELAY);
-  boolean control = false;
-  static Sync *ControlSync = new Sync(CONTROL_DELAY);
-  boolean blink = false;
-  boolean blink_on = false;
-  static Sync *BlinkSync = new Sync(BLINK_DELAY);
-  boolean active = false;
-  static Sync *ActiveSync = new Sync(ACTIVE_DELAY);
-  unsigned long long elapsed = 0;
   static boolean reset = true;
   static unsigned long long time_start = millis();
   static boolean monitoring_past = monitoring;
@@ -129,17 +110,6 @@ void loop()
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
 
   // Synchronize
-  // now_ms = (unsigned long long) millis();
-  // if ( now_ms - last_sync > ONE_DAY_MILLIS || reset )  sync_time(&last_sync, &millis_flip); 
-  read_eye = ReadEye->update(millis(), reset);
-  read_head = ReadHead->update(millis(), reset);
-  chitchat = Talk->update(millis(), reset);
-  elapsed = ReadHead->now() - time_start;
-  control = ControlSync->update(millis(), reset);
-  blink = BlinkSync->update(millis(), reset);
-  active = ActiveSync->update(millis(), reset);
-  // publishing = Plotting->update(millis(), reset);
-
   plotting = plotting_all;
   boolean inhibit_talk = plotting_all && plot_num==10;
   static boolean run = true;  // Manual test feature for debugging Mahony filter
@@ -205,7 +175,7 @@ void loop()
   accel_ready = false;
 
   // Initialize complete once sensors and models started and summary written
-  if ( read_head ) reset = false;
+  if ( S->read_head() ) reset = false;
 
   if ( S->chitchat() )
   {
