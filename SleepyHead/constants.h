@@ -32,7 +32,6 @@
 #define SAVE_RAW
 
 // Setup
-#include <SafeString.h>
 #include "local_config.h"
 const String unit_key = version + "_" + HDWE_UNIT;
 
