@@ -44,10 +44,12 @@
 #include "Sensors.h"
 #include "src/Time/TimeLib.h"
 #include "src/Tones/Tones.h"  // depends on some things above
+#include "command.h"
 
 // Global variables
+String serial_str;
 cSF(unit, INPUT_BYTES);
-cSF(serial_str, INPUT_BYTES, "");
+cSF(serial_st, INPUT_BYTES, "");
 cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
@@ -59,9 +61,11 @@ unsigned long long millis_flip = millis(); // Timekeeping
 unsigned long long last_sync = millis();   // Timekeeping
 int debug = 0;
 Tone buzz = Tone(buzzerPin);
+CommandPars cp = CommandPars();       // Various control parameters commanding at system level.  Initialized on start up.  Not retained.
 
 // External variables
 extern int debug;
+extern CommandPars cp;            // Various parameters shared at system level
 
 // Setup
 void setup()
@@ -246,7 +250,7 @@ void loop()
     // Serial.println("chitchat");
     read_serial();  // returns one command at a time
     
-    // process_input_str(Sen, &g_quiet_thr, &o_quiet_thr, &reset, &run);
+    process_input_str(Sen, &g_quiet_thr, &o_quiet_thr, &reset, &run);
     if ( input_str.length() )
     {
       // Now we know the letters

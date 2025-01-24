@@ -1,3 +1,6 @@
+// Serial
+CommandPars::~CommandPars() {}
+
 // Non-blocking delay
 void delay_no_block(const unsigned long long interval)
 {
@@ -107,7 +110,7 @@ boolean is_finished(const char in_char)
 void read_serial()
 {
   boolean serial_ready = false;
-  serial_str = "";
+  serial_st = "";
 
   // Each pass try to complete input from avaiable
   while ( !serial_ready && Serial.available() )
@@ -118,7 +121,7 @@ void read_serial()
     // if the incoming character to finish, add a ';' and set flags so the main loop can do something about it:
     if ( is_finished(in_char) )
     {
-        if ( serial_str.length() ) serial_str.concat(';');
+        if ( serial_st.length() ) serial_st.concat(';');
         serial_ready = true;
         break;
     }
@@ -128,26 +131,45 @@ void read_serial()
         Serial.println("\n");  // scroll user terminal
     }
 
-    else if ( in_char == '\b' && serial_str.length() )
+    else if ( in_char == '\b' && serial_st.length() )
     {
         Serial.print("\b \b");  // scroll user terminal
-        serial_str.remove(serial_str.length() -1 );  // backspace
+        serial_st.remove(serial_st.length() -1 );  // backspace
     }
 
     else
     {
-        serial_str += in_char;  // process new valid character
+        serial_st += in_char;  // process new valid character
     }
 
   }
 
-  // Pass info to serial_str
+  // Pass info to serial_st
   if ( serial_ready )
   {
-    input_str += serial_str.c_str();
+    input_str += serial_st.c_str();
+    serial_str += serial_st.c_str();
     finish_request(input_str);
     serial_ready = false;
+    serial_st = "";
+
+    cp.inp_token = true;
+    read_serial_add_verify(&cp.inp_str, serial_str);
     serial_str = "";
+    serial_ready = false;
+    cp.inp_token = false;
+  }
+}
+
+// Check for heap fragmentation during String += operation
+// Use pointer to be sure not to miss the final assignment effect
+void read_serial_add_verify(String *src, const String addend)
+{
+  int src_len = src->length();
+  *src += addend;
+  if ( src->length() != (src_len + addend.length()) )
+  {
+    Serial.print("\n\n\n\n**FRAG**\n\n\n\n");
   }
 }
 

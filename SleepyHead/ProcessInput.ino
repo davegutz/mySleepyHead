@@ -1,19 +1,19 @@
 void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boolean *reset, boolean *run)
 {
-    if ( input_str.length() )
+    if ( cp.inp_str.length() )
     {
       // Now we know the letters
-      Serial.print("input_str: "); Serial.println(input_str);
+      Serial.println(""); Serial.print("cp.inp_str: "); Serial.println(cp.inp_str);
       char letter_0 = '\0';
       char letter_1 = '\0';
-      letter_0 = input_str.charAt(0);
-      letter_1 = input_str.charAt(1);
+      letter_0 = cp.inp_str.charAt(0);
+      letter_1 = cp.inp_str.charAt(1);
       Serial.print(" letter_0: "); Serial.print(letter_0); Serial.print(" letter_1: "); Serial.println(letter_1);
-      float f_value = 0.;
-      input_str.substring(input_str, 2).toFloat(f_value);
+      float f_value = cp.inp_str.substring(2).toFloat();
       int i_value = int(f_value);
       Serial.print(" i_value: "); Serial.print(i_value); Serial.print(" f_value: "); Serial.println(f_value);
       Serial.println("");
+
       switch ( letter_0 )
       {
         case ( 'a' ):  // a - adjust
@@ -121,8 +121,8 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("\t 10 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
           Serial.println("r  - soft reset");
           Serial.println("t?<val> - trim attitude");
-          Serial.print("\t g = G quiet thr, small more sensitive ("); Serial.print(g_quiet_thr, 3); Serial.println(")");
-          Serial.print("\t o = O angular speed quiet thr, small more sensitive ("); Serial.print(o_quiet_thr, 3); Serial.println(")");
+          Serial.print("\t g = G quiet thr, small more sensitive ("); Serial.print(*g_quiet_thr, 3); Serial.println(")");
+          Serial.print("\t o = O angular speed quiet thr, small more sensitive ("); Serial.print(*o_quiet_thr, 3); Serial.println(")");
           Serial.print("\t p = pitch bias nodding ("); Serial.print(Sen->get_delta_pitch(), 3); Serial.println(")");
           Serial.print("\t r = roll bias tilting ("); Serial.print(Sen->get_delta_roll(), 3); Serial.println(")");
           Serial.println("vv?  - verbosity debug level");
@@ -175,14 +175,14 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           switch ( letter_1 )
           {
             case ( 'g' ):  // tg - G quiet threshold
-              Serial.print("G quiet threshold from "); Serial.print(g_quiet_thr, 3);
+              Serial.print("G quiet threshold from "); Serial.print(*g_quiet_thr, 3);
               *g_quiet_thr = f_value;
-              Serial.print(" to "); Serial.print(g_quiet_thr, 3);
+              Serial.print(" to "); Serial.print(*g_quiet_thr, 3);
               break;
             case ( 'o' ):  // to - Angular speed quiet threshold
-              Serial.print("O quiet threshold from "); Serial.print(o_quiet_thr, 3);
+              Serial.print("O quiet threshold from "); Serial.print(*o_quiet_thr, 3);
               *o_quiet_thr = f_value;
-              Serial.print(" to "); Serial.print(o_quiet_thr, 3);
+              Serial.print(" to "); Serial.print(*o_quiet_thr, 3);
               break;
             case ( 'p' ):  // tp - trim pitch
               Serial.print("Pitch bias "); Serial.print(Sen->get_delta_pitch(), 3);
@@ -217,6 +217,6 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.print(letter_0); Serial.println(" unknown");
           break;
       }
+      cp.inp_str = "";
     }
-    input_str = "";
 }
