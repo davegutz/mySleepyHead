@@ -45,12 +45,11 @@
 #include "src/Time/TimeLib.h"
 #include "src/Tones/Tones.h"  // depends on some things above
 #include "command.h"
+#include "Sequence.h"
 
 // Global variables
 String serial_str;
 cSF(unit, INPUT_BYTES);
-cSF(serial_st, INPUT_BYTES, "");
-cSF(input_str, INPUT_BYTES, "");
 cSF(prn_buff, INPUT_BYTES, "");
 boolean string_cpt = false;
 boolean plotting_all = false;
@@ -93,6 +92,7 @@ void setup()
 void loop()
 {
   // Timekeeping
+  static Sequence *S = new Sequence();
   static unsigned long long now_ms = (unsigned long long) millis();
   boolean chitchat = false;
   static Sync *Talk = new Sync(TALK_DELAY);
@@ -100,8 +100,8 @@ void loop()
   static Sync *ReadEye = new Sync(EYE_DELAY);
   boolean read_head = false;
   static Sync *ReadHead = new Sync(HEAD_DELAY);
-  boolean publishing = false;
-  static Sync *Plotting = new Sync(PUBLISH_DELAY);
+  // boolean publishing = false;
+  // static Sync *Plotting = new Sync(PUBLISH_DELAY);
   boolean control = false;
   static Sync *ControlSync = new Sync(CONTROL_DELAY);
   boolean blink = false;
@@ -129,8 +129,8 @@ void loop()
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
 
   // Synchronize
-  now_ms = (unsigned long long) millis();
-  if ( now_ms - last_sync > ONE_DAY_MILLIS || reset )  sync_time(&last_sync, &millis_flip); 
+  // now_ms = (unsigned long long) millis();
+  // if ( now_ms - last_sync > ONE_DAY_MILLIS || reset )  sync_time(&last_sync, &millis_flip); 
   read_eye = ReadEye->update(millis(), reset);
   read_head = ReadHead->update(millis(), reset);
   chitchat = Talk->update(millis(), reset);
@@ -138,18 +138,20 @@ void loop()
   control = ControlSync->update(millis(), reset);
   blink = BlinkSync->update(millis(), reset);
   active = ActiveSync->update(millis(), reset);
-  publishing = Plotting->update(millis(), reset);
+  // publishing = Plotting->update(millis(), reset);
+
   plotting = plotting_all;
   boolean inhibit_talk = plotting_all && plot_num==10;
   static boolean run = true;  // Manual test feature for debugging Mahony filter
+  S->calculate(&last_sync, &millis_flip, reset);
 
   // Read sensors
-  if ( read_eye )
+  if ( S->read_eye() )
   {
     Sen->sample_eye(reset, millis());
     Sen->filter_eye(reset);
   }
-  if ( read_head )
+  if ( S->read_head() )
   {
     Sen->sample_head(reset, millis(), time_start, now());
     Sen->filter_head(reset, run);
@@ -158,7 +160,7 @@ void loop()
   }  // end read_head
 
   // Control
-  if ( control )
+  if ( S->control() )
   {
     if ( Sen->eye_closed_sure() )
     {
@@ -187,7 +189,7 @@ void loop()
   }
 
   // Publish
-  if ( publishing )
+  if ( S->publishing() )
   {
     if ( monitoring && ( monitoring != monitoring_past ) ) Sen->print_all_header();
     if ( monitoring ) Sen->print_all();
@@ -205,7 +207,7 @@ void loop()
   // Initialize complete once sensors and models started and summary written
   if ( read_head ) reset = false;
 
-  if ( chitchat )
+  if ( S->chitchat() )
   {
     read_serial();  // returns one command at a time
     process_input_str(Sen, &g_quiet_thr, &o_quiet_thr, &reset, &run);

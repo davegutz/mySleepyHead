@@ -110,7 +110,7 @@ boolean is_finished(const char in_char)
 void read_serial()
 {
   boolean serial_ready = false;
-  serial_st = "";
+  String input_str = "";
 
   // Each pass try to complete input from avaiable
   while ( !serial_ready && Serial.available() )
@@ -121,7 +121,7 @@ void read_serial()
     // if the incoming character to finish, add a ';' and set flags so the main loop can do something about it:
     if ( is_finished(in_char) )
     {
-        if ( serial_st.length() ) serial_st.concat(';');
+        if ( input_str.length() ) input_str.concat(';');
         serial_ready = true;
         break;
     }
@@ -131,28 +131,23 @@ void read_serial()
         Serial.println("\n");  // scroll user terminal
     }
 
-    else if ( in_char == '\b' && serial_st.length() )
+    else if ( in_char == '\b' && input_str.length() )
     {
         Serial.print("\b \b");  // scroll user terminal
-        serial_st.remove(serial_st.length() -1 );  // backspace
+        input_str.remove(input_str.length() -1 );  // backspace
     }
 
     else
     {
-        serial_st += in_char;  // process new valid character
+        input_str += in_char;  // process new valid character
     }
 
   }
 
-  // Pass info to serial_st
+  // Pass info to serial_str
   if ( serial_ready )
   {
-    input_str += serial_st.c_str();
-    serial_str += serial_st.c_str();
-    finish_request(input_str);
-    serial_ready = false;
-    serial_st = "";
-
+    serial_str += input_str.c_str();
     cp.inp_token = true;
     read_serial_add_verify(&cp.inp_str, serial_str);
     serial_str = "";
@@ -178,43 +173,43 @@ void request_plot(const uint8_t plot_num, Sensors *Sen, const boolean reset)
 {
   switch ( plot_num )
   {
-  case 0:
-    Sen->plot_all_sum(); // pp0
-    break;
-  case 1:
-    Sen->plot_all_acc(); // pp1
-    break;
-  case 2:
-    Sen->plot_all_rot(); // pp2
-    break;
-  case 3:
-    Sen->plot_all(); // pp3
-    break;
-  case 4:
-    Sen->plot_quiet(); // pp4
-    break;
-  case 5:
-    Sen->plot_quiet_raw();  // pp5
-    break;
-  case 6:
-    Sen->plot_total();  // pp6
-    break;
-  case 7:
-    Sen->plot_all_rpy();  // pp7
-    break;
-  case 8:
-    Sen->plot_head_buzz();  // pp8
-    break;
-  case 9:
-    Sen->plot_eye_buzz();  // pp9
-    break;
-  case 10:
-    Sen->print_rapid(reset, true, Sen->time_eye_s());  // pp10
-    debug = 10;
-    break;
-  default:
-    Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
-    break;
+    case 0:
+      Sen->plot_all_sum(); // pp0
+      break;
+    case 1:
+      Sen->plot_all_acc(); // pp1
+      break;
+    case 2:
+      Sen->plot_all_rot(); // pp2
+      break;
+    case 3:
+      Sen->plot_all(); // pp3
+      break;
+    case 4:
+      Sen->plot_quiet(); // pp4
+      break;
+    case 5:
+      Sen->plot_quiet_raw();  // pp5
+      break;
+    case 6:
+      Sen->plot_total();  // pp6
+      break;
+    case 7:
+      Sen->plot_all_rpy();  // pp7
+      break;
+    case 8:
+      Sen->plot_head_buzz();  // pp8
+      break;
+    case 9:
+      Sen->plot_eye_buzz();  // pp9
+      break;
+    case 10:
+      debug = 10;
+      Sen->print_rapid(reset, true, Sen->time_eye_s());  // pp10
+      break;
+    default:
+      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
+      break;
   }
 }
 

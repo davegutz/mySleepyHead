@@ -386,7 +386,7 @@ void Sensors::print_rapid_10(const float time)
 void Sensors::print_rapid(const boolean reset, const boolean print_now, const float time_s)  // pp10
 {
   static uint8_t last_read_debug = 0;     // Remember first time with new debug to print headers
-  if ( ( debug==9 ) )
+  if ( ( debug==10 ) )
   {
     if ( reset || (last_read_debug != debug) )
     {

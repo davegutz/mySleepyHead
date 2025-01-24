@@ -164,7 +164,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               }
               break;
             default:
-              Serial.print(input_str.charAt(1)); Serial.print(" for "); Serial.print(input_str); Serial.println(" unknown");
+              Serial.print(cp.inp_str.charAt(1)); Serial.print(" for "); Serial.print(cp.inp_str); Serial.println(" unknown");
               break;
           }
           break;
