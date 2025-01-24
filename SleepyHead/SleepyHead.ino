@@ -158,8 +158,7 @@ void loop()
   {
     if ( Sen->eye_closed_sure() )
     {
-      digitalWrite(motorPin, HIGH);
-      digitalWrite(LED_BUILTIN, HIGH);
+      turn_on_motor_and_led();
       if ( buzz_en_ir )
       {
         if ( !buzz.isPlaying() ) buzz.play_ir();
@@ -169,8 +168,7 @@ void loop()
     {
       if ( Sen->head_buzz_p() > 0 )
       {
-        digitalWrite(motorPin, HIGH);
-        digitalWrite(LED_BUILTIN, HIGH);
+        turn_on_motor_and_led();
         if ( buzz_en_grav && Sen->head_buzz_f() > 0 )
         {
           if ( !buzz.isPlaying() ) buzz.play_grav();
@@ -178,8 +176,7 @@ void loop()
       }
       else
       {
-        digitalWrite(motorPin, LOW);
-        digitalWrite(LED_BUILTIN, LOW);
+        turn_off_motor_and_led();
         if ( buzz.isPlaying() ) buzz.stop();
       }
     }
@@ -471,7 +468,4 @@ void loop()
     input_str = "";
     
   }
-    // Serial.println("end");
-
 }  // loop
-

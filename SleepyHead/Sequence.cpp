@@ -25,19 +25,18 @@
 #include "src/Time/TimeLib.h"
 
 // Synchronize
-void Sequence::calculate(unsigned long long *last_sync, unsigned long long *millis_flip)
+void Sequence::calculate(unsigned long long *last_sync, unsigned long long *millis_flip, const boolean reset)
 {
     now_ms_ = (unsigned long long) millis();
-    if ( now_ms_ - *last_sync > ONE_DAY_MILLIS || reset_ )  sync_time(last_sync, millis_flip); 
-    read_eye_ = ReadEye->update(millis(), reset_);
-    read_head_ = ReadHead->update(millis(), reset_);
-    chitchat_ = Talk->update(millis(), reset_);
+    if ( now_ms_ - *last_sync > ONE_DAY_MILLIS || reset )  sync_time(last_sync, millis_flip); 
+    read_eye_ = ReadEye->update(millis(), reset);
+    read_head_ = ReadHead->update(millis(), reset);
+    chitchat_ = Talk->update(millis(), reset);
     elapsed_ = ReadHead->now() - time_start_;
-    control_ = ControlSync->update(millis(), reset_);
-    blink_ = BlinkSync->update(millis(), reset_);
-    active_ = ActiveSync->update(millis(), reset_);
-    publishing_ = Plotting->update(millis(), reset_);
-    reset_ = false;
+    control_ = ControlSync->update(millis(), reset);
+    blink_ = BlinkSync->update(millis(), reset);
+    active_ = ActiveSync->update(millis(), reset);
+    publishing_ = Plotting->update(millis(), reset);
 }  
 
 // Time synchro so printed decimal times align with hms rolls

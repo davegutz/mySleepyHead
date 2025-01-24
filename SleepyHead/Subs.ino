@@ -183,3 +183,19 @@ void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip)
     *millis_flip = millis()%1000;
   }
 }
+
+// Motor off
+boolean turn_off_motor_and_led()
+{
+  digitalWrite(motorPin, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
+  return true;
+}
+
+// Motor on
+boolean turn_on_motor_and_led()
+{
+  digitalWrite(motorPin, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
+  return true;
+}
