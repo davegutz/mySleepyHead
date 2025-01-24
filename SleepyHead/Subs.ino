@@ -46,16 +46,16 @@ boolean init_imu()
     return true;
 }
 
-  // IR
-  boolean init_IR()
-  {
-    Serial.print("IR starting at pin "); Serial.print(sensorPin); Serial.print("...");
-    pinMode(sensorPin, INPUT);  // Set sensorPin as an INPUT
-    analogReadResolution(12);  // change the resolution to 12 bits (4095)
-    Serial.println(" done");
-    delay(5);
-    return true;
-  }
+// IR
+boolean init_IR()
+{
+  Serial.print("IR starting at pin "); Serial.print(sensorPin); Serial.print("...");
+  pinMode(sensorPin, INPUT);  // Set sensorPin as an INPUT
+  analogReadResolution(12);  // change the resolution to 12 bits (4095)
+  Serial.println(" done");
+  delay(5);
+  return true;
+}
 
 // LED
 boolean init_LED()
