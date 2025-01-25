@@ -59,7 +59,7 @@ class EyePatch:
         self.eye_closed = None
         self.eye_closed_confirmed = None
         self.flt_LTST = None
-        self.buzz_eye = None
+        self.eye_buzz = None
         self.cf = 1.
         self.dltst = None
         self.fault = False
@@ -68,7 +68,6 @@ class EyePatch:
         self.input = None
         self.lt_state = None
         self.st_state = None
-        self.eye_closed_LTST = None
         self.frz_thr_pos = Device.FRZ_POS_LTST
         self.flt_thr_pos = Device.FLT_POS_LTST
         self.saved = Saved()  # for plots and prints
@@ -98,13 +97,10 @@ class EyePatch:
                     T = candidate_dt
 
             # Run filters
-            self.eye_voltage_filt = self.VoltFilter.calculate(self.eye_voltage_norm, reset, min(T, Device.MAX_T_FILT))
-            self.eye_closed = self.eye_voltage_filt < Device.EYE_CL_THR
-            self.eye_closed_confirmed = self.VoltTripConf.calculate(self.eye_closed, Device.VOLT_CLOSED_S,
+            self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, reset, T)
+            self.eye_closed_confirmed = self.LTST_TripConf.calculate(self.flt_LTST, Device.VOLT_CLOSED_S,
                                                                     Device.VOLT_CLOSED_R, T, reset)
-            self.flt_LTST = self.LTST_Filter.calculate(self.eye_voltage_norm, reset, T)
-            self.eye_closed_LTST = self.LTST_TripConf.calculate(self.flt_LTST, Device.VOLT_CLOSED_S,
-                                                                    Device.VOLT_CLOSED_R, T, reset)
+            self.eye_buzz = self.eye_closed_confirmed
 
             # Log
             self.save(t[i], T)
@@ -118,7 +114,7 @@ class EyePatch:
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltFilter.AB2))
                 # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
-                print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed_LTST {:d}".format(self.eye_closed_LTST))
+                print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
 
         # Data
         if verbose:
@@ -137,7 +133,7 @@ class EyePatch:
         self.saved.eye_voltage_flt.append(self.eye_voltage_flt)
         self.saved.eye_closed.append(self.eye_closed)
         self.saved.eye_closed_confirmed.append(self.eye_closed_confirmed)
-        self.saved.buzz_eye.append(self.buzz_eye)
+        self.saved.eye_buzz.append(self.eye_buzz)
         self.saved.flt_LTST.append(self.flt_LTST)
         self.saved.cf.append(self.LTST_Filter.cf)
         self.saved.dltst.append(self.LTST_Filter.dltst)
@@ -146,7 +142,6 @@ class EyePatch:
         self.saved.st_state.append(self.LTST_Filter.st_state)
         self.saved.frz_thr_pos.append(Device.FRZ_POS_LTST)
         self.saved.flt_thr_pos.append(Device.FLT_POS_LTST)
-        self.saved.eye_closed_LTST.append(self.eye_closed_LTST)
 
 
     def __str__(self):
@@ -162,13 +157,12 @@ class Saved:
         self.eye_voltage_flt = []
         self.eye_closed = []
         self.eye_closed_confirmed = []
-        self.buzz_eye = []
+        self.eye_buzz = []
         self.flt_LTST = []
         self.cf = []
         self.dltst = []
         self.freeze = []
         self.lt_state = []
         self.st_state = []
-        self.eye_closed_LTST = []
         self.frz_thr_pos = []
         self.flt_thr_pos = []
