@@ -47,7 +47,7 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mv, 'time', mv, 'eye_voltage_filt', color='red', linestyle='-.', label='eye_voltage_filt' + test_str)
     plq(plt, mo, 'time', mo, 'eye_closed_confirmed', color='green', linestyle='-.', label='eye_closed_confirmed' + ref_str)
     plq(plt, mv, 'time', mv, 'eye_closed_confirmed', color='magenta', linestyle=':', label='eye_closed_confirmed' + test_str)
-    # plq(plt, mo, 'time', mo, 'eye_voltage_thr', color='red', linestyle='--', label='eye_voltage_thr' + ref_str)
+    # plq(plt, mo, 'time', mo, 'eye_voltage_flt', color='red', linestyle='--', label='eye_voltage_flt' + ref_str)
     plt.legend(loc=1)
     plt.subplot(232)
     plq(plt, mo, 'time', mo, 'eye_closed', add=2, color='blue', linestyle='-', label='eye_closed' + ref_str + '2')

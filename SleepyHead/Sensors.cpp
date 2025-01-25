@@ -341,14 +341,17 @@ void Sensors::header_rapid_10()
 {
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
-  Serial.print("v3v3,");
   Serial.print("eye_voltage_norm,");
+  Serial.print("eye_voltage_flt,");
+  Serial.print("eye_voltage_frz,");
   Serial.print("eye_closed,");
   Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");
   Serial.print("max_nod_f_confirmed,");
   Serial.print("max_nod_p,");
   Serial.print("max_nod_p_confirmed,");
+  Serial.print("pitch_filt,");
+  Serial.print("roll_filt,");
   Serial.print("head_buzz_f,");
   Serial.print("head_buzz_p,");
   Serial.print("eye_buzz,");
@@ -356,6 +359,8 @@ void Sensors::header_rapid_10()
   Serial.print("st_state,");
   Serial.print("dltst,");
   Serial.print("freeze,");
+  Serial.print("v3v3,");
+  Serial.print("head_buzz,");
   Serial.println("");
 }
 
@@ -364,14 +369,17 @@ void Sensors::print_rapid_10(const float time)
 {
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
-  Serial.print(v3v3_, 4); Serial.print(",");
   Serial.print(eye_voltage_norm_, 4); Serial.print(",");
+  Serial.print(FLT_THR_POS, 4); Serial.print(",");
+  Serial.print(FRZ_THR_POS, 4); Serial.print(",");
   Serial.print(eye_closed_); Serial.print(",");
   Serial.print(eye_closed_confirmed_); Serial.print(",");
   Serial.print(max_nod_f_, 3); Serial.print(",");
   Serial.print(max_nod_f_confirmed_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
   Serial.print(max_nod_p_confirmed_, 3); Serial.print(",");
+  Serial.print(pitch_filt, 3); Serial.print(",");
+  Serial.print(roll_filt, 3); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
   Serial.print(head_buzz_p_); Serial.print(",");
   Serial.print(eye_buzz_); Serial.print(",");
@@ -379,6 +387,8 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(LTST_Filter->st_state(), 4); Serial.print(",");
   Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
   Serial.print(LTST_Filter->freeze()); Serial.print(",");
+  Serial.print(v3v3_, 4); Serial.print(",");
+  Serial.print(head_buzz_f_); Serial.print(",");
   Serial.println("");
 }
 

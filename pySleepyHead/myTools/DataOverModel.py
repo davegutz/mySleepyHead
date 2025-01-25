@@ -115,7 +115,7 @@ class SavedData:
             self.time = None
             self.eye_voltage_norm = None
             self.unit = None  # text title
-            self.eye_voltage_thr = None
+            self.eye_voltage_flt = None
             self.eye_closed = None
             self.eye_closed_confirmed = None
             self.max_nod_f = None
@@ -184,7 +184,7 @@ class SavedData:
             self.cTime = self.cTime[:i_end]
             self.time = np.array(self.time[:i_end])
             self.eye_voltage_norm = np.array(data.eye_voltage_norm[:i_end])
-            self.eye_voltage_thr = np.array(data.eye_voltage_thr[:i_end])
+            self.eye_voltage_flt = np.array(data.eye_voltage_flt[:i_end])
             self.eye_closed = np.array(data.eye_closed[:i_end])
             self.eye_closed_confirmed = np.array(data.eye_closed_confirmed[:i_end])
             self.max_nod_f = np.array(data.max_nod_f[:i_end])
@@ -210,7 +210,7 @@ class SavedData:
         s += "{:13.3f},".format(self.cTime[self.i])
         s += "{:13.6f},".format(self.time[self.i])
         s += "{:8.3f},".format(self.eye_voltage_norm[self.i])
-        s += "{:7.2f},".format(self.eye_voltage_thr[self.i])
+        s += "{:7.2f},".format(self.eye_voltage_flt[self.i])
         s += "{:5.2f},".format(self.eye_closed[self.i])
         s += "{:5.2f},".format(self.eye_closed_confirmed[self.i])
         s += "{:5.2f},".format(self.max_nod_f[self.i])

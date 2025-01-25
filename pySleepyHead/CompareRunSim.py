@@ -109,10 +109,12 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
 
 def main():
     if sys.platform == 'win32':
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/test_config.csv'
     else:
         path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
-    unit_key = 'v20250113_pro0n33iot_Rapid'
+    # unit_key = 'v20250113_pro0n33iot_Rapid'
+    unit_key = 'v20250113_wearDn33iot_Rapid'
     time_end_in = None
     data_only = False
 

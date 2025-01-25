@@ -55,7 +55,7 @@ class EyePatch:
         self.dt = None
         self.eye_voltage_norm = None
         self.eye_voltage_filt = None
-        self.eye_voltage_thr = None
+        self.eye_voltage_flt = None
         self.eye_closed = None
         self.eye_closed_confirmed = None
         self.flt_LTST = None
@@ -134,7 +134,7 @@ class EyePatch:
         self.saved.dt.append(self.dt)
         self.saved.eye_voltage_norm.append(self.eye_voltage_norm)
         self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
-        self.saved.eye_voltage_thr.append(self.eye_voltage_thr)
+        self.saved.eye_voltage_flt.append(self.eye_voltage_flt)
         self.saved.eye_closed.append(self.eye_closed)
         self.saved.eye_closed_confirmed.append(self.eye_closed_confirmed)
         self.saved.buzz_eye.append(self.buzz_eye)
@@ -159,7 +159,7 @@ class Saved:
         self.dt = []
         self.eye_voltage_norm = []
         self.eye_voltage_filt = []
-        self.eye_voltage_thr = []
+        self.eye_voltage_flt = []
         self.eye_closed = []
         self.eye_closed_confirmed = []
         self.buzz_eye = []
