@@ -39,7 +39,7 @@
 
 // User defined functions
 #include "command.h"
-#include "Sync.h"
+#include "src/Sync/Sync.h"
 #include "Sequence.h"
 #include "Sensors.h"
 #include "src/Filters/myFilters.h"

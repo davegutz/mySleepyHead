@@ -28,7 +28,7 @@
 #else
   #include "application.h"  // Particle
 #endif
-#include "Sync.h"
+#include "src/Sync/Sync.h"
 
 // Timekeeping class
 class Sequence

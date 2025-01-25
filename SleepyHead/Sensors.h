@@ -31,7 +31,7 @@
   #include "application.h"  // Particle
 #endif
 
-#include "MahonyAHRS.h"
+#include "src/MahonyAHRS/MahonyAHRS.h"
 #include "src/Filters/myFilters.h"
 
 extern int debug;
