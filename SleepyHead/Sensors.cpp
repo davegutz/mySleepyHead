@@ -342,8 +342,8 @@ void Sensors::header_rapid_10()
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
   Serial.print("eye_voltage_norm,");
-  Serial.print("eye_voltage_flt,");
-  Serial.print("eye_voltage_frz,");
+  Serial.print("FLT_THR_POS,");
+  Serial.print("FRZ_THR_POS,");
   Serial.print("eye_closed,");
   Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");

@@ -35,7 +35,6 @@ if sys.platform == 'darwin':
     matplotlib.use('tkagg')
 plt.rcParams.update({'figure.max_open_warning': 0})
 
-
 def plq(plt_, sx, st, sy, yt, slr=1., add=0., color='black', linestyle='-', label=None, marker=None,
         markersize=None, markevery=None):
     if (sx is not None and sy is not None and hasattr(sx, st) and hasattr(sy, yt) and
@@ -115,17 +114,25 @@ class SavedData:
             self.time = None
             self.eye_voltage_norm = None
             self.unit = None  # text title
-            self.eye_voltage_flt = None
+            self.FLT_THR_POS = None
+            self.FRZ_THR_POS = None
             self.eye_closed = None
             self.eye_closed_confirmed = None
             self.max_nod_f = None
+            self.max_nod_f_confirmed = None
             self.max_nod_p = None
-            self.head_buzz = None
+            self.max_nod_p_confirmed = None
+            self.pitch_filt = None
+            self.roll_filt = None
+            self.head_buzz_f = None
+            self.head_buzz_p = None
             self.eye_buzz = None
             self.lt_state = None
             self.st_state = None
             self.dltst = None
             self.freeze = None
+            self.v3v3 = None
+            self.head_buzz = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -183,18 +190,26 @@ class SavedData:
                     self.zero_end = min(self.zero_end, i_end - 1)
             self.cTime = self.cTime[:i_end]
             self.time = np.array(self.time[:i_end])
-            self.eye_voltage_norm = np.array(data.eye_voltage_norm[:i_end])
-            self.eye_voltage_flt = np.array(data.eye_voltage_flt[:i_end])
-            self.eye_closed = np.array(data.eye_closed[:i_end])
-            self.eye_closed_confirmed = np.array(data.eye_closed_confirmed[:i_end])
-            self.max_nod_f = np.array(data.max_nod_f[:i_end])
-            self.max_nod_p = np.array(data.max_nod_p[:i_end])
-            self.head_buzz = np.array(data.head_buzz[:i_end])
-            self.eye_buzz = np.array(data.eye_buzz[:i_end])
-            self.lt_state = np.array(data.lt_state[:i_end])
-            self.st_state = np.array(data.st_state[:i_end])
-            self.dltst = np.array(data.dltst[:i_end])
-            self.freeze = np.array(data.freeze[:i_end])
+            self.update_from_other(data, 'eye_voltage_norm')
+            self.update_from_other(data, 'FLT_THR_POS')
+            self.update_from_other(data, 'FRZ_THR_POS')
+            self.update_from_other(data, 'eye_closed')
+            self.update_from_other(data, 'eye_closed_confirmed')
+            self.update_from_other(data, 'max_nod_f')
+            self.update_from_other(data, 'max_nod_f_confirmed')
+            self.update_from_other(data, 'max_nod_p')
+            self.update_from_other(data, 'max_nod_p_confirmed')
+            self.update_from_other(data, 'pitch_filt')
+            self.update_from_other(data, 'roll_filt')
+            self.update_from_other(data, 'head_buzz_f')
+            self.update_from_other(data, 'head_buzz_p')
+            self.update_from_other(data, 'eye_buzz')
+            self.update_from_other(data, 'lt_state')
+            self.update_from_other(data, 'st_state')
+            self.update_from_other(data, 'dltst')
+            self.update_from_other(data, 'freeze')
+            self.update_from_other(data, 'v3v3')
+            self.update_from_other(data, 'head_buzz')
 
         if sel is None:
             self.c_time_s = None
@@ -225,6 +240,16 @@ class SavedData:
         s = "{},".format(self.unit[self.i])
         s += "{:13.3f},".format(self.cTime[self.i])
         return s
+
+    def update_from(self, other):
+        for attr_name in dir(other):
+            if not attr_name.startswith('__') and hasattr(self, attr_name):
+                setattr(self, attr_name, getattr(other, attr_name))
+
+    def update_from_other(self, other, attr_name):
+        # if not attr_name.startswith('__') and hasattr(self, attr_name):
+        #     setattr(self, attr_name, getattr(other, attr_name))
+        setattr(self, attr_name, getattr(other, attr_name))
 
 
 if __name__ == '__main__':
