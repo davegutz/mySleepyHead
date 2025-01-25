@@ -1,3 +1,4 @@
+#pragma once
 // Generate tones
 class Tone
 {

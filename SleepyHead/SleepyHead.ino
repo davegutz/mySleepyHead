@@ -37,32 +37,12 @@
   #include "application.h"  // Particle
 #endif
 
-// User defined functions
-#include "command.h"
-#include "src/Sync/Sync.h"
-#include "Sequence.h"
-#include "Sensors.h"
-#include "src/Filters/myFilters.h"
-#include "src/Time/TimeLib.h"
-#include "src/Tones/Tones.h"  // depends on some things above
-
-// Global variables
-String serial_str;
-String unit;
-boolean string_cpt = false;
-boolean plotting_all = false;
-uint8_t plot_num = 0;
-boolean monitoring = false;
-time_t time_initial = ARBITRARY_TIME;
-unsigned long long millis_flip = millis(); // Timekeeping
-unsigned long long last_sync = millis();   // Timekeeping
-int debug = 0;
-Tone buzz = Tone(buzzerPin);
-CommandPars cp = CommandPars();       // Various control parameters commanding at system level.  Initialized on start up.  Not retained.
-
-// External variables
+// Global variables and user includes
+#include "SleepyHead.h"
 extern int debug;
 extern CommandPars cp;            // Various parameters shared at system level
+
+// Other pieces of this executable
 
 // Setup
 void setup()

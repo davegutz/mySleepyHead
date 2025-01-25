@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "constants.h"
 #ifdef USE_ARDUINO
   #include <Arduino.h> //needed for Serial.println
   #include <Arduino_LSM6DS3.h>

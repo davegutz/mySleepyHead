@@ -28,7 +28,7 @@
 
 #pragma once
 
-#undef USE_ARDUINO
+#define USE_ARDUINO
 #define SAVE_RAW
 
 // Setup

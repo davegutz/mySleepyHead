@@ -1,6 +1,3 @@
-// Serial
-CommandPars::~CommandPars() {}
-
 // Non-blocking delay
 void delay_no_block(const unsigned long long interval)
 {
