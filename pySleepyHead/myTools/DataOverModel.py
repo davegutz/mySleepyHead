@@ -249,7 +249,8 @@ class SavedData:
     def update_from_other(self, other, attr_name):
         # if not attr_name.startswith('__') and hasattr(self, attr_name):
         #     setattr(self, attr_name, getattr(other, attr_name))
-        setattr(self, attr_name, getattr(other, attr_name))
+        if not attr_name.startswith('__') and hasattr(other, attr_name):
+            setattr(self, attr_name, getattr(other, attr_name))
 
 
 if __name__ == '__main__':

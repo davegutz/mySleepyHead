@@ -358,6 +358,7 @@ void Sensors::header_rapid_10()
   Serial.print("lt_state,");
   Serial.print("st_state,");
   Serial.print("dltst,");
+  Serial.print("cf,");
   Serial.print("freeze,");
   Serial.print("v3v3,");
   Serial.print("head_buzz,");
@@ -386,6 +387,7 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(LTST_Filter->lt_state(), 4); Serial.print(",");
   Serial.print(LTST_Filter->st_state(), 4); Serial.print(",");
   Serial.print(LTST_Filter->dltst(), 4); Serial.print(",");
+  Serial.print(LTST_Filter->cf(), 3); Serial.print(",");
   Serial.print(LTST_Filter->freeze()); Serial.print(",");
   Serial.print(v3v3_, 4); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
