@@ -39,10 +39,10 @@
 
 // Global variables and user includes
 #include "SleepyHead.h"
-extern int debug;
+#include "ProcessInput.h"
+#include "Subs.h"
 extern CommandPars cp;            // Various parameters shared at system level
-
-// Other pieces of this executable
+extern int debug;
 
 // Setup
 void setup()
