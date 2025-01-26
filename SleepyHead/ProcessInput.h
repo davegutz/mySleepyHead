@@ -24,9 +24,9 @@
 #pragma once
 #include "SleepyHead.h"
 
-uint8_t plot_num = 0;
+uint8_t plot_num = 10;
 boolean monitoring = false;
-boolean plotting_all = false;
+boolean plotting_all = true;
 Tone buzz = Tone(buzzerPin);
 CommandPars cp = CommandPars();       // Various control parameters commanding at system level.  Initialized on start up.  Not retained.
 

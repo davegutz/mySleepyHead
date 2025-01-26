@@ -52,7 +52,8 @@ public:
       head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
       eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
-      head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
+      head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
+      reset_(false)
     {};
     Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
       const int sensorPin, const String unit):
@@ -67,7 +68,8 @@ public:
       pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
       unit_(unit), v3v3_(v3v3_nom), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
       eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
-      head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false)
+      head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
+      reset_(true)
     {
         // Update time and time constant changed on the fly
         float Tfilt_head_init = HEAD_DELAY/1000.;
@@ -233,4 +235,5 @@ protected:
     float head_reset_time_;
     boolean max_nod_f_confirmed_;
     boolean max_nod_p_confirmed_;
+    boolean reset_;
 };

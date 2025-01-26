@@ -31,6 +31,7 @@ extern int debug;
 // Filter noise eye
 void Sensors::filter_eye(const boolean reset)
 {
+    reset_ = reset;
     // IR Sensor
     eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, NOM_DT_HEAD));
@@ -340,7 +341,10 @@ void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, cons
 void Sensors::header_rapid_10()
 {
   Serial.print("key_Rapid,");
+  Serial.print("reset,");
   Serial.print("cTime,");
+  Serial.print("head_reset,");
+  Serial.print("eye_reset,");
   Serial.print("eye_voltage_norm,");
   Serial.print("a_raw,");
   Serial.print("b_raw,");
@@ -377,7 +381,10 @@ void Sensors::header_rapid_10()
 void Sensors::print_rapid_10(const float time)
 {
   Serial.print(unit_.c_str()); Serial.print(",");
+  Serial.print(reset_); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
+  Serial.print(head_reset_); Serial.print(",");
+  Serial.print(eye_reset_); Serial.print(",");
   Serial.print(eye_voltage_norm_, 4); Serial.print(",");
   Serial.print(a_raw, 4); Serial.print(",");
   Serial.print(b_raw, 4); Serial.print(",");
