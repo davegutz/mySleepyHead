@@ -111,6 +111,7 @@ class SavedData:
         if data is None:
             self.i = 0
             self.cTime = None
+            self.T = None
             self.time = None
             self.eye_voltage_norm = None
             self.g_raw = None
@@ -124,7 +125,9 @@ class SavedData:
             self.max_nod_f_confirmed = None
             self.max_nod_p = None
             self.max_nod_p_confirmed = None
+            self.delta_pitch = None
             self.pitch_filt = None
+            self.delta_roll = None
             self.roll_filt = None
             self.head_buzz_f = None
             self.head_buzz_p = None
@@ -207,7 +210,9 @@ class SavedData:
             self.update_from_other(data, 'max_nod_f_confirmed')
             self.update_from_other(data, 'max_nod_p')
             self.update_from_other(data, 'max_nod_p_confirmed')
+            self.update_from_other(data, 'delta_pitch')
             self.update_from_other(data, 'pitch_filt')
+            self.update_from_other(data, 'delta_roll')
             self.update_from_other(data, 'roll_filt')
             self.update_from_other(data, 'head_buzz_f')
             self.update_from_other(data, 'head_buzz_p')
@@ -233,7 +238,6 @@ class SavedData:
         s += "{:13.3f},".format(self.cTime[self.i])
         s += "{:13.6f},".format(self.time[self.i])
         s += "{:8.3f},".format(self.eye_voltage_norm[self.i])
-        s += "{:7.2f},".format(self.eye_voltage_flt[self.i])
         s += "{:5.2f},".format(self.eye_closed[self.i])
         s += "{:5.2f},".format(self.eye_closed_confirmed[self.i])
         s += "{:5.2f},".format(self.max_nod_f[self.i])

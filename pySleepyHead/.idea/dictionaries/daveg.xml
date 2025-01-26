@@ -38,10 +38,13 @@
       <w>lutt</w>
       <w>markersize</w>
       <w>markevery</w>
+      <w>maxv</w>
+      <w>minv</w>
       <w>nsum</w>
       <w>precleanup</w>
       <w>qcap</w>
       <w>qcrs</w>
+      <w>qrate</w>
       <w>randles</w>
       <w>rapheson</w>
       <w>rstate</w>
@@ -50,6 +53,7 @@
       <w>tfdteresis</w>
       <w>tkagg</w>
       <w>tustin</w>
+      <w>unfaulted</w>
       <w>xmax</w>
       <w>xmin</w>
       <w>ylim</w>

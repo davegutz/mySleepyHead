@@ -42,11 +42,11 @@ class MahonyAHRS_MW:
         self.accel_vec = np.zeros(3)  # integral error
         self.label = "pp7 Mathwo AHRS"
 
-    def update_imu(self, accelerometer, gyroscope, sample_time, reset):
+    def updateIMU(self, accelerometer, gyroscope, sample_time, reset):
         # Check inputs
         accelerometer_norm = np.linalg.norm(accelerometer)
         if accelerometer_norm < 1.e-4:
-            print("norm 0 in MW update_imu")
+            print("norm 0 in MW updateIMU")
             return # handle NaN
         self.accel_vec = accelerometer / accelerometer_norm
         gyro_norm = np.linalg.norm(gyroscope)

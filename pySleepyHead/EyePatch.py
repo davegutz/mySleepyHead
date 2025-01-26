@@ -16,14 +16,16 @@
 """
 Filter data and try candidate filters to detect sleepiness.
 """
+from myFilters import General2Pole, LongTermShortTermFilter, LagExp, RateLagExp
+from MahonyAHRS import MahonyAHRS
 from TFDelay import TFDelay
-from myFilters import General2Pole, LongTermShortTermFilter
 import numpy as np
 
 
 class Device:
     # Logic constants
-    NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)d
+    NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
+    NOM_DT_HEAD = 0.1
     VOLT_CLOSED_S = 0.5  # Voltage trip set persistence, s ()
     VOLT_CLOSED_R = 0.2  # Voltage trip reset persistence, s ()
     OMEGA_N_NOISE = 5.  # Noise filter wn, r/s ()
@@ -37,6 +39,26 @@ class Device:
     FRZ_NEG_LTST = -0.3e6
     FLT_POS_LTST = 0.04
     FRZ_POS_LTST = 0.01
+    G_MAX = 20.
+    TAU_FILT = 0.01
+    WN_Q_FILT = 25.
+    ZETA_Q_FILT = 0.9
+    MIN_Q_FILT = -20.
+    MAX_Q_FILT = 20.
+    TAU_Q_FILT = 0.01
+    QUIET_S = 0.4
+    QUIET_R = 0.04
+    t_kp_def = 10.
+    t_ki_def = 2.
+    MAX_T_Q_FILT = 0.02
+    G_QUIET_THR = 0.3
+    O_QUIET_THR = 4.0
+    EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
+    EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
+    OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
+    OFF_R = 3.  # Persistence glasses off IR sense reset, sec (3.0)
+    GLASSES_OFF_VOLTAGE = 2.5  # Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
+    SHAKE_S = 0.2  # Persistence head shake motion sense set, sec (0.2) update time is 0.1
 
 
 class EyePatch:
@@ -44,15 +66,45 @@ class EyePatch:
 
     def __init__(self, data, dt=0.1):
         self.Data = data
+
+        # Head filters
+        self.X_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.Y_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.Z_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.G_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.GQuietFilt = General2Pole(Device.NOMINAL_DT, Device.WN_Q_FILT, Device.ZETA_Q_FILT,
+                                       min_=Device.MIN_Q_FILT, max_=Device.MAX_Q_FILT)
+        self.GQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, Device.MIN_Q_FILT, Device.MAX_Q_FILT)
+        self.GQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
+        self.A_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.B_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.C_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.O_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.OQuietFilt = General2Pole(Device.NOMINAL_DT, Device.WN_Q_FILT, Device.ZETA_Q_FILT,
+                                       min_=Device.MIN_Q_FILT, max_=Device.MAX_Q_FILT)
+        self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, Device.MIN_Q_FILT, Device.MAX_Q_FILT)
+        self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
+        self.TrackFilter = MahonyAHRS(sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
+
+        # Eye filters
         self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
-                                       -10., 10., 0., Device.V3V3Q2)  # actual dt provided at run time
+                                       -10., 10., 0.)  # actual dt provided at run time
         self.VoltTripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
         self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,
                                                    flt_thr_neg=Device.FLT_NEG_LTST, frz_thr_neg=Device.FRZ_NEG_LTST,
                                                    flt_thr_pos=Device.FLT_POS_LTST, frz_thr_pos=Device.FRZ_POS_LTST)
-        self.LTST_TripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
+        self.HeadNodPerF = TFDelay(True, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
+        self.HeadNodPerP = TFDelay(True, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
+        self.EyeClosedPer = TFDelay(False, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
+        self.GlassesOffPer = TFDelay(True, Device.OFF_S, Device.OFF_R, Device.NOMINAL_DT)
+        self.HeadShakePer = TFDelay(False, Device.SHAKE_S, Device.SHAKE_R, Device.NOMINAL_DT)
+
+        # data
         self.time = None
-        self.dt = None
+        self.T = None
+        self.reset = True
+        self.eye_reset = None
+        self.head_reset = None
         self.eye_voltage_norm = None
         self.eye_voltage_filt = None
         self.eye_voltage_flt = None
@@ -60,10 +112,26 @@ class EyePatch:
         self.b_raw = None
         self.c_raw = None
         self.o_raw = None
+        self.a_filt = None
+        self.b_filt = None
+        self.c_filt = None
+        self.o_filt = None
+        self.o_qrate = None
+        self.o_quiet = None
+        self.o_is_quiet = None
+        self.o_is_quiet_sure = None
         self.x_raw = None
         self.y_raw = None
         self.z_raw = None
         self.g_raw = None
+        self.x_filt = None
+        self.y_filt = None
+        self.z_filt = None
+        self.g_filt = None
+        self.g_qrate = None
+        self.g_quiet = None
+        self.g_is_quiet = None
+        self.g_is_quiet_sure = None
         self.eye_closed = None
         self.eye_closed_confirmed = None
         self.flt_LTST = None
@@ -72,7 +140,6 @@ class EyePatch:
         self.dltst = None
         self.fault = False
         self.freeze = False
-        self.reset = True
         self.input = None
         self.lt_state = None
         self.st_state = None
@@ -80,7 +147,11 @@ class EyePatch:
         self.flt_thr_pos = Device.FLT_POS_LTST
         self.pitch_filt = None
         self.roll_filt = None
+        self.pitch_filt_python = None
+        self.roll_filt_python = None
         self.saved = Saved()  # for plots and prints
+
+
 
     def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
         """Filter data set and calculate candidate filter"""
@@ -103,29 +174,31 @@ class EyePatch:
             self.a_raw = self.Data.a_raw[i]
             self.b_raw = self.Data.b_raw[i]
             self.c_raw = self.Data.c_raw[i]
+            self.o_raw = np.sqrt(self.a_raw*self.a_raw + self.b_raw*self.b_raw + self.c_raw*self.c_raw)
             self.x_raw = self.Data.x_raw[i]
             self.y_raw = self.Data.y_raw[i]
             self.z_raw = self.Data.z_raw[i]
+            self.g_raw = np.sqrt(self.x_raw*self.x_raw + self.y_raw*self.y_raw + self.z_raw*self.z_raw)
             self.pitch_filt = self.Data.pitch_filt[i]
             self.roll_filt = self.Data.roll_filt[i]
 
             # Update time
-            T = None
+            self.T = None
             if i == 0:
-                T = t[1] - t[0]
+                self.T = t[1] - t[0]
             else:
                 candidate_dt = t[i] - t[i - 1]
                 if candidate_dt > 1e-6:
-                    T = candidate_dt
+                    self.T = candidate_dt
 
             # Run filters
-            self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, reset, T)
-            self.eye_closed_confirmed = self.LTST_TripConf.calculate(self.flt_LTST, Device.VOLT_CLOSED_S,
-                                                                    Device.VOLT_CLOSED_R, T, reset)
-            self.eye_buzz = self.eye_closed_confirmed
+            delta_pitch = self.Data.delta_pitch[i]
+            delta_roll = self.Data.delta_roll[i]
+            self.filter_head(self.reset, delta_pitch, delta_roll)
+            self.filter_eye(reset)
 
             # Log
-            self.save(t[i], T)
+            self.save(t[i], self.T)
 
             # Print initial
             if i == 0 and verbose:
@@ -146,10 +219,44 @@ class EyePatch:
 
         return self.saved
 
+    def filter_eye(self, reset):
+        self.eye_reset = reset or self.GlassesOffPer.calculate(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE,
+                                                               Device.OFF_S, Device.OFF_R, self.T, reset)
+        self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset, min(self.T, Device.NOM_DT_HEAD))
+        self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R,
+                                                                self.T, self.eye_reset)
+        self.eye_buzz = self.eye_closed_confirmed
+
+    def filter_head(self, reset, run=True, delta_pitch=0., delta_roll=0.):
+        # Gs
+        self.x_filt = self.X_Filt.calculate_tau(self.x_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.y_filt = self.Y_Filt.calculate_tau(self.y_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.z_filt = self.Z_Filt.calculate_tau(self.z_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.g_filt = self.G_Filt.calculate_tau(self.g_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.g_is_quiet = self.g_quiet <= Device.G_QUIET_THR
+        self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
+
+        # Angles
+        self.a_filt = self.A_Filt.calculate_tau(self.a_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.b_filt = self.B_Filt.calculate_tau(self.b_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.c_filt = self.C_Filt.calculate_tau(self.c_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.o_qrate = self.OQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.o_quiet = self.OQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.o_is_quiet = self.o_quiet <= Device.O_QUIET_THR
+        self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
+
+        self.TrackFilter.updateIMU([self.a_raw, self.b_raw, self.c_raw],
+                                   [self.x_raw, self.y_raw, self.z_raw], self.T, reset)
+        self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
+        self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
+
     def save(self, time, dt):  # Filter
         """Log EyePatch"""
         self.saved.time.append(self.time)
-        self.saved.dt.append(self.dt)
+        self.saved.T.append(dt)
         self.saved.eye_voltage_norm.append(self.eye_voltage_norm)
         self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
         self.saved.eye_voltage_flt.append(self.eye_voltage_flt)
@@ -165,7 +272,6 @@ class EyePatch:
         self.saved.frz_thr_pos.append(Device.FRZ_POS_LTST)
         self.saved.flt_thr_pos.append(Device.FLT_POS_LTST)
 
-
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
 
@@ -173,7 +279,7 @@ class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
     def __init__(self):
         self.time = []
-        self.dt = []
+        self.T = []
         self.eye_voltage_norm = []
         self.eye_voltage_filt = []
         self.eye_voltage_flt = []

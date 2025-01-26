@@ -57,6 +57,12 @@ class MahonyAHRS:
         self.acc_z_= 0.
         self.label = "pp7 Mahony AHRS"
 
+    def getPitch(self):
+        return self.pitch_
+
+    def getRoll(self):
+        return self.roll_
+
     def pp8(self):
             # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
             # print(f"pp7 Mahony AHRS {g_vec=} {euler321_vec=} {quat=} {euler321_vec_deg=}")
@@ -65,7 +71,7 @@ class MahonyAHRS:
             print(f"\thalfe: [ {self.halfe[0]:6.3f}, {self.halfe[1]:6.3f}, {self.halfe[2]:6.3f} ],", end='')
             print(f"\tquat: [ {self.quat[0]:6.3f}, {self.quat[1]:6.3f}, {self.quat[2]:6.3f}, {self.quat[3]:6.3f} ]")
 
-    def update_imu(self, accelerometer, gyroscope, sample_time, reset):
+    def updateIMU(self, accelerometer, gyroscope, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
         # Normalise accelerometer measurement
@@ -231,11 +237,11 @@ def main():
     count = 0
     init = True
     gyro_vec = np.zeros(3)
-    track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
     init = False
     while err_tf > 1e-3 and count < 100:
         gyro_vec = np.zeros(3)
-        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
         # pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         err_tf = np.linalg.norm(abs(track_filter.halfe))
         err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
@@ -252,11 +258,11 @@ def main():
     init = True
     accel_vec = np.array([0., 0., 1.])
     gyro_vec = np.zeros(3)
-    track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
     init = False
     while err_tf > 1e-3 and count < 100:
         gyro_vec = np.zeros(3)
-        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
         # pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         err_tf = np.linalg.norm(abs(track_filter.halfe))
         err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
@@ -276,7 +282,7 @@ def main():
         if i == 24:
             accel_vec = np.zeros(3) + np.array([0., 0., 1.])
         gyro_vec = np.zeros(3)
-        track_filter.update_imu(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
+        track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
         print(f"{i:3d}\t", end='')
         # track_filter.pp8()
         pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)

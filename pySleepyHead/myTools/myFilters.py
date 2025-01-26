@@ -289,7 +289,7 @@ class TustinIntegrator(DiscreteIntegrator):
 class General2Pole(DiscreteFilter2):
     # General 2-Pole filter variable update rate and limits, poor aliasing characteristics
 
-    def __init__(self, dt, omega_n, zeta, minv_, maxv_, min_, max_):
+    def __init__(self, dt, omega_n, zeta, minv_=-1.e12, maxv_=1.e12, min_=-1.e6, max_=1.e6):
         DiscreteFilter2.__init__(self, dt, omega_n, zeta, min_, max_)
         self.a = 2. * self.zeta * self.omega_n
         self.b = self.omega_n * self.omega_n
