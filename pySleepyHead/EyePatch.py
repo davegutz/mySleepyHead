@@ -56,6 +56,14 @@ class EyePatch:
         self.eye_voltage_norm = None
         self.eye_voltage_filt = None
         self.eye_voltage_flt = None
+        self.a_raw = None
+        self.b_raw = None
+        self.c_raw = None
+        self.o_raw = None
+        self.x_raw = None
+        self.y_raw = None
+        self.z_raw = None
+        self.g_raw = None
         self.eye_closed = None
         self.eye_closed_confirmed = None
         self.flt_LTST = None
@@ -70,6 +78,8 @@ class EyePatch:
         self.st_state = None
         self.frz_thr_pos = Device.FRZ_POS_LTST
         self.flt_thr_pos = Device.FLT_POS_LTST
+        self.pitch_filt = None
+        self.roll_filt = None
         self.saved = Saved()  # for plots and prints
 
     def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
@@ -87,7 +97,19 @@ class EyePatch:
             reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
             self.Data.i = i
             self.time = now
+
+            # Inputs
             self.eye_voltage_norm = self.Data.eye_voltage_norm[i]
+            self.a_raw = self.Data.a_raw[i]
+            self.b_raw = self.Data.b_raw[i]
+            self.c_raw = self.Data.c_raw[i]
+            self.x_raw = self.Data.x_raw[i]
+            self.y_raw = self.Data.y_raw[i]
+            self.z_raw = self.Data.z_raw[i]
+            self.pitch_filt = self.Data.pitch_filt[i]
+            self.roll_filt = self.Data.roll_filt[i]
+
+            # Update time
             T = None
             if i == 0:
                 T = t[1] - t[0]

@@ -342,6 +342,12 @@ void Sensors::header_rapid_10()
   Serial.print("key_Rapid,");
   Serial.print("cTime,");
   Serial.print("eye_voltage_norm,");
+  Serial.print("a_raw,");
+  Serial.print("b_raw,");
+  Serial.print("c_raw,");
+  Serial.print("x_raw,");
+  Serial.print("y_raw,");
+  Serial.print("z_raw,");
   Serial.print("FLT_THR_POS,");
   Serial.print("FRZ_THR_POS,");
   Serial.print("eye_closed,");
@@ -350,7 +356,9 @@ void Sensors::header_rapid_10()
   Serial.print("max_nod_f_confirmed,");
   Serial.print("max_nod_p,");
   Serial.print("max_nod_p_confirmed,");
+  Serial.print("delta_pitch,");
   Serial.print("pitch_filt,");
+  Serial.print("delta_roll,");
   Serial.print("roll_filt,");
   Serial.print("head_buzz_f,");
   Serial.print("head_buzz_p,");
@@ -371,6 +379,12 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
   Serial.print(eye_voltage_norm_, 4); Serial.print(",");
+  Serial.print(a_raw, 4); Serial.print(",");
+  Serial.print(b_raw, 4); Serial.print(",");
+  Serial.print(c_raw, 4); Serial.print(",");
+  Serial.print(x_raw, 4); Serial.print(",");
+  Serial.print(y_raw, 4); Serial.print(",");
+  Serial.print(z_raw, 4); Serial.print(",");
   Serial.print(FLT_THR_POS, 4); Serial.print(",");
   Serial.print(FRZ_THR_POS, 4); Serial.print(",");
   Serial.print(eye_closed_); Serial.print(",");
@@ -379,7 +393,9 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(max_nod_f_confirmed_, 3); Serial.print(",");
   Serial.print(max_nod_p_, 3); Serial.print(",");
   Serial.print(max_nod_p_confirmed_, 3); Serial.print(",");
+  Serial.print(delta_pitch_, 3); Serial.print(",");
   Serial.print(pitch_filt, 3); Serial.print(",");
+  Serial.print(delta_roll_, 3); Serial.print(",");
   Serial.print(roll_filt, 3); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
   Serial.print(head_buzz_p_); Serial.print(",");

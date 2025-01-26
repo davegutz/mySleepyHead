@@ -113,6 +113,8 @@ class SavedData:
             self.cTime = None
             self.time = None
             self.eye_voltage_norm = None
+            self.g_raw = None
+            self.o_raw = None
             self.unit = None  # text title
             self.FLT_THR_POS = None
             self.FRZ_THR_POS = None
@@ -191,6 +193,12 @@ class SavedData:
             self.cTime = self.cTime[:i_end]
             self.time = np.array(self.time[:i_end])
             self.update_from_other(data, 'eye_voltage_norm')
+            self.update_from_other(data, 'a_raw')
+            self.update_from_other(data, 'b_raw')
+            self.update_from_other(data, 'c_raw')
+            self.update_from_other(data, 'x_raw')
+            self.update_from_other(data, 'y_raw')
+            self.update_from_other(data, 'z_raw')
             self.update_from_other(data, 'FLT_THR_POS')
             self.update_from_other(data, 'FRZ_THR_POS')
             self.update_from_other(data, 'eye_closed')
