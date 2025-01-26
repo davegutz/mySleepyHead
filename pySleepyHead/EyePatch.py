@@ -26,6 +26,8 @@ class Device:
     # Logic constants
     NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
     NOM_DT_HEAD = 0.1
+    HEAD_S = 0.04  # Persistence head sense set, sec (0.04)  Head needs little; heavily filtered by Mahony
+    HEAD_R = 0.04  # Persistence head sense reset, sec (0.04)
     TAU_ST = 0.4  # Short term filter time constant, sec (0.4)
     TAU_LT = 20.  # Long term filter time constant, sec (20)
     FLT_THR_NEG = -1.3e6  # hardcoded in C++
@@ -56,6 +58,10 @@ class Device:
     SHAKE_R = 4.0  # Persistence head shake motion sense reset, sec (4.0)
     # FLT_THR_POS = 0.04  # LTST filter positive dltst fault threshold, v (0.04)  in data
     # FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01) in data
+    pitch_thr_def_forte = 17.   # Threshold sleep detect screech (17.), deg
+    roll_thr_def_forte = 17.  # Threshold sleep detect screech (17.), deg
+    pitch_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
+    roll_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
 
 
 class EyePatch:
@@ -126,6 +132,10 @@ class EyePatch:
         self.g_quiet = None
         self.g_is_quiet = None
         self.g_is_quiet_sure = None
+        self.max_nod_f = None
+        self.max_nod_f_confirmed = None
+        self.max_nod_p = None
+        self.max_nod_p_confirmed = None
         self.head_buzz_f = None
         self.head_buzz_p = None
         self.eye_closed = None
@@ -250,11 +260,14 @@ class EyePatch:
         self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
 
         # Head nod
-        self.max_nod_f =
-        self.max_nod_p =
-        self.head_reset =
-        self.max_nod_f_confirmed =
-        self.max_nod_p_confirmed =
+        self.max_nod_f = max( abs(self.pitch_filt)- Device.pitch_thr_def_forte, abs(self.roll_filt) - Device.roll_thr_def_forte )
+        self.max_nod_p = max( abs(self.pitch_filt)- Device.pitch_thr_def_piano, abs(self.roll_filt) - Device.roll_thr_def_piano )
+        self.head_reset = reset or self.HeadShakePer.calculate( not(self.o_is_quiet_sure and self.g_is_quiet_sure),
+                                                                Device.SHAKE_S, Device.SHAKE_R, self.T, reset )
+        self.max_nod_f_confirmed = self.HeadNodPerF.calculate( self.max_nod_f > 0 and not self.head_reset, Device.HEAD_S,
+                                                               Device.HEAD_R, self.T, reset)
+        self.max_nod_p_confirmed = self.HeadNodPerP.calculate( self.max_nod_p > 0 and not self.head_reset, Device.HEAD_S,
+                                                               Device.HEAD_R, self.T, reset)
 
         # Head buzz
         self.head_buzz_f = self.max_nod_f_confirmed
@@ -262,7 +275,10 @@ class EyePatch:
 
     def save(self, time, dt):  # Filter
         """Log EyePatch"""
+        self.saved.reset.append(self.reset)
         self.saved.time.append(time)
+        self.saved.head_reset.append(self.head_reset)
+        self.saved.eye_reset.append(self.eye_reset)
         self.saved.T.append(dt)
         self.saved.eye_voltage_norm.append(self.eye_voltage_norm)
         self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
@@ -278,6 +294,18 @@ class EyePatch:
         self.saved.st_state.append(self.LTST_Filter.st_state)
         self.saved.frz_thr_pos.append(Device.FRZ_THR_POS)
         self.saved.flt_thr_pos.append(Device.FLT_THR_POS)
+        self.saved.max_nod_f.append(self.max_nod_f)
+        self.saved.max_nod_f_confirmed.append(self.max_nod_f_confirmed)
+        self.saved.max_nod_p.append(self.max_nod_p)
+        self.saved.max_nod_p_confirmed.append(self.max_nod_p_confirmed)
+        self.saved.head_buzz_f.append(self.head_buzz_f)
+        self.saved.head_buzz_p.append(self.head_buzz_p)
+        self.saved.head_buzz.append(self.head_buzz_f)  # yes, that's right
+        self.saved.pitch_filt.append(self.pitch_filt)
+        self.saved.pitch_filt_python.append(self.pitch_filt_python)
+        self.saved.roll_filt.append(self.roll_filt)
+        self.saved.roll_filt_python.append(self.roll_filt_python)
+        self.saved.cf.append(self.cf)
 
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
@@ -285,7 +313,10 @@ class EyePatch:
 class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
     def __init__(self):
+        self.reset = []
         self.time = []
+        self.head_reset = []
+        self.eye_reset = []
         self.T = []
         self.eye_voltage_norm = []
         self.eye_voltage_filt = []
@@ -301,3 +332,16 @@ class Saved:
         self.st_state = []
         self.frz_thr_pos = []
         self.flt_thr_pos = []
+        self.max_nod_f = []
+        self.max_nod_f_confirmed = []
+        self.max_nod_p = []
+        self.max_nod_p_confirmed = []
+        self.head_buzz_f = []
+        self.head_buzz_p = []
+        self.head_buzz = []
+        self.pitch_filt = []
+        self.pitch_filt_python = []
+        self.roll_filt = []
+        self.roll_filt_python = []
+        self.cf = []
+
