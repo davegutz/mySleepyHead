@@ -26,39 +26,36 @@ class Device:
     # Logic constants
     NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
     NOM_DT_HEAD = 0.1
-    VOLT_CLOSED_S = 0.5  # Voltage trip set persistence, s ()
-    VOLT_CLOSED_R = 0.2  # Voltage trip reset persistence, s ()
-    OMEGA_N_NOISE = 5.  # Noise filter wn, r/s ()
-    ZETA_NOISE = 0.9  # Noise filter damping factor ()
-    MAX_T_FILT = 0.15  # Noise filter minimum update time consistent with OMEGA_N and ZETA, s ()
-    V3V3Q2 = 3.3 / 2.  # Filter windup limits
-    EYE_CL_THR = 1.3
-    TAU_ST = 0.4  # Short term filter time constant, s ()
-    TAU_LT = 20.  # Long term filter time constant, s ()
-    FLT_NEG_LTST = -1.3e6
-    FRZ_NEG_LTST = -0.3e6
-    FLT_POS_LTST = 0.04
-    FRZ_POS_LTST = 0.01
-    G_MAX = 20.
-    TAU_FILT = 0.01
-    WN_Q_FILT = 25.
-    ZETA_Q_FILT = 0.9
-    MIN_Q_FILT = -20.
-    MAX_Q_FILT = 20.
-    TAU_Q_FILT = 0.01
-    QUIET_S = 0.4
-    QUIET_R = 0.04
-    t_kp_def = 10.
-    t_ki_def = 2.
-    MAX_T_Q_FILT = 0.02
-    G_QUIET_THR = 0.3
-    O_QUIET_THR = 4.0
+    TAU_ST = 0.4  # Short term filter time constant, sec (0.4)
+    TAU_LT = 20.  # Long term filter time constant, sec (20)
+    FLT_THR_NEG = -1.3e6  # hardcoded in C++
+    FRZ_THR_NEG = -0.3e6  # hardcoded in C++
+    FLT_THR_POS = 0.04  # LTST filter positive dltst fault threshold, v (0.04)
+    FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01)
+    G_MAX = 20.  # Max G value, g's (20.)
+    TAU_FILT = 0.01  # Tau filter, sec (0.01)
+    WN_Q_FILT = 25.  # Quiet filter-2 natural frequency, r/s (25.)
+    ZETA_Q_FILT = 0.9  # Quiet fiter-2 damping factor (0.9)
+    MIN_Q_FILT = -20.  # Quiet filter minimum, g's / rps(-20)
+    MAX_Q_FILT = 20.  # Quiet filter maximum, g's / rps (20)
+    TAU_Q_FILT = 0.01  # Quiet rate time constant, sec (0.01)
+    QUIET_S = 0.4  # Quiet set persistence, sec (0.4)
+    R_SCL = 10.  # Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
+    QUIET_R = QUIET_S / R_SCL  #
+    t_kp_def = 10.  # Proportional gain Kp (10.0)
+    t_ki_def = 2.  # Integral gain Ki (2.0)
+    MAX_T_Q_FILT = 0.02  # Quiet filter max update time, s (0.02)
+    G_QUIET_THR = 0.3  # g's quiet detection threshold, small is more sensitive (0.3)
+    O_QUIET_THR = 4.0  # rps quiet detection threshold, small is more sensitive (4.)
     EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
     OFF_R = 3.  # Persistence glasses off IR sense reset, sec (3.0)
     GLASSES_OFF_VOLTAGE = 2.5  # Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
     SHAKE_S = 0.2  # Persistence head shake motion sense set, sec (0.2) update time is 0.1
+    SHAKE_R = 4.0  # Persistence head shake motion sense reset, sec (4.0)
+    # FLT_THR_POS = 0.04  # LTST filter positive dltst fault threshold, v (0.04)  in data
+    # FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01) in data
 
 
 class EyePatch:
@@ -87,12 +84,9 @@ class EyePatch:
         self.TrackFilter = MahonyAHRS(sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
 
         # Eye filters
-        self.VoltFilter = General2Pole(Device.NOMINAL_DT, Device.OMEGA_N_NOISE, Device.ZETA_NOISE,
-                                       -10., 10., 0.)  # actual dt provided at run time
-        self.VoltTripConf = TFDelay(False, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R, Device.NOMINAL_DT)
         self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,
-                                                   flt_thr_neg=Device.FLT_NEG_LTST, frz_thr_neg=Device.FRZ_NEG_LTST,
-                                                   flt_thr_pos=Device.FLT_POS_LTST, frz_thr_pos=Device.FRZ_POS_LTST)
+                                                   flt_thr_neg=Device.FLT_THR_NEG, frz_thr_neg=Device.FRZ_THR_NEG,
+                                                   flt_thr_pos=Device.FLT_THR_POS, frz_thr_pos=Device.FRZ_THR_POS)
         self.HeadNodPerF = TFDelay(True, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
         self.HeadNodPerP = TFDelay(True, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
         self.EyeClosedPer = TFDelay(False, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
@@ -132,6 +126,8 @@ class EyePatch:
         self.g_quiet = None
         self.g_is_quiet = None
         self.g_is_quiet_sure = None
+        self.head_buzz_f = None
+        self.head_buzz_p = None
         self.eye_closed = None
         self.eye_closed_confirmed = None
         self.flt_LTST = None
@@ -143,8 +139,8 @@ class EyePatch:
         self.input = None
         self.lt_state = None
         self.st_state = None
-        self.frz_thr_pos = Device.FRZ_POS_LTST
-        self.flt_thr_pos = Device.FLT_POS_LTST
+        self.frz_thr_pos = Device.FRZ_THR_POS
+        self.flt_thr_pos = Device.FLT_THR_POS
         self.pitch_filt = None
         self.roll_filt = None
         self.pitch_filt_python = None
@@ -153,7 +149,7 @@ class EyePatch:
 
 
 
-    def calculate(self, init_time=-4., verbose=True, t_max=None, unit=None):
+    def calculate(self, init_time=-4., verbose=True, t_max=None):
         """Filter data set and calculate candidate filter"""
         t = self.Data.time
         if t_max is not None:
@@ -223,11 +219,11 @@ class EyePatch:
         self.eye_reset = reset or self.GlassesOffPer.calculate(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE,
                                                                Device.OFF_S, Device.OFF_R, self.T, reset)
         self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset, min(self.T, Device.NOM_DT_HEAD))
-        self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.VOLT_CLOSED_S, Device.VOLT_CLOSED_R,
+        self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
                                                                 self.T, self.eye_reset)
         self.eye_buzz = self.eye_closed_confirmed
 
-    def filter_head(self, reset, run=True, delta_pitch=0., delta_roll=0.):
+    def filter_head(self, reset, delta_pitch=0., delta_roll=0.):
         # Gs
         self.x_filt = self.X_Filt.calculate_tau(self.x_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
         self.y_filt = self.Y_Filt.calculate_tau(self.y_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
@@ -253,9 +249,20 @@ class EyePatch:
         self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
 
+        # Head nod
+        self.max_nod_f =
+        self.max_nod_p =
+        self.head_reset =
+        self.max_nod_f_confirmed =
+        self.max_nod_p_confirmed =
+
+        # Head buzz
+        self.head_buzz_f = self.max_nod_f_confirmed
+        self.head_buzz_p = self.max_nod_p_confirmed
+
     def save(self, time, dt):  # Filter
         """Log EyePatch"""
-        self.saved.time.append(self.time)
+        self.saved.time.append(time)
         self.saved.T.append(dt)
         self.saved.eye_voltage_norm.append(self.eye_voltage_norm)
         self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
@@ -269,8 +276,8 @@ class EyePatch:
         self.saved.freeze.append(self.LTST_Filter.freeze)
         self.saved.lt_state.append(self.LTST_Filter.lt_state)
         self.saved.st_state.append(self.LTST_Filter.st_state)
-        self.saved.frz_thr_pos.append(Device.FRZ_POS_LTST)
-        self.saved.flt_thr_pos.append(Device.FLT_POS_LTST)
+        self.saved.frz_thr_pos.append(Device.FRZ_THR_POS)
+        self.saved.flt_thr_pos.append(Device.FLT_THR_POS)
 
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
