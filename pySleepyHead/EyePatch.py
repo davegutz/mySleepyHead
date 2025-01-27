@@ -25,7 +25,8 @@ import numpy as np
 class Device:
     # Logic constants
     NOMINAL_DT = 0.1  #  From CONTROL_DELAY in SleepyHead (0.1)
-    NOM_DT_HEAD = 0.1
+    MAX_DT_EYE = 0.1  # Maximum filter update time in call to prevent aliasing, sec (0.1)
+    MAX_DT_HEAD = 0.2  # Maximum filter update time in call to prevent aliasing, sec (0.2)
     HEAD_S = 0.04  # Persistence head sense set, sec (0.04)  Head needs little; heavily filtered by Mahony
     HEAD_R = 0.04  # Persistence head sense reset, sec (0.04)
     TAU_ST = 0.4  # Short term filter time constant, sec (0.4)
@@ -230,27 +231,27 @@ class EyePatch:
     def filter_eye(self, reset):
         self.eye_reset = reset or self.GlassesOffPer.calculate(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE,
                                                                Device.OFF_S, Device.OFF_R, self.T, reset)
-        self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset, min(self.T, Device.NOM_DT_HEAD))
+        self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset, min(self.T, Device.MAX_DT_EYE))
         self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
                                                                 self.T, self.eye_reset)
         self.eye_buzz = self.eye_closed_confirmed
 
     def filter_head(self, reset, delta_pitch=0., delta_roll=0.):
         # Gs
-        self.x_filt = self.X_Filt.calculate_tau(self.x_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.y_filt = self.Y_Filt.calculate_tau(self.y_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.z_filt = self.Z_Filt.calculate_tau(self.z_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.g_filt = self.G_Filt.calculate_tau(self.g_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.x_filt = self.X_Filt.calculate_tau(self.x_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
+        self.y_filt = self.Y_Filt.calculate_tau(self.y_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
+        self.z_filt = self.Z_Filt.calculate_tau(self.z_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
+        self.g_filt = self.G_Filt.calculate_tau(self.g_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
         self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
         self.g_is_quiet = abs(self.g_quiet) <= Device.G_QUIET_THR
         self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
         # Angles
-        self.a_filt = self.A_Filt.calculate_tau(self.a_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.b_filt = self.B_Filt.calculate_tau(self.b_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.c_filt = self.C_Filt.calculate_tau(self.c_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
+        self.a_filt = self.A_Filt.calculate_tau(self.a_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
+        self.b_filt = self.B_Filt.calculate_tau(self.b_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
+        self.c_filt = self.C_Filt.calculate_tau(self.c_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
+        self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
         self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
         self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR

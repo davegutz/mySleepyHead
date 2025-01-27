@@ -78,7 +78,7 @@ void loop()
   // Sensors
   boolean gyro_ready = false;
   boolean accel_ready = false;
-  static Sensors *Sen = new Sensors(millis(), double(NOM_DT_EYE), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid");
+  static Sensors *Sen = new Sensors(millis(), t_kp_def, t_ki_def, sensorPin, unit_key + "_Rapid");
   boolean plotting = false;
   static boolean eye_closed = false;
   static boolean buzz_en_ir = true;

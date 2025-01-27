@@ -34,7 +34,7 @@ void Sensors::filter_eye(const boolean reset)
     reset_ = reset;
     // IR Sensor
     eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
-    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, NOM_DT_HEAD));
+    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE));
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
 
     // Eye buzz
@@ -49,10 +49,10 @@ void Sensors::filter_head(const boolean reset, const boolean run)
 
     if ( reset || acc_available_ )
     {
-        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
-        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
-        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
-        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, NOM_DT_HEAD));
+        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
         g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_T_Q_FILT));     
         g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
         static int count = 0;
@@ -60,10 +60,10 @@ void Sensors::filter_head(const boolean reset, const boolean run)
 
     if ( reset || rot_available_ )
     {
-        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
-        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
-        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
-        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, NOM_DT_HEAD));
+        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
         o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_T_Q_FILT));     
         o_quiet = OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
     }

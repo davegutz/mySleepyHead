@@ -55,7 +55,7 @@ public:
       head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
       reset_(false)
     {};
-    Sensors(const unsigned long long time_now, const double NOM_DT, const float t_kp, const float t_ki,
+    Sensors(const unsigned long long time_now, const float t_kp, const float t_ki,
       const int sensorPin, const String unit):
       a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),

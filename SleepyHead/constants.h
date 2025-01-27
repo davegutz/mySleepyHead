@@ -35,8 +35,8 @@
 #include "local_config.h"
 const String unit_key = version + "_" + HDWE_UNIT;
 
-const double NOM_DT_EYE = 0.01;
-const double NOM_DT_HEAD = 0.1;
+const double MAX_DT_EYE = 0.1;      // Maximum filter update time in call to prevent aliasing, sec (0.1)
+const double MAX_DT_HEAD = 0.2;     // Maximum filter update time in call to prevent aliasing, sec (0.2)
 const float deg_to_rps = 0.0174533;
 
 // Hardware pins
@@ -46,7 +46,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 
 
 // Constants; anything numeric (adjustable)
-#define ONE_DAY_MILLIS        86400000UL// Number of milliseconds in one day (24*60*60*1000)
+#define ONE_DAY_MILLIS  86400000UL      // Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
 #define EYE_DELAY             20UL      // Sensor read wait, ms (20UL = 0.02 sec) Dr
 #define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec) Dr
