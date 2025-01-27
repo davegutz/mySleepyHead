@@ -110,10 +110,19 @@ class SavedData:
         i_end = 0
         if data is None:
             self.i = 0
+            self.reset = None
             self.cTime = None
+            self.head_reset = None
+            self.eye_reset = None
             self.T = None
             self.time = None
             self.eye_voltage_norm = None
+            self.a_raw = None
+            self.b_raw = None
+            self.c_raw = None
+            self.x_raw = None
+            self.y_raw = None
+            self.z_raw = None
             self.g_raw = None
             self.o_raw = None
             self.unit = None  # text title
@@ -135,6 +144,7 @@ class SavedData:
             self.lt_state = None
             self.st_state = None
             self.dltst = None
+            self.cf = None
             self.freeze = None
             self.v3v3 = None
             self.head_buzz = None
@@ -193,7 +203,10 @@ class SavedData:
                     i_end_ekf = np.where(self.c_time_e <= time_end)[0][-1] + 1
                     i_end = min(i_end, i_end_ekf)
                     self.zero_end = min(self.zero_end, i_end - 1)
+            self.update_from_other(data, 'reset')
             self.cTime = self.cTime[:i_end]
+            self.update_from_other(data, 'head_reset')
+            self.update_from_other(data, 'eye_reset')
             self.time = np.array(self.time[:i_end])
             self.update_from_other(data, 'eye_voltage_norm')
             self.update_from_other(data, 'a_raw')
@@ -220,6 +233,7 @@ class SavedData:
             self.update_from_other(data, 'lt_state')
             self.update_from_other(data, 'st_state')
             self.update_from_other(data, 'dltst')
+            self.update_from_other(data, 'cf')
             self.update_from_other(data, 'freeze')
             self.update_from_other(data, 'v3v3')
             self.update_from_other(data, 'head_buzz')

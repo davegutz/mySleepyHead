@@ -254,8 +254,9 @@ class EyePatch:
         self.o_is_quiet = self.o_quiet <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
-        self.TrackFilter.updateIMU([self.a_raw, self.b_raw, self.c_raw],
-                                   [self.x_raw, self.y_raw, self.z_raw], self.T, reset)
+        self.TrackFilter.updateIMU(np.array([self.a_raw, self.b_raw, self.c_raw]),
+                                   np.array([self.x_raw, self.y_raw, self.z_raw]),
+                                   self.T, reset)
         self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
 

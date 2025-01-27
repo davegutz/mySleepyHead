@@ -40,12 +40,12 @@ plt.rcParams.update({'figure.max_open_warning': 0})
 
 def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, ref_str='_ref', test_str='_test'):
     fig_list.append(plt.figure())  # GP 1
-    plt.subplot(131)
+    plt.subplot(231)
     plt.title(plot_title + ' GP 1')
     plq(plt, mo, 'time', mo, 'max_nod_f', color='cyan', linestyle='-', label='max_nod_f' + ref_str)
     plq(plt, mo, 'time', mo, 'max_nod_p', color='magenta', linestyle='--', label='max_nod_p' + ref_str)
     plt.legend(loc=1)
-    plt.subplot(132)
+    plt.subplot(232)
     plq(plt, mo, 'time', mo, 'eye_voltage_norm', color='black', linestyle='-', label='eye_voltage_norm' + ref_str)
     plq(plt, mv, 'time', mv, 'eye_voltage_norm', color='orange', linestyle='-', label='eye_voltage_norm' + test_str)
     plq(plt, mv, 'time', mv, 'eye_voltage_filt', color='red', linestyle='-.', label='eye_voltage_filt' + test_str)
@@ -74,6 +74,12 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mo, 'time', mo, 'freeze', add=6, color='red', linestyle='-', label='freeze' + ref_str + '+6')
     plq(plt, mv, 'time', mv, 'freeze', add=6, color='blue', linestyle='--', label='freeze' + test_str + '+6')
     plq(plt, mv, 'time', mv, 'cf', add=4, color='blue', linestyle='--', label='cf' + test_str + '+4')
+    plq(plt, mo, 'time', mo, 'head_reset', add=2, color='red', linestyle='-', label='head_reset' + ref_str + '+2')
+    plq(plt, mv, 'time', mv, 'head_reset', add=2, color='blue', linestyle='--', label='head_reset' + test_str + '+2')
+    plq(plt, mo, 'time', mo, 'eye_reset', add=0, color='red', linestyle='-', label='eye_reset' + ref_str + '+0')
+    plq(plt, mv, 'time', mv, 'eye_reset', add=0, color='blue', linestyle='--', label='eye_reset' + test_str + '+0')
+    plq(plt, mo, 'time', mo, 'reset', add=-2, color='red', linestyle='-', label='reset' + ref_str + '-2')
+    plq(plt, mv, 'time', mv, 'reset', add=-2, color='blue', linestyle='--', label='reset' + test_str + '-2')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
