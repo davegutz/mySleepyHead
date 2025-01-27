@@ -37,7 +37,7 @@ if sys.platform == 'darwin':
 plt.rcParams['axes.grid'] = True
 
 
-def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=False):
+def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=False, init_time_in=None):
     print(f"\ncompare_run_sim:\n{data_file=}\n{unit_key=}\n{time_end_in=}\n{data_only=}\n")
 
     date_time = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
@@ -45,7 +45,6 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
     
     # Transient  inputs
     zero_zero_in = False
-    init_time_in = None
     legacy_in = False
 
     # detect running interactively
@@ -68,8 +67,11 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
         load_data(data_file, 1, unit_key, zero_zero_in, time_end_in)
 
     # How to initialize
+    init_time = None
     if mon_old is not None:
-        if mon_old.time[0] == 0.:  # no initialization flat detected at beginning of recording
+        if init_time_in is not None:
+            init_time = init_time_in
+        elif mon_old.time[0] == 0.:  # no initialization flat detected at beginning of recording
             init_time = 1.
         else:
             if init_time_in:
@@ -119,8 +121,10 @@ def main():
     unit_key = 'v20250113_wearDn33iot_Rapid'
     time_end_in = None
     data_only = False
+    init_time_in = 0.
 
-    compare_run_sim(data_file=path_to_data, unit_key=unit_key, data_only=data_only, time_end_in=time_end_in)
+    compare_run_sim(data_file=path_to_data, unit_key=unit_key, data_only=data_only, time_end_in=time_end_in,
+                    init_time_in=init_time_in)
 
 
 # import cProfile

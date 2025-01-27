@@ -148,6 +148,12 @@ class SavedData:
             self.freeze = None
             self.v3v3 = None
             self.head_buzz = None
+            self.o_quiet = None
+            self.o_is_quiet = None
+            self.o_is_quiet_sure = None
+            self.g_quiet = None
+            self.g_is_quiet = None
+            self.g_is_quiet_sure = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -237,6 +243,12 @@ class SavedData:
             self.update_from_other(data, 'freeze')
             self.update_from_other(data, 'v3v3')
             self.update_from_other(data, 'head_buzz')
+            self.update_from_other(data, 'o_quiet')
+            self.update_from_other(data, 'o_is_quiet')
+            self.update_from_other(data, 'o_is_quiet_sure')
+            self.update_from_other(data, 'g_quiet')
+            self.update_from_other(data, 'g_is_quiet')
+            self.update_from_other(data, 'g_is_quiet_sure')
 
         if sel is None:
             self.c_time_s = None

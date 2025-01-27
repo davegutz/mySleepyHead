@@ -171,7 +171,7 @@ class EyePatch:
         now = t[0]
         for i in range(t_len):
             now = t[i]
-            reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
+            self.reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
             self.Data.i = i
             self.time = now
 
@@ -201,7 +201,7 @@ class EyePatch:
             delta_pitch = self.Data.delta_pitch[i]
             delta_roll = self.Data.delta_roll[i]
             self.filter_head(self.reset, delta_pitch, delta_roll)
-            self.filter_eye(reset)
+            self.filter_eye(self.reset)
 
             # Log
             self.save(t[i], self.T)
@@ -211,10 +211,10 @@ class EyePatch:
                 print('time=', t[i])
                 print(' object   T  reset  time   eye_voltage_norm  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
             if verbose:
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self))
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltFilter.AB2))
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, str(self))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
+                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
                 print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
 
         # Data
@@ -249,8 +249,8 @@ class EyePatch:
         self.b_filt = self.B_Filt.calculate_tau(self.b_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
         self.c_filt = self.C_Filt.calculate_tau(self.c_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
         self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
-        self.o_qrate = self.OQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
-        self.o_quiet = self.OQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
         self.o_is_quiet = self.o_quiet <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
@@ -282,6 +282,14 @@ class EyePatch:
         self.saved.eye_reset.append(self.eye_reset)
         self.saved.T.append(dt)
         self.saved.eye_voltage_norm.append(self.eye_voltage_norm)
+        self.saved.a_raw.append(self.a_raw)
+        self.saved.b_raw.append(self.b_raw)
+        self.saved.c_raw.append(self.c_raw)
+        self.saved.o_raw.append(self.o_raw)
+        self.saved.x_raw.append(self.x_raw)
+        self.saved.y_raw.append(self.y_raw)
+        self.saved.z_raw.append(self.z_raw)
+        self.saved.g_raw.append(self.g_raw)
         self.saved.eye_voltage_filt.append(self.eye_voltage_filt)
         self.saved.eye_voltage_flt.append(self.eye_voltage_flt)
         self.saved.eye_closed.append(self.eye_closed)
@@ -307,6 +315,12 @@ class EyePatch:
         self.saved.roll_filt.append(self.roll_filt)
         self.saved.roll_filt_python.append(self.roll_filt_python)
         self.saved.cf.append(self.cf)
+        self.saved.o_quiet.append(self.o_quiet)
+        self.saved.o_is_quiet.append(self.o_is_quiet)
+        self.saved.o_is_quiet_sure.append(self.o_is_quiet_sure)
+        self.saved.g_quiet.append(self.g_quiet)
+        self.saved.g_is_quiet.append(self.g_is_quiet)
+        self.saved.g_is_quiet_sure.append(self.g_is_quiet_sure)
 
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
@@ -320,6 +334,14 @@ class Saved:
         self.eye_reset = []
         self.T = []
         self.eye_voltage_norm = []
+        self.a_raw = []
+        self.b_raw = []
+        self.c_raw = []
+        self.o_raw = []
+        self.x_raw = []
+        self.y_raw = []
+        self.z_raw = []
+        self.g_raw = []
         self.eye_voltage_filt = []
         self.eye_voltage_flt = []
         self.eye_closed = []
@@ -345,4 +367,10 @@ class Saved:
         self.roll_filt = []
         self.roll_filt_python = []
         self.cf = []
+        self.o_quiet = []
+        self.o_is_quiet = []
+        self.o_is_quiet_sure = []
+        self.g_quiet = []
+        self.g_is_quiet = []
+        self.g_is_quiet_sure = []
 
