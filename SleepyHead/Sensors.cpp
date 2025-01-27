@@ -471,7 +471,7 @@ void Sensors::sample_head(const boolean reset, const unsigned long long time_now
     }
 
     // Accelerometer
-    if ( !reset && IMU.accelerationAvailable() )
+    if ( IMU.accelerationAvailable() )
     {
         IMU.readAcceleration(x_raw, y_raw, z_raw);
         y_raw *= -1.0;
@@ -482,7 +482,7 @@ void Sensors::sample_head(const boolean reset, const unsigned long long time_now
     T_acc_ = double(time_head_ms_ - time_acc_last_) / 1000.;
 
     // Gyroscope
-    if ( !reset && IMU.gyroscopeAvailable() )
+    if ( IMU.gyroscopeAvailable() )
     {
         IMU.readGyroscope(a_raw, b_raw, c_raw);
         a_raw *= -deg_to_rps;
