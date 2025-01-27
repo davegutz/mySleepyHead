@@ -19,7 +19,7 @@ the EKF and Coulomb Counter.   The SIM is a battery model, that also has a
 Coulomb Counter built in."""
 import sys
 
-from EyePatch import EyePatch
+from Sensors import Sensors
 from unite_pictures import unite_pictures_into_pdf, cleanup_fig_files, precleanup_fig_files
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -83,7 +83,7 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
         return None, None, None, None, None, None
 
     # New run
-    patch = EyePatch(mon_old)
+    patch = Sensors(mon_old)
     mon_ver = patch.calculate(init_time=init_time)
 
     # Plots

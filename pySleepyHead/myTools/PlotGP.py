@@ -115,7 +115,6 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
 
 
     fig_list.append(plt.figure())  # GP 2
-    plt.legend(loc=1)
     plt.subplot(111)
     plt.title(plot_title + ' GP 2')
     plq(plt, mv, 'time', mv, 'o_is_quiet', add=8, color='blue', linestyle='-', label='o_is_quiet' + test_str + '+8')

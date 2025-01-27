@@ -1,4 +1,4 @@
-# EyePatch: class to calculate filters installed in the SleepyHead device
+# Sensors: class to calculate filters installed in the SleepyHead device
 # Copyright (C) 2025 Dave Gutz
 #
 # This library is free software; you can redistribute it and/or
@@ -65,7 +65,7 @@ class Device:
     roll_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
 
 
-class EyePatch:
+class Sensors:
     """Container of candidate filters"""
 
     def __init__(self, data, dt=0.1):
@@ -214,17 +214,17 @@ class EyePatch:
                 print('time=', t[i])
                 print(' object   T  reset  time   eye_voltage_norm  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
             if verbose:
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, str(self))
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
-                # print('EyePatch:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
                 print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
 
         # Data
         if verbose:
             print('   time mo.eye_voltage_norm ')
             print('time=', now)
-            print('EyePatch:  ', str(self.LTST_Filter))
+            print('Sensors:  ', str(self.LTST_Filter))
 
         return self.saved
 
@@ -280,7 +280,7 @@ class EyePatch:
         self.head_buzz_p = self.max_nod_p_confirmed
 
     def save(self, time, dt):  # Filter
-        """Log EyePatch"""
+        """Log Sensors"""
         self.saved.reset.append(self.reset)
         self.saved.time.append(time)
         self.saved.head_reset.append(self.head_reset)
