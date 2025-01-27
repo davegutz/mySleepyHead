@@ -155,6 +155,8 @@ class EyePatch:
         self.roll_filt = None
         self.pitch_filt_python = None
         self.roll_filt_python = None
+        self.G_QUIET_THR = None
+        self.O_QUIET_THR = None
         self.saved = Saved()  # for plots and prints
 
 
@@ -241,7 +243,7 @@ class EyePatch:
         self.g_filt = self.G_Filt.calculate_tau(self.g_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
         self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
         self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
-        self.g_is_quiet = self.g_quiet <= Device.G_QUIET_THR
+        self.g_is_quiet = abs(self.g_quiet) <= Device.G_QUIET_THR
         self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
         # Angles
@@ -251,7 +253,7 @@ class EyePatch:
         self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.NOM_DT_HEAD) )
         self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
         self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
-        self.o_is_quiet = self.o_quiet <= Device.O_QUIET_THR
+        self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
         self.TrackFilter.updateIMU(np.array([self.a_raw, self.b_raw, self.c_raw]),
@@ -259,6 +261,8 @@ class EyePatch:
                                    self.T, reset)
         self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
+        self.G_QUIET_THR = Device.G_QUIET_THR
+        self.O_QUIET_THR = Device.O_QUIET_THR
 
         # Head nod
         self.max_nod_f = max( abs(self.pitch_filt)- Device.pitch_thr_def_forte, abs(self.roll_filt) - Device.roll_thr_def_forte )
@@ -321,6 +325,8 @@ class EyePatch:
         self.saved.g_quiet.append(self.g_quiet)
         self.saved.g_is_quiet.append(self.g_is_quiet)
         self.saved.g_is_quiet_sure.append(self.g_is_quiet_sure)
+        self.saved.G_QUIET_THR.append(self.G_QUIET_THR)
+        self.saved.O_QUIET_THR.append(self.O_QUIET_THR)
 
     def __str__(self):
         return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
@@ -373,4 +379,6 @@ class Saved:
         self.g_quiet = []
         self.g_is_quiet = []
         self.g_is_quiet_sure = []
+        self.O_QUIET_THR = []
+        self.G_QUIET_THR = []
 

@@ -330,9 +330,9 @@ void Sensors::print_all_header()
 // and actual motion without 'guilding the lily'
 void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr)
 {
-  o_is_quiet_ = o_quiet <= o_quiet_thr;  // o_filt is rss
+  o_is_quiet_ = abs(o_quiet) <= o_quiet_thr;  // o_filt is rss
   o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
-  g_is_quiet_ = g_quiet <= g_quiet_thr;  // g_filt is rss
+  g_is_quiet_ = abs(g_quiet) <= g_quiet_thr;  // g_filt is rss
   g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
   static int count = 0;
 }
