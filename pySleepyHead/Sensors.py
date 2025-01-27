@@ -190,6 +190,11 @@ class Sensors:
             self.g_raw = np.sqrt(self.x_raw*self.x_raw + self.y_raw*self.y_raw + self.z_raw*self.z_raw)
             self.pitch_filt = self.Data.pitch_filt[i]
             self.roll_filt = self.Data.roll_filt[i]
+            # Cannot run o_quiet and g_quiet algorithms stably at 0.1 seconds.  These are run at 0.02 in application.
+            # Here we are over-writing the local values from the application and comment the local calculations in
+            # the filter_head method
+            self.o_quiet = self.Data.o_quiet[i]
+            self.g_quiet = self.Data.g_quiet[i]
 
             # Update time
             self.T = None
@@ -242,8 +247,9 @@ class Sensors:
         self.y_filt = self.Y_Filt.calculate_tau(self.y_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.z_filt = self.Z_Filt.calculate_tau(self.z_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.g_filt = self.G_Filt.calculate_tau(self.g_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
-        self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
-        self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        # Cannot run these at 0.1 seconds.  They are run at 0.02 in application
+        # self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
+        # self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
         self.g_is_quiet = abs(self.g_quiet) <= Device.G_QUIET_THR
         self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
@@ -252,8 +258,9 @@ class Sensors:
         self.b_filt = self.B_Filt.calculate_tau(self.b_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.c_filt = self.C_Filt.calculate_tau(self.c_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
-        self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
-        self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        # Cannot run these at 0.1 seconds.  They are run at 0.02 in application
+        # self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
+        # self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
         self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
