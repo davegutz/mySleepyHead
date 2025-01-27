@@ -51,7 +51,6 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define EYE_DELAY             20UL      // Sensor read wait, ms (20UL = 0.02 sec) Dr
 #define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec) Dr
 #define CONTROL_DELAY         20UL      // Control read wait, ms (20UL = 0.02 sec)
-#define LOG_DELAY             20UL      // Register wait, ms (20UL = 0.01 sec)
 #define PUBLISH_DELAY        100UL      // Publish wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
@@ -108,7 +107,6 @@ const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
 const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
 const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
 const float T_SCL = (32000./T_MAX);     // Rotational int16_t scale factor
-const uint8_t NREG = (NDATUM)/((QUIET_S)/(LOG_DELAY)*1000*float(R_SCL+1)/float(R_SCL)+NHOLD); // Dynamically determine number of data sets to allow for if small as possible
 
 // Analog sensor definitions
 const float v3v3_nom = 3.3;                 // IR detector power supply, v (3.3)
