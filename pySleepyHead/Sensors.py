@@ -35,21 +35,19 @@ class Device:
     FRZ_THR_NEG = -0.3e6  # hardcoded in C++
     FLT_THR_POS = 0.04  # LTST filter positive dltst fault threshold, v (0.04)
     FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01)
-    G_MAX = 20.  # Max G value, g's (20.)
-    TAU_FILT = 0.01  # Tau filter, sec (0.01)
-    WN_Q_FILT = 25.  # Quiet filter-2 natural frequency, r/s (25.)
+    G_MAX = 4.  # Max G value, g's (4.)
+    W_MAX = 34.9  # Max G value, g's (34.9)
+    TAU_FILT = 0.1  # Tau filter, sec (0.1)
+    WN_Q_FILT = 5.  # Quiet filter-2 natural frequency, r/s (5.)
     ZETA_Q_FILT = 0.9  # Quiet fiter-2 damping factor (0.9)
-    MIN_Q_FILT = -20.  # Quiet filter minimum, g's / rps(-20)
-    MAX_Q_FILT = 20.  # Quiet filter maximum, g's / rps (20)
-    TAU_Q_FILT = 0.01  # Quiet rate time constant, sec (0.01)
+    TAU_Q_FILT = 0.1  # Quiet rate time constant, sec (0.1)
     QUIET_S = 0.4  # Quiet set persistence, sec (0.4)
     R_SCL = 10.  # Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
     QUIET_R = QUIET_S / R_SCL  #
     t_kp_def = 10.  # Proportional gain Kp (10.0)
     t_ki_def = 2.  # Integral gain Ki (2.0)
-    MAX_T_Q_FILT = 0.02  # Quiet filter max update time, s (0.02)
-    G_QUIET_THR = 0.3  # g's quiet detection threshold, small is more sensitive (0.3)
-    O_QUIET_THR = 4.0  # rps quiet detection threshold, small is more sensitive (4.)
+    G_QUIET_THR = 0.06  # g's quiet detection threshold, small is more sensitive (0.06)
+    O_QUIET_THR = 0.4  # rps quiet detection threshold, small is more sensitive (0.4)
     EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
@@ -77,16 +75,16 @@ class Sensors:
         self.Z_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
         self.G_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
         self.GQuietFilt = General2Pole(Device.NOMINAL_DT, Device.WN_Q_FILT, Device.ZETA_Q_FILT,
-                                       min_=Device.MIN_Q_FILT, max_=Device.MAX_Q_FILT)
-        self.GQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, Device.MIN_Q_FILT, Device.MAX_Q_FILT)
+                                       min_=-Device.G_MAX, max_=Device.G_MAX)
+        self.GQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.G_MAX, Device.G_MAX)
         self.GQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
-        self.A_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
-        self.B_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
-        self.C_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
-        self.O_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.G_MAX, Device.G_MAX)
+        self.A_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
+        self.B_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
+        self.C_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
+        self.O_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
         self.OQuietFilt = General2Pole(Device.NOMINAL_DT, Device.WN_Q_FILT, Device.ZETA_Q_FILT,
-                                       min_=Device.MIN_Q_FILT, max_=Device.MAX_Q_FILT)
-        self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, Device.MIN_Q_FILT, Device.MAX_Q_FILT)
+                                       min_=-Device.W_MAX, max_=Device.W_MAX)
+        self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.W_MAX, Device.W_MAX)
         self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
         self.TrackFilter = MahonyAHRS(sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
 
@@ -190,11 +188,6 @@ class Sensors:
             self.g_raw = np.sqrt(self.x_raw*self.x_raw + self.y_raw*self.y_raw + self.z_raw*self.z_raw)
             self.pitch_filt = self.Data.pitch_filt[i]
             self.roll_filt = self.Data.roll_filt[i]
-            # Cannot run o_quiet and g_quiet algorithms stably at 0.1 seconds.  These are run at 0.02 in application.
-            # Here we are over-writing the local values from the application and comment the local calculations in
-            # the filter_head method
-            self.o_quiet = self.Data.o_quiet[i]
-            self.g_quiet = self.Data.g_quiet[i]
 
             # Update time
             self.T = None
@@ -248,8 +241,8 @@ class Sensors:
         self.z_filt = self.Z_Filt.calculate_tau(self.z_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.g_filt = self.G_Filt.calculate_tau(self.g_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         # Cannot run these at 0.1 seconds.  They are run at 0.02 in application
-        # self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
-        # self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_DT_HEAD))
+        self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_DT_HEAD))
         self.g_is_quiet = abs(self.g_quiet) <= Device.G_QUIET_THR
         self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
@@ -258,9 +251,8 @@ class Sensors:
         self.b_filt = self.B_Filt.calculate_tau(self.b_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.c_filt = self.C_Filt.calculate_tau(self.c_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
-        # Cannot run these at 0.1 seconds.  They are run at 0.02 in application
-        # self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_T_Q_FILT))
-        # self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_T_Q_FILT))
+        self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_DT_HEAD))
+        self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_DT_HEAD))
         self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
@@ -337,7 +329,8 @@ class Sensors:
         self.saved.O_QUIET_THR.append(self.O_QUIET_THR)
 
     def __str__(self):
-        return "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
+        strg = "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
+        return strg
 
 class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__

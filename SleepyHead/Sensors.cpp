@@ -53,8 +53,8 @@ void Sensors::filter_head(const boolean reset, const boolean run)
         y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
         z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
         g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
-        g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_T_Q_FILT));     
-        g_quiet = GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
+        g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_DT_HEAD));     
+        g_quiet = GQuietFilt->calculate(g_qrate, reset, wn_q_filt_, ZETA_Q_FILT, min(T_acc_, MAX_DT_HEAD));
         static int count = 0;
     }
 
@@ -64,8 +64,8 @@ void Sensors::filter_head(const boolean reset, const boolean run)
         b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
         c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
         o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
-        o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_T_Q_FILT));     
-        o_quiet = OQuietFilt->calculate(o_qrate, reset, min(T_rot_, MAX_T_Q_FILT));
+        o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_DT_HEAD));     
+        o_quiet = OQuietFilt->calculate(o_qrate, reset, wn_q_filt_, ZETA_Q_FILT, min(T_rot_, MAX_DT_HEAD));
     }
 
     // Mahony Tracking Filter
@@ -131,7 +131,7 @@ void Sensors::plot_all_acc()  // plot pp1
   float g_q_s = -2.; 
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
+  Serial.print("T_acc*10:"); Serial.print(T_acc_*10., 3);
   Serial.print("\tx_filt:"); Serial.print(x_filt, 3);
   Serial.print("\ty_filt:"); Serial.print(y_filt, 3);
   Serial.print("\tz_filt:"); Serial.print(z_filt, 3);
@@ -148,7 +148,7 @@ void Sensors::plot_all_rot()  // plot pp2
   float o_q_s = -4.; 
   if ( o_is_quiet_ ) o_q = -3;
   if ( o_is_quiet_sure_ ) o_q_s = -3;
-  Serial.print("T_rot_*100:"); Serial.print(T_rot_*100., 3);
+  Serial.print("T_rot_*10:"); Serial.print(T_rot_*10., 3);
   Serial.print("\ta_filt:"); Serial.print(a_filt, 3);
   Serial.print("\tb_filt:"); Serial.print(b_filt, 3);
   Serial.print("\tc_filt:"); Serial.print(c_filt, 3);
@@ -165,7 +165,7 @@ void Sensors::plot_all_rpy()  // plot pp7
   float g_q_s = -2.; 
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print("T_acc*100:"); Serial.print(T_acc_*100., 3);
+  Serial.print("T_acc*10:"); Serial.print(T_acc_*10., 3);
   Serial.print("\tx_raw:"); Serial.print(TrackFilter->ax(), 3);
   Serial.print("\ty_raw:"); Serial.print(TrackFilter->ay(), 3);
   Serial.print("\tz_raw:"); Serial.print(TrackFilter->az(), 3);
@@ -259,13 +259,13 @@ void Sensors::plot_quiet()  // plot pp4
   float g_q_s = -2.; 
   if ( g_is_quiet_ ) g_q = -1;
   if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print("T_rot_*100:"); Serial.print(T_rot_*100., 3);
-  Serial.print("\to_filt:"); Serial.print(o_filt, 3);
-  Serial.print("\to_quiet:"); Serial.print(o_quiet, 3);
+  Serial.print("T_rot_*10:"); Serial.print(T_rot_*10., 3);
+  Serial.print("\to_filt-2:"); Serial.print(o_filt-2, 3);
+  Serial.print("\to_quiet-2:"); Serial.print(o_quiet-2, 3);
   Serial.print("\to_is_quiet_sure-4:"); Serial.print(o_q_s, 3);
-  Serial.print("\t\tT_acc*100:"); Serial.print(T_acc_*100., 3);
-  Serial.print("\tg_filt:"); Serial.print(g_filt-1., 3);
-  Serial.print("\tg_quiet:"); Serial.print(g_quiet, 3);
+  Serial.print("\t\tT_acc*10:"); Serial.print(T_acc_*10., 3);
+  Serial.print("\tg_filt+2:"); Serial.print(g_filt-1.+2, 3);
+  Serial.print("\tg_quiet+2:"); Serial.print(g_quiet+2, 3);
   Serial.print("\tg_is_quiet_sure-2:"); Serial.print(g_q_s, 3);
   Serial.println("");
 }
@@ -281,9 +281,9 @@ void Sensors::plot_quiet_raw()
 // Print publish
 void Sensors::plot_total()
 {
-  Serial.print("T_rot_*100:"); Serial.print(T_rot_*100., 3);
+  Serial.print("T_rot_*10:"); Serial.print(T_rot_*10., 3);
   Serial.print("\to_filt:"); Serial.print(o_filt, 3);
-  Serial.print("\t\tT_acc_*100:"); Serial.print(T_acc_*100., 3);
+  Serial.print("\t\tT_acc_*10:"); Serial.print(T_acc_*10., 3);
   Serial.print("\tg_filt:"); Serial.print(g_filt-1., 3);
   Serial.println("");
 }

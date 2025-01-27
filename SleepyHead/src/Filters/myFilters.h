@@ -470,9 +470,12 @@ public:
   //functions
   virtual double calculate(const double in, const int RESET);
   virtual double calculate(const double in, const int RESET, const double T);
+  virtual double calculate(double in, int RESET, const double wn, const double zeta, const double T);
   virtual void assignCoeff(const double T);
+  virtual void assignCoeff(const double T, const double wn, const double zeta);
   virtual void rateState(const double in, const int RESET);
   virtual void rateStateCalc(const double in, const double T, const int RESET);
+  virtual void rateStateCalc(double in, const double T, const double wn, const double zeta, const int RESET);
 protected:
   AB2_Integrator *AB2_;
   double a_;

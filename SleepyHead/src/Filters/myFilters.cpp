@@ -794,10 +794,20 @@ void General2_Pole::assignCoeff(const double T)
 {
   T_ = T;
 }
+void General2_Pole::assignCoeff(const double T, const double wn, const double zeta)
+{
+  T_ = T;
+  a_ = 2 * zeta_ * omega_n_;
+  b_ = omega_n_ * omega_n_;
+}
 double General2_Pole::calculate(double in, int RESET, const double T)
 {
-  General2_Pole::assignCoeff(T);
   General2_Pole::rateStateCalc(in, T, RESET);
+  return (Tustin_->state());
+}
+double General2_Pole::calculate(double in, int RESET, const double wn, const double zeta, const double T)
+{
+  General2_Pole::rateStateCalc(in, T, RESET, wn, zeta);
   return (Tustin_->state());
 }
 void General2_Pole::rateState(double in, int RESET)
@@ -820,6 +830,11 @@ void General2_Pole::rateState(double in, int RESET)
 void General2_Pole::rateStateCalc(double in, const double T, const int RESET)
 {
   assignCoeff(T);
+  rateState(in, RESET);
+}
+void General2_Pole::rateStateCalc(double in, const double T, const double wn, const double zeta, const int RESET)
+{
+  assignCoeff(T, wn, zeta);
   rateState(in, RESET);
 }
 

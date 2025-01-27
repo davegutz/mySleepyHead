@@ -48,28 +48,23 @@ const int motorPin = 21;     // Pin connected to the buzzer
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS  86400000UL      // Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
-#define EYE_DELAY             20UL      // Sensor read wait, ms (20UL = 0.02 sec) Dr
-#define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec) Dr
-#define CONTROL_DELAY         20UL      // Control read wait, ms (20UL = 0.02 sec)
+#define EYE_DELAY             25UL      // Sensor read wait, ms (25UL = 0.025 sec)
+#define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec)
+#define CONTROL_DELAY        100UL      // Output read wait, ms (100UL = 0.1 sec)
 #define PUBLISH_DELAY        100UL      // Publish wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
-#define G_MAX                  20.      // Max G value, g's (20.) 
-#define W_MAX                  20.      // Max rotational value, rps (20.)
-#define T_MAX                 0.02      // Max expected update time, s (0.02)
-#define INPUT_BYTES            200      // Serial input buffer sizes (200)
+#define G_MAX                   4.      // Max G value, g's (4.) limit of hardware 
+#define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
-#define TAU_FILT              0.01      // Tau filter, sec (0.01)
-#define TAU_Q_FILT            0.01      // Quiet rate time constant, sec (0.01)
-#define MIN_Q_FILT            -20.      // Quiet filter minimum, g's / rps(-20)
-#define MAX_Q_FILT             20.      // Quiet filter maximum, g's / rps (20)
-#define WN_Q_FILT              25.      // Quiet filter-2 natural frequency, r/s (25.)
+#define TAU_FILT               0.1      // Tau filter, sec (0.1)
+#define TAU_Q_FILT             0.1      // Quiet rate time constant, sec (0.1)
+#define WN_Q_FILT               5.      // Quiet filter-2 natural frequency, r/s (5.)
 #define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)
-#define MAX_T_Q_FILT          0.02      // Quiet filter max update time, s (0.02)
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
 #define QUIET_S                0.4      // Quiet set persistence, sec (0.4)
-#define O_QUIET_THR            4.0      // rps quiet detection threshold, small is more sensitive (4.)
-#define G_QUIET_THR            0.3      // g's quiet detection threshold, small is more sensitive (0.3)
+#define O_QUIET_THR            0.8      // rps quiet detection threshold, small is more sensitive (4.)
+#define G_QUIET_THR           0.06      // g's quiet detection threshold, small is more sensitive (0.3)
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
@@ -103,10 +98,7 @@ const float SHAKE_R = 4.0;               // Persistence head shake motion sense 
 const int   buzz_freq_grav = 2800;       // Buzzer frequency when gravity detected, Hz (2800)
 const int   buzz_freq_ir = 3300;        // Buzzer frequency when IR detected, Hz (3300) 
 
-const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec 
-const float O_SCL = (16000./W_MAX);     // Rotational int16_t scale factor
-const float G_SCL = (16000./G_MAX);     // Rotational int16_t scale factor
-const float T_SCL = (32000./T_MAX);     // Rotational int16_t scale factor
+const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
 
 // Analog sensor definitions
 const float v3v3_nom = 3.3;                 // IR detector power supply, v (3.3)

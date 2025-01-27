@@ -53,7 +53,7 @@ public:
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
       eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
       head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
-      reset_(false)
+      reset_(false), wn_q_filt_(0)
     {};
     Sensors(const unsigned long long time_now, const float t_kp, const float t_ki,
       const int sensorPin, const String unit):
@@ -69,7 +69,7 @@ public:
       unit_(unit), v3v3_(v3v3_nom), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
       eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
       head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
-      reset_(true)
+      reset_(true), wn_q_filt_(WN_Q_FILT)
     {
         // Update time and time constant changed on the fly
         float Tfilt_head_init = HEAD_DELAY/1000.;
@@ -79,16 +79,16 @@ public:
         B_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
         C_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
         O_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        OQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
-        OQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        OQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, -W_MAX, W_MAX);  // actual update time provided run time
+        OQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, -W_MAX, W_MAX);
         OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         
         X_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
         Y_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
         Z_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
         G_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
-        GQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);  // actual update time provided run time
-        GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, MIN_Q_FILT, MAX_Q_FILT);
+        GQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, -G_MAX, G_MAX);  // actual update time provided run time
+        GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, -G_MAX, G_MAX);
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
         LTST_Filter = new LongTermShortTerm_Filter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS);
@@ -111,6 +111,8 @@ public:
     float get_delta_roll() { return delta_roll_; };
     float get_eye_reset_time() { return eye_reset_time_; };
     float get_eye_set_time() { return eye_set_time_; };
+    float get_wn_q_filt() { return wn_q_filt_; };
+
     void header_rapid_10();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
@@ -144,6 +146,7 @@ public:
     void set_delta_roll(const float input) { delta_roll_ = input; };
     void set_eye_reset_time(const float input) { eye_reset_time_ = input; };
     void set_eye_set_time(const float input) { eye_set_time_ = input; };
+    void set_wn_q_filt(const float input) { wn_q_filt_ = input; };
     float T_acc() { return T_acc_; };
     float T_rot() { return T_rot_; };
     float time_eye_s() { return float(time_eye_ms_)/1000.0; };
@@ -236,4 +239,5 @@ protected:
     boolean max_nod_f_confirmed_;
     boolean max_nod_p_confirmed_;
     boolean reset_;
+    float wn_q_filt_;
 };

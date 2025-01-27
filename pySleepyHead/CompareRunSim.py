@@ -113,10 +113,12 @@ def main():
     if sys.platform == 'win32':
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/test_config.csv'
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/put_on_tilt_wink.csv'
+        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/put_on_tilt_wink.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/full_rate_test.csv'
     else:
         path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
     # unit_key = 'v20250113_pro0n33iot_Rapid'
+    # unit_key = 'v20250113_wearDn33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
     unit_key = 'v20250113_wearDn33iot_Rapid'
     time_end_in = None
