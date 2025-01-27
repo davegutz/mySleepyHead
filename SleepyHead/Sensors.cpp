@@ -54,7 +54,7 @@ void Sensors::filter_head(const boolean reset, const boolean run)
         z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
         g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
         g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_T_Q_FILT));     
-        g_quiet =GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
+        g_quiet = GQuietFilt->calculate(g_qrate, reset, min(T_acc_, MAX_T_Q_FILT));
         static int count = 0;
     }
 
@@ -374,6 +374,8 @@ void Sensors::header_rapid_10()
   Serial.print("freeze,");
   Serial.print("v3v3,");
   Serial.print("head_buzz,");
+  Serial.print("g_quiet,");
+  Serial.print("o_quiet,");
   Serial.println("");
 }
 
@@ -414,6 +416,8 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(LTST_Filter->freeze()); Serial.print(",");
   Serial.print(v3v3_, 4); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
+  Serial.print(g_quiet, 4); Serial.print(",");
+  Serial.print(o_quiet, 4); Serial.print(",");
   Serial.println("");
 }
 
