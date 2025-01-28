@@ -47,7 +47,7 @@ class Device:
     t_kp_def = 10.  # Proportional gain Kp (10.0)
     t_ki_def = 2.  # Integral gain Ki (2.0)
     G_QUIET_THR = 0.06  # g's quiet detection threshold, small is more sensitive (0.06)
-    O_QUIET_THR = 0.4  # rps quiet detection threshold, small is more sensitive (0.4)
+    O_QUIET_THR = 0.8  # rps quiet detection threshold, small is more sensitive (0.4)
     EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
