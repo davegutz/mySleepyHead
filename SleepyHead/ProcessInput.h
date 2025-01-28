@@ -152,7 +152,6 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("\t pp8 - head buzz (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
           Serial.println("\t pp9 - eye buzz (eye_voltage, ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, head_buzz)");
           Serial.println("\t pp10 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
-          Serial.println("r  - soft reset");
           Serial.println("t?<val> - trim attitude");
           Serial.print("\t tg = G quiet thr, small more sensitive ("); Serial.print(*g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t to = O angular speed quiet thr, small more sensitive ("); Serial.print(*o_quiet_thr, 3); Serial.println(")");
@@ -201,9 +200,6 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               Serial.print(cp.inp_str.charAt(1)); Serial.print(" for "); Serial.print(cp.inp_str); Serial.println(" unknown");
               break;
           }
-          break;
-        case ( 'r' ):  // r - reset command toggle
-          *reset = true;
           break;
         case ( 't' ):  // t - trim
           switch ( letter_1 )
