@@ -5,3 +5,4 @@ pySleepyHead/pySleepyHead/__pycache__/MahonyAHRS_Utils.cpython-311.pyc
 *.csv#
 *.ods#
 /SleepyHead/build
+pySleepyHead/dataReduction/kittyHead.csv
