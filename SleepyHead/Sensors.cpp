@@ -376,6 +376,8 @@ void Sensors::header_rapid_10()
   Serial.print("head_buzz,");
   Serial.print("g_quiet,");
   Serial.print("o_quiet,");
+  Serial.print("g_is_quiet_sure,");
+  Serial.print("o_is_quiet_sure,");
   Serial.println("");
 }
 
@@ -418,6 +420,8 @@ void Sensors::print_rapid_10(const float time)
   Serial.print(head_buzz_f_); Serial.print(",");
   Serial.print(g_quiet, 4); Serial.print(",");
   Serial.print(o_quiet, 4); Serial.print(",");
+  Serial.print(g_is_quiet_sure_); Serial.print(",");
+  Serial.print(o_is_quiet_sure_); Serial.print(",");
   Serial.println("");
 }
 

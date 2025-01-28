@@ -62,14 +62,15 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define WN_Q_FILT               5.      // Quiet filter-2 natural frequency, r/s (5.)
 #define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
-#define QUIET_S                0.4      // Quiet set persistence, sec (0.4)
 #define O_QUIET_THR            0.8      // rps quiet detection threshold, small is more sensitive (4.)
 #define G_QUIET_THR           0.06      // g's quiet detection threshold, small is more sensitive (0.3)
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of precursor entries to store (5)
-#define R_SCL                  10.      // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
+const float QUIET_S = 0.4;              // Quiet set persistence, sec (0.4)
+const float R_SCL = 10.;                // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
+const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
 
 const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
 const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
@@ -91,14 +92,13 @@ const float HEAD_R = 0.04;               // Persistence head sense reset, sec (0
 const float SHAKE_S = 0.2;               // Persistence head shake motion sense set, sec (0.2) update time is 0.1
 const float SHAKE_R = 4.0;               // Persistence head shake motion sense reset, sec (4.0)
 
-// Pui 24a
+// Buzzer Pui 24a
 // const int   buzz_freq_grav = 3500;       // Buzzer frequency when gravity detected, Hz (2000)
 // const int   buzz_freq_ir = 3800;        // Buzzer frequency when IR detected, Hz (3000) 
-// Pui x4033
+
+// Buzzer Pui x4033
 const int   buzz_freq_grav = 2800;       // Buzzer frequency when gravity detected, Hz (2800)
 const int   buzz_freq_ir = 3300;        // Buzzer frequency when IR detected, Hz (3300) 
-
-const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
 
 // Analog sensor definitions
 const float v3v3_nom = 3.3;                 // IR detector power supply, v (3.3)

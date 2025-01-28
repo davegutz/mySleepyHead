@@ -43,7 +43,7 @@ class Device:
     TAU_Q_FILT = 0.1  # Quiet rate time constant, sec (0.1)
     QUIET_S = 0.4  # Quiet set persistence, sec (0.4)
     R_SCL = 10.  # Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
-    QUIET_R = QUIET_S / R_SCL  #
+    QUIET_R = QUIET_S / R_SCL  # Quiet reset persistence, calculated
     t_kp_def = 10.  # Proportional gain Kp (10.0)
     t_ki_def = 2.  # Integral gain Ki (2.0)
     G_QUIET_THR = 0.06  # g's quiet detection threshold, small is more sensitive (0.06)
