@@ -219,7 +219,7 @@ void request_plot(const uint8_t plot_num, Sensors *Sen, const boolean reset)
       Sen->print_rapid(reset, true, Sen->time_eye_s());  // pp10
       break;
     default:
-      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
+      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream)");
       break;
   }
 }
@@ -266,9 +266,13 @@ boolean turn_off_motor_and_led()
 }
 
 // Motor on
-boolean turn_on_motor_and_led()
+boolean turn_on_motor_and_led(const boolean enable)
 {
-  digitalWrite(motorPin, HIGH);
-  digitalWrite(LED_BUILTIN, HIGH);
-  return true;
+  if ( enable )
+  {
+    digitalWrite(motorPin, HIGH);
+    digitalWrite(LED_BUILTIN, HIGH);
+    return true;
+  }
+  else return false;
 }

@@ -495,6 +495,7 @@ public:
   ~LongTermShortTerm_Filter();
   void assign_coeff(const double T);
   boolean calculate(const double in, const boolean RESET, const double T);
+  boolean calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T);
   double cf() { return (cf_); };
   double dltst() { return (dltst_); };
   boolean freeze() { return (freeze_); };
@@ -502,12 +503,18 @@ public:
   double get_fault_thr_pos() { return (flt_thr_pos_); };
   double get_freeze_thr_neg() { return (frz_thr_neg_); };
   double get_freeze_thr_pos() { return (frz_thr_pos_); };
+  double get_klt() { return (klt_); };
+  double get_kst() { return (kst_); };
+  double get_tau_lt() { return (tau_lt_); };
+  double get_tau_st() { return (tau_st_); };
   double lt_state() { return (lt_state_); };
   void pretty_print();
   void set_fault_thr_neg(const double input) { flt_thr_neg_ = input; };
   void set_fault_thr_pos(const double input) { flt_thr_pos_ = input; };
   void set_freeze_thr_neg(const double input) { frz_thr_neg_ = input; };
   void set_freeze_thr_pos(const double input) { frz_thr_pos_ = input; };
+  void set_tau_lt(const double input) { tau_lt_ = input; klt_ = T_ / tau_lt_; };
+  void set_tau_st(const double input) { tau_st_ = input; kst_ = T_ / tau_st_; };
   double st_state() { return (st_state_); };
 protected:
   double cf_;

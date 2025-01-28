@@ -27,6 +27,7 @@
 uint8_t plot_num = 10;
 boolean monitoring = false;
 boolean plotting_all = true;
+boolean enable_motor = false;
 Tone buzz = Tone(buzzerPin);
 CommandPars cp = CommandPars();       // Various control parameters commanding at system level.  Initialized on start up.  Not retained.
 
@@ -96,7 +97,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               Serial.print(letter_0); Serial.println(" unknown");
               break;
           }
-          break;          
+          break;
         case ( 'b' ):  // b - buzz
           switch ( letter_1 )
           {
@@ -121,6 +122,35 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               break;
           }
           break;          
+        case ( 'e' ):  // e - enable
+          switch ( letter_1 )
+          {
+            case ( 'm' ):  // em enable motor buzz
+              enable_motor = !enable_motor;
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;          
+        case ( 'f' ):  // f - filter adjust
+          switch ( letter_1 )
+          {
+            case ( 'l' ):  // fl - tau_lt
+              Serial.print("Tau lt from "); Serial.print(Sen->LTST_Filter->get_tau_lt(), 3);
+              Sen->LTST_Filter->set_tau_lt(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_tau_lt(), 3);
+              break;
+            case ( 's' ):  // fs - tau_st
+              Serial.print("Tau st from "); Serial.print(Sen->LTST_Filter->get_tau_st(), 3);
+              Sen->LTST_Filter->set_tau_lt(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_tau_lt(), 3);
+              break;
+           default:
+              Serial.print(letter_0); Serial.println(" unknown");
+              break;
+          }
+          break;
         case ( 'h' ):  // h  - help
           plotting_all = false;
           monitoring = false;
@@ -136,22 +166,27 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("b?<val> - buzz preferences");
           Serial.print("\t bi = ir sensor freq, Hz ("); Serial.print(buzz.irFreq()); Serial.println(")");
           Serial.print("\t bg = gravity sensor freq, Hz ("); Serial.print(buzz.gravityFreq()); Serial.println(")");
+          Serial.println("e? - enable toggles");
+          Serial.print("\t em - enable motor buzz("); Serial.print(enable_motor); Serial.println(")");
+          Serial.println("f?<val> - filter adjust");
+          Serial.print("\t fl = tau_lt ("); Serial.print(Sen->LTST_Filter->get_tau_lt(), 3); Serial.println(")");
+          Serial.print("\t fs = tau_st ("); Serial.print(Sen->LTST_Filter->get_tau_st(), 3); Serial.println(")");
           Serial.println("h - this help");
           Serial.println("P? - Print stuff");
           Serial.println("\t PL - LTST Filter");
           Serial.println("pp? - plot all version X");
           Serial.println("\t pp-1 - stop plotting");
-          Serial.println("\t pp0 - summary (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
-          Serial.println("\t pp1 - g sensors (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
-          Serial.println("\t pp2 - rotational sensors (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
-          Serial.println("\t pp3 - all sensors (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
-          Serial.println("\t pp4 - quiet results ( T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
-          Serial.println("\t pp5 - quiet filtering metrics (o_quiet, g_quiet)");
-          Serial.println("\t pp6 - total (T_rot, o_filt, T_acc, g_filt)");
-          Serial.println("\t pp7 - roll-pitch-yaw(T_acc, tx_raw, ty_raw, tz_raw, roll_filt, pitch_filt, yaw_filt, q0, q1, q2, q3)");
-          Serial.println("\t pp8 - head buzz (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
-          Serial.println("\t pp9 - eye buzz (eye_voltage, ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, head_buzz)");
-          Serial.println("\t pp10 - stream buzz (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
+          Serial.println("\t pp0 - summ:      (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
+          Serial.println("\t pp1 - acc:       (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");
+          Serial.println("\t pp2 - rot:       (T_rot, a_filt, b_filt, c_filt, o_filt, o_is_quiet, o_is_quiet_sure)");
+          Serial.println("\t pp3 - all sen:   (x_filt, y_filt, z_filt, g_filt, a_filt, b_filt, c_filt, o_filt)");
+          Serial.println("\t pp4 - quiet:     (T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
+          Serial.println("\t pp5 - quiet raw: (o_quiet, g_quiet)");
+          Serial.println("\t pp6 - total:     (T_rot, o_filt, T_acc, g_filt)");
+          Serial.println("\t pp7 - rpy:       (T_acc, tx_raw, ty_raw, tz_raw, roll_filt, pitch_filt, yaw_filt, q0, q1, q2, q3)");
+          Serial.println("\t pp8 - head buzz: (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
+          Serial.println("\t pp9 - eye buzz:  (ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, eye_cf)");
+          Serial.println("\t pp10- stream:    (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
           Serial.println("t?<val> - trim attitude");
           Serial.print("\t tg = G quiet thr, small more sensitive ("); Serial.print(*g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t to = O angular speed quiet thr, small more sensitive ("); Serial.print(*o_quiet_thr, 3); Serial.println(")");
@@ -182,7 +217,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
         case ( 'p' ):  // p - plot
           switch ( letter_1 )
           {
-            case ( 'p' ):  // pp - plot all filtered
+            case ( 'p' ):  // pp - plot all filtered pp0, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9, pp10
               switch ( i_value )
               {
                 case 0 ... 10:
@@ -191,7 +226,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (buzz list)");
+                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream)");
                   plotting_all = false;
                   break;
               }

@@ -124,21 +124,21 @@ public:
     void pitch_thr(const float pitch_thr) { pitch_thr_f_ = pitch_thr; };
     void roll_thr(const float roll_thr) { roll_thr_f_ = roll_thr; };
     float roll_thr() { return roll_thr_f_; };
-    void plot_all();
-    void plot_all_acc();
-    void plot_all_rot();
-    void plot_all_rpy();
-    void plot_all_sum();
-    void plot_eye_buzz();
-    void plot_head_buzz();
-    void plot_quiet();
-    void plot_quiet_raw();
-    void plot_total();
+    void plot_all();  // pp3
+    void plot_all_acc();  // pp1
+    void plot_all_rot();  // pp2
+    void plot_all_rpy();  // pp7
+    void plot_all_sum();  // pp0
+    void plot_eye_buzz();  // pp9
+    void plot_head_buzz();  // pp8
+    void plot_quiet();  // pp4
+    void plot_quiet_raw();  // pp5
+    void plot_total();  // pp6
     void pretty_print_head();
     void print_all_header();
     void print_all();
     void print_rapid(const boolean reset, const boolean print_now, const float time_s);  // pp10
-    void print_rapid_10(const float time_s);
+    void print_rapid_10(const float time_s);  // pp10
     void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
     void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
     void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);

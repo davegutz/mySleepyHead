@@ -226,8 +226,8 @@ void Sensors::plot_head_buzz()  // plot pp8
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
   Serial.print("\thead_buzz_f:"); Serial.print(head_buzz_f_);
   Serial.print("\thead_buzz_p:"); Serial.print(head_buzz_p_);
-  Serial.print("\teye_cf:"); Serial.print(LTST_Filter->cf(), 3);
-  Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
+  Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
+  Serial.print("\teye_buzz+5:"); Serial.print(eye_buzz_+5);
   // Serial.print("\t HeadShakePer:"); HeadShakePer->repr();
   Serial.println("");
 }
@@ -241,10 +241,10 @@ void Sensors::plot_eye_buzz()  // plot pp9
   Serial.print("\tdltst:"); Serial.print(LTST_Filter->dltst(), 3);
   Serial.print("\teye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
-  Serial.print("\teye_buzz:"); Serial.print(eye_buzz_);
+  Serial.print("\teye_buzz+5:"); Serial.print(eye_buzz_+5);
   Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
-  Serial.print("\teye_cf:"); Serial.print(LTST_Filter->cf(), 3);
+  Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
   Serial.println("");
 }
 
@@ -271,7 +271,7 @@ void Sensors::plot_quiet()  // plot pp4
 }
 
 // Print publish
-void Sensors::plot_quiet_raw()
+void Sensors::plot_quiet_raw()  // pp5
 {
   Serial.print("o_quiet:"); Serial.print(o_quiet, 3);
   Serial.print("\t\tg_quiet:"); Serial.print(g_quiet, 3);
@@ -279,7 +279,7 @@ void Sensors::plot_quiet_raw()
 }
 
 // Print publish
-void Sensors::plot_total()
+void Sensors::plot_total()  // pp6
 {
   Serial.print("T_rot_*10:"); Serial.print(T_rot_*10., 3);
   Serial.print("\to_filt:"); Serial.print(o_filt, 3);
@@ -337,7 +337,7 @@ void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, cons
   static int count = 0;
 }
 
-// Print pp9 header
+// Print pp10 header
 void Sensors::header_rapid_10()
 {
   Serial.print("key_Rapid,");
@@ -383,8 +383,8 @@ void Sensors::header_rapid_10()
   Serial.println("");
 }
 
-// Print pp9
-void Sensors::print_rapid_10(const float time)
+// Print pp10
+void Sensors::print_rapid_10(const float time)  // pp10
 {
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(reset_); Serial.print(",");
@@ -437,11 +437,11 @@ void Sensors::print_rapid(const boolean reset, const boolean print_now, const fl
   {
     if ( reset || (last_read_debug != debug) )
     {
-      header_rapid_10();
+      header_rapid_10();  // pp10
     }
     if ( print_now )
     {
-      print_rapid_10(time_s);
+      print_rapid_10(time_s);  // pp10
     }
   }
   last_read_debug = debug;

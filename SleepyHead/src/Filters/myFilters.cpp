@@ -853,10 +853,19 @@ void LongTermShortTerm_Filter::assign_coeff(const double T)
   kst_ = T_ / tau_st_;
 }
 
+boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T)
+{
+  tau_lt_ = tau_lt;
+  tau_st_ = tau_st;
+  return LongTermShortTerm_Filter::calculate(in, RESET, T);
+}
+
 boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double T)
 {
   RESET_ = RESET;
   T_ = T;
+  klt_ = T_ / tau_lt_;
+  kst_ = T_ / tau_st_;
   input_ = in;
   assign_coeff(T_);
   if ( RESET_ )
