@@ -54,6 +54,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define PUBLISH_DELAY        100UL      // Publish wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
+#define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
 #define G_MAX                   4.      // Max G value, g's (4.) limit of hardware 
 #define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
