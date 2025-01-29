@@ -37,6 +37,7 @@ class Device:
     FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01)
     G_MAX = 4.  # Max G value, g's (4.)
     W_MAX = 34.9  # Max G value, g's (34.9)
+    TAU_E_FILT = 0.1  # Tau rate filter, sec (0.1)
     TAU_FILT = 0.1  # Tau filter, sec (0.1)
     WN_Q_FILT = 5.  # Quiet filter-2 natural frequency, r/s (5.)
     ZETA_Q_FILT = 0.9  # Quiet fiter-2 damping factor (0.9)

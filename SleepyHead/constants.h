@@ -58,6 +58,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define G_MAX                   4.      // Max G value, g's (4.) limit of hardware 
 #define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
+#define TAU_E_FILT             0.1      // Eye filter time constant, sec (0.1)
 #define TAU_FILT               0.1      // Tau filter, sec (0.1)
 #define TAU_Q_FILT             0.1      // Quiet rate time constant, sec (0.1)
 #define WN_Q_FILT               5.      // Quiet filter-2 natural frequency, r/s (5.)

@@ -154,6 +154,10 @@ class SavedData:
             self.g_quiet = None
             self.g_is_quiet = None
             self.g_is_quiet_sure = None
+            self.yaw_filt = None
+            self.roll_rate = None
+            self.pitch_rate = None
+            self.yaw_rate = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -249,6 +253,10 @@ class SavedData:
             self.update_from_other(data, 'g_quiet')
             self.update_from_other(data, 'g_is_quiet')
             self.update_from_other(data, 'g_is_quiet_sure')
+            self.update_from_other(data, 'yaw_filt')
+            self.update_from_other(data, 'roll_rate')
+            self.update_from_other(data, 'pitch_rate')
+            self.update_from_other(data, 'yaw_rate')
 
         if sel is None:
             self.c_time_s = None

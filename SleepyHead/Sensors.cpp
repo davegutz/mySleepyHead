@@ -36,6 +36,7 @@ void Sensors::filter_eye(const boolean reset)
     eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE));
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
+    eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));     
 
     // Eye buzz
     eye_buzz_ = eye_closed_confirmed_;
@@ -83,9 +84,15 @@ void Sensors::filter_head(const boolean reset, const boolean run)
       if ( count == 0 ) turn = !turn;
     }
 
+    // RPY
     roll_filt = TrackFilter->getRoll() + delta_roll_;
     pitch_filt = TrackFilter->getPitch() + delta_pitch_;
     yaw_filt = TrackFilter->getYaw();
+
+    // Rates
+    roll_rate_ = RollRateFilt->calculate(TrackFilter->getRoll(), reset, min(T_rot_, MAX_DT_HEAD));
+    pitch_rate_ = PitchRateFilt->calculate(TrackFilter->getPitch(), reset, min(T_rot_, MAX_DT_HEAD));
+    yaw_rate_ = YawRateFilt->calculate(TrackFilter->getYaw(), reset, min(T_rot_, MAX_DT_HEAD));
 
     // Head sensor
     max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
@@ -364,6 +371,7 @@ void Sensors::header_rapid_10()
   Serial.print("pitch_filt,");
   Serial.print("delta_roll,");
   Serial.print("roll_filt,");
+  Serial.print("yaw_filt,");
   Serial.print("head_buzz_f,");
   Serial.print("head_buzz_p,");
   Serial.print("eye_buzz,");
@@ -380,6 +388,9 @@ void Sensors::header_rapid_10()
   Serial.print("o_is_quiet_sure,");
   Serial.print("g_is_quiet_,");
   Serial.print("o_is_quiet_,");
+  Serial.print("roll_rate,");
+  Serial.print("pitch_rate,");
+  Serial.print("yaw_rate,");
   Serial.println("");
 }
 
@@ -410,6 +421,7 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.print(pitch_filt, 3); Serial.print(",");
   Serial.print(delta_roll_, 3); Serial.print(",");
   Serial.print(roll_filt, 3); Serial.print(",");
+  Serial.print(yaw_filt, 3); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
   Serial.print(head_buzz_p_); Serial.print(",");
   Serial.print(eye_buzz_); Serial.print(",");
@@ -426,6 +438,9 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.print(o_is_quiet_sure_); Serial.print(",");
   Serial.print(g_is_quiet_); Serial.print(",");
   Serial.print(o_is_quiet_); Serial.print(",");
+  Serial.print(roll_rate_, 3); Serial.print(",");
+  Serial.print(pitch_rate_, 3); Serial.print(",");
+  Serial.print(yaw_rate_, 3); Serial.print(",");
   Serial.println("");
 }
 

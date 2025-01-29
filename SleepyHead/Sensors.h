@@ -96,7 +96,12 @@ public:
         HeadNodPerP = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
         EyeClosedPer = new TFDelay(false, EYE_S, EYE_R, Tfilt_eye_init); 
         GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
-        HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init); 
+        HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init);
+        EyeRateFilt = new RateLagExp(Tfilt_head_init, TAU_E_FILT, -v3v3_nom, v3v3_nom);
+        RollRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        PitchRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        YawRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+
     };
 
     unsigned long long millis;
@@ -116,6 +121,7 @@ public:
     void header_rapid_10();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
+    float eye_rate() { return eye_rate_; };
     boolean head_buzz_f() { return head_buzz_f_; };
     boolean head_buzz_p() { return head_buzz_p_; };
     float max_nod_forte_confirmed() { return max_nod_f_confirmed_; };
@@ -191,8 +197,12 @@ protected:
     LagExp *Y_Filt;     // Noise filter
     LagExp *Z_Filt;     // Noise filter
     LagExp *G_Filt;     // Noise filter
-    General2_Pole *GQuietFilt; // Quiet detector
-    RateLagExp *GQuietRate;    // Quiet detector
+    General2_Pole *GQuietFilt;  // Quiet detector
+    RateLagExp *GQuietRate;     // Quiet detector
+    RateLagExp *EyeRateFilt;    // Rate detector
+    RateLagExp *RollRateFilt;   // Rate detector
+    RateLagExp *PitchRateFilt;  // Rate detector
+    RateLagExp *YawRateFilt;    // Rate detector
     TFDelay *GQuietPer; // Persistence ib quiet disconnect detection
     TFDelay *EyeClosedPer; // Persistence eye closed detection
     TFDelay *HeadNodPerF;  // Persistence forte head nod detection
@@ -240,4 +250,8 @@ protected:
     boolean max_nod_p_confirmed_;
     boolean reset_;
     float wn_q_filt_;
+    float eye_rate_;
+    float roll_rate_;
+    float pitch_rate_;
+    float yaw_rate_;
 };
