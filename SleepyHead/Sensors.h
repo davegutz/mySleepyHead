@@ -91,7 +91,7 @@ public:
         GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, -G_MAX, G_MAX);
         GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         TrackFilter = new Mahony(t_kp, t_ki);
-        LTST_Filter = new LongTermShortTerm_Filter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS);
+        LTST_Filter = new LongTermShortTerm_ExpFilter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS);
         HeadNodPerF = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
         HeadNodPerP = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
         EyeClosedPer = new TFDelay(false, EYE_S, EYE_R, Tfilt_eye_init); 
@@ -178,7 +178,7 @@ public:
     float pitch_filt;
     float yaw_filt;
     Mahony *TrackFilter;   // Mahony tracking filter
-    LongTermShortTerm_Filter *LTST_Filter;  // LTST filter
+    LongTermShortTerm_ExpFilter *LTST_Filter;  // LTST filter
 protected:
     LagExp *A_Filt;     // Noise filter
     LagExp *B_Filt;     // Noise filter

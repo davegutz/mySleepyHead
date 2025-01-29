@@ -357,7 +357,7 @@ class LagExp : public DiscreteFilter
 {
 public:
   LagExp();
-  LagExp(const double T, const double tau, const double min, const double max);
+  LagExp(const double T, const double tau, const double min, const double max, const double min, const double max);
   ~LagExp();
   //operators
   //functions
@@ -496,26 +496,26 @@ public:
   void assign_coeff(const double T);
   boolean calculate(const double in, const boolean RESET, const double T);
   boolean calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T);
-  double cf() { return (cf_); };
-  double dltst() { return (dltst_); };
-  boolean freeze() { return (freeze_); };
-  double get_fault_thr_neg() { return (flt_thr_neg_); };
-  double get_fault_thr_pos() { return (flt_thr_pos_); };
-  double get_freeze_thr_neg() { return (frz_thr_neg_); };
-  double get_freeze_thr_pos() { return (frz_thr_pos_); };
+  virtual double cf() { return (cf_); };
+  virtual double dltst() { return (dltst_); };
+  virtual boolean freeze() { return (freeze_); };
+  virtual double get_fault_thr_neg() { return (flt_thr_neg_); };
+  virtual double get_fault_thr_pos() { return (flt_thr_pos_); };
+  virtual double get_freeze_thr_neg() { return (frz_thr_neg_); };
+  virtual double get_freeze_thr_pos() { return (frz_thr_pos_); };
   double get_klt() { return (klt_); };
   double get_kst() { return (kst_); };
-  double get_tau_lt() { return (tau_lt_); };
-  double get_tau_st() { return (tau_st_); };
-  double lt_state() { return (lt_state_); };
-  void pretty_print();
-  void set_fault_thr_neg(const double input) { flt_thr_neg_ = input; };
-  void set_fault_thr_pos(const double input) { flt_thr_pos_ = input; };
-  void set_freeze_thr_neg(const double input) { frz_thr_neg_ = input; };
-  void set_freeze_thr_pos(const double input) { frz_thr_pos_ = input; };
+  virtual double get_tau_lt() { return (tau_lt_); };
+  virtual double get_tau_st() { return (tau_st_); };
+  virtual double lt_state() { return (lt_state_); };
+  virtual void pretty_print();
+  virtual void set_fault_thr_neg(const double input) { flt_thr_neg_ = input; };
+  virtual void set_fault_thr_pos(const double input) { flt_thr_pos_ = input; };
+  virtual void set_freeze_thr_neg(const double input) { frz_thr_neg_ = input; };
+  virtual void set_freeze_thr_pos(const double input) { frz_thr_pos_ = input; };
   void set_tau_lt(const double input) { tau_lt_ = input; klt_ = T_ / tau_lt_; };
   void set_tau_st(const double input) { tau_st_ = input; kst_ = T_ / tau_st_; };
-  double st_state() { return (st_state_); };
+  virtual double st_state() { return (st_state_); };
 protected:
   double cf_;
   double dltst_;
@@ -534,6 +534,26 @@ protected:
   double T_;
   double tau_lt_;
   double tau_st_;
+};
+
+
+class LongTermShortTerm_ExpFilter : public LongTermShortTerm_Filter
+{
+public:
+  LongTermShortTerm_ExpFilter();
+  LongTermShortTerm_ExpFilter(const double T, const double tau_lt, const double tau_st,
+    const double flt_thr_neg, const double frz_thr_neg, const double flt_thr_pos, const double frz_thr_pos,
+    const double minv, const double maxv, const double min, const double max);
+  ~LongTermShortTerm_ExpFilter();
+  void assign_coeff(const double T);
+  boolean calculate(const double in, const boolean RESET, const double T);
+  boolean calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T);
+  void pretty_print();
+  void set_tau_lt(const double input) { tau_lt_ = input; };
+  void set_tau_st(const double input) { tau_st_ = input; };
+protected:
+  LagExp *lt_;
+  LagExp *st_;
 };
 
 
