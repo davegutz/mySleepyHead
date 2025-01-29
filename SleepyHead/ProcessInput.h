@@ -143,8 +143,8 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               break;
             case ( 's' ):  // fs - tau_st
               Serial.print("Tau st from "); Serial.print(Sen->LTST_Filter->get_tau_st(), 3);
-              Sen->LTST_Filter->set_tau_lt(f_value);
-              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_tau_lt(), 3);
+              Sen->LTST_Filter->set_tau_st(f_value);
+              Serial.print(" to "); Serial.println(Sen->LTST_Filter->get_tau_st(), 3);
               break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");

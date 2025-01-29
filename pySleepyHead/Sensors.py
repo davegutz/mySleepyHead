@@ -29,7 +29,7 @@ class Device:
     MAX_DT_HEAD = 0.2  # Maximum filter update time in call to prevent aliasing, sec (0.2)
     HEAD_S = 0.04  # Persistence head sense set, sec (0.04)  Head needs little; heavily filtered by Mahony
     HEAD_R = 0.04  # Persistence head sense reset, sec (0.04)
-    TAU_ST = 0.4  # Short term filter time constant, sec (0.4)
+    TAU_ST = 0.1  # Short term filter time constant, sec (0.1)
     TAU_LT = 20.  # Long term filter time constant, sec (20)
     FLT_THR_NEG = -1.3e6  # hardcoded in C++
     FRZ_THR_NEG = -0.3e6  # hardcoded in C++

@@ -914,6 +914,8 @@ void LongTermShortTerm_Filter::pretty_print()
 {
   Serial.println("LTST:");
   Serial.print("\tinput\t\t"); Serial.println(input_, 4);
+  Serial.print("\ttau_lt\t\t"); Serial.println(tau_lt_, 4);
+  Serial.print("\ttau_st\t\t"); Serial.println(tau_st_, 4);
   Serial.print("\tlt_state\t"); Serial.println(lt_state_, 4);
   Serial.print("\tst_state\t"); Serial.println(st_state_, 4);
   Serial.print("\tdltst\t\t"); Serial.println(dltst_, 4);
