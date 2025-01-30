@@ -4,7 +4,10 @@ from pyquaternion import Quaternion as Qu
 from MahonyAHRS_Mathworks import MahonyAHRS_MW
 from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, \
     quaternion_to_g, ppv3, ppv4
-from Sensors import Device
+
+
+class Device:
+    NOMINAL_DT = 0.1
 
 
 class MahonyAHRS:
@@ -155,7 +158,7 @@ class MahonyAHRS:
         if verbose:
             print('   time mo.eye_voltage_norm ')
             print('time=', now)
-            print('Sensors:  ', str(self.LTST_Filter))
+            print('Sensors:  ', str(self.__str__()))
 
         return self.saved
 
