@@ -4,6 +4,7 @@ from pyquaternion import Quaternion as Qu
 from MahonyAHRS_Mathworks import MahonyAHRS_MW
 from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, \
     quaternion_to_g, ppv3, ppv4
+from Sensors import Device
 
 
 class MahonyAHRS:
@@ -16,7 +17,9 @@ class MahonyAHRS:
     #   28/09/2011    SOH Madgwick    Initial release
     """
     ## Public properties
-    def __init__(self, sample_period=None, quaternion=None, kp=None, ki=None):
+    def __init__(self, data=None, sample_period=None, quaternion=None, kp=None, ki=None):
+        self.Data = data
+        self.reset = None
         if sample_period is None:
             self.sample_period = 1./256.
         else:
@@ -56,7 +59,106 @@ class MahonyAHRS:
         self.acc_x_ = 0.
         self.acc_y_ = 0.
         self.acc_z_= 0.
+        self.ifb_x = 0.
+        self.ifb_y = 0.
+        self.ifb_z = 0.
+        self.q0 = 0.
+        self.q1 = 0.
+        self.q2 = 0.
+        self.q3 = 0.
+        self.roll_deg = 0.
+        self.pitch_deg = 0.
+        self.yaw_deg = 0.
         self.label = "pp7 Mahony AHRS"
+        self.time = 0.
+        self.saved = Saved()  # for plots and prints
+
+    def __repr__(self):
+        s = "MahonyAHRS:\n"
+        s += "  reset =  {:2d}".format(self.reset)
+        s += "  T   =  {:5.1f}".format(self.T)
+        s += "  ki = {:5.1f} kp = {:5.1f}".format(self.Ki, self.Kp)
+        s += "  [x_raw, y_, z_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.acc_x_, self.acc_y_, self.acc_z_)
+        s += "  [a_raw, b_, c_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.gyr_x_, self.gyr_y_, self.gyr_z_)
+        s += "  [halfex, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.halfex_, self.halfey_, self.halfez_)
+        s += "  [halfvx, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.halfvx_, self.halfvy_, self.halfvz_)
+        s += "  [ifb_x, _y, _z] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.ifb_x, self.ifb_y, self.ifb_z)
+        s += "  [q0, q1, q2, q3]=  [ {:5.3f}, {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.q0, self.q1, self.q2, self.q3)
+        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ]".format(self.roll_, self.pitch_, self.yaw_)
+        s += "  [roll, pitch, yaw]=[ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.roll_deg, self.pitch_deg, self.yaw_deg)
+        return s
+
+    def __str__(self, prefix=''):
+        s = prefix + "MahonyAHRS:\n"
+        s += "  reset =  {:2d}  // s\n".format(self.reset)
+        s += "  T   =  {:5.1f}  // s\n".format(self.T)
+        s += "  ki = {:5.1f} kp = {:5.1f}  // s\n".format(self.Ki, self.Kp)
+        s += "  [x_raw, y_, z_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // g's\n".format(self.acc_x_, self.acc_y_, self.acc_z_)
+        s += "  [a_raw, b_, c_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // dps\n".format(self.gyr_x_, self.gyr_y_, self.gyr_z_)
+        s += "  [halfex, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.halfex_, self.halfey_, self.halfez_)
+        s += "  [halfvx, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.halfvx_, self.halfvy_, self.halfvz_)
+        s += "  [ifb_x, _y, _z] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.ifb_x, self.ifb_y, self.ifb_z)
+        s += "  [q0, q1, q2, q3]=  [ {:5.3f}, {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.q0, self.q1, self.q2, self.q3)
+        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ] // rad\n".format(self.roll_, self.pitch_, self.yaw_)
+        s += "  [roll, pitch, yaw]=[ {:5.3f}, {:5.3f}, {:5.3f} ] // deg\n".format(self.roll_deg, self.pitch_deg, self.yaw_deg)
+        return s
+
+    def calculate(self, init_time=-4., verbose=True, t_max=None):
+        """Filter data set and calculate candidate filter"""
+        t = self.Data.time
+        if t_max is not None:
+            t_delt = t - t[0]
+            t = t[np.where(t_delt <= t_max)]
+        t_len = len(t)
+
+        # time loop
+        now = t[0]
+        for i in range(t_len):
+            now = t[i]
+            self.reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
+            self.Data.i = i
+            self.time = now
+
+            # Inputs
+            accelerometer = np.array([ self.Data.x_raw[i], self.Data.y_raw[i], self.Data.z_raw[i] ])
+            gyroscope = np.array([ self.Data.a_raw[i], self.Data.b_raw[i], self.Data.c_raw[i] ])
+
+            # Update time
+            self.T = None
+            if i == 0:
+                self.T = t[1] - t[0]
+            else:
+                candidate_dt = t[i] - t[i - 1]
+                if candidate_dt > 1e-6:
+                    self.T = candidate_dt
+                else:
+                    self.T = Device.NOMINAL_DT
+
+            # Run filters
+            self.updateIMU(accelerometer=accelerometer, gyroscope=gyroscope, sample_time=self.T, reset=self.reset)
+
+            # Log
+            self.save(t[i], self.T)
+
+            # Print initial
+            if i == 0 and verbose:
+                print('time=', t[i])
+            if verbose:
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
+                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
+                # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
+                self.__repr__()
+
+        # Data
+        if verbose:
+            print('   time mo.eye_voltage_norm ')
+            print('time=', now)
+            print('Sensors:  ', str(self.LTST_Filter))
+
+        return self.saved
+
 
     def getPitch(self):
         return self.pitch_
@@ -75,6 +177,37 @@ class MahonyAHRS:
             print(f"\trot_raw: [ {self.gyr_vec[0]:6.4f}, {self.gyr_vec[1]:6.4f}, {self.gyr_vec[2]:6.4f} ], rps; ", end='')
             print(f"\thalfe: [ {self.halfe[0]:6.3f}, {self.halfe[1]:6.3f}, {self.halfe[2]:6.3f} ],", end='')
             print(f"\tquat: [ {self.quat[0]:6.3f}, {self.quat[1]:6.3f}, {self.quat[2]:6.3f}, {self.quat[3]:6.3f} ]")
+
+    def save(self, time, dt):  # Filter
+        """Log Sensors"""
+        self.saved.reset.append(self.reset)
+        self.saved.time.append(time)
+        self.saved.T.append(dt)
+        self.saved.a_raw.append(self.gyr_x_)
+        self.saved.b_raw.append(self.gyr_y_)
+        self.saved.c_raw.append(self.gyr_z_)
+        self.saved.x_raw.append(self.acc_x_)
+        self.saved.y_raw.append(self.acc_y_)
+        self.saved.z_raw.append(self.acc_z_)
+        self.saved.halfex.append(self.halfex_)
+        self.saved.halfey.append(self.halfey_)
+        self.saved.halfez.append(self.halfez_)
+        self.saved.halfvx.append(self.halfvx_)
+        self.saved.halfvy.append(self.halfvy_)
+        self.saved.halfvz.append(self.halfvz_)
+        self.saved.ifb_x.append(self.ifb_x)
+        self.saved.ifb_y.append(self.ifb_y)
+        self.saved.ifb_z.append(self.ifb_z)
+        self.saved.q0.append(self.q0)
+        self.saved.q1.append(self.q1)
+        self.saved.q2.append(self.q2)
+        self.saved.q3.append(self.q3)
+        self.saved.roll.append(self.roll_)
+        self.saved.pitch.append(self.pitch_)
+        self.saved.yaw.append(self.yaw_)
+        self.saved.roll_deg.append(self.roll_deg)
+        self.saved.pitch_deg.append(self.pitch_deg)
+        self.saved.yaw_deg.append(self.yaw_deg)
 
     def updateIMU(self, accelerometer, gyroscope, sample_time, reset):
         q = self.quat # short name local variable for readability
@@ -162,6 +295,42 @@ class MahonyAHRS:
         print("euler deg: ", self.euler321_vec_deg)
         # self.pp8()
         # print(f"{self.accel_vec=}")
+
+class Saved:
+    # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
+    def __init__(self):
+        self.reset = []
+        self.time = []
+        self.T = []
+        self.a_raw = []
+        self.b_raw = []
+        self.c_raw = []
+        self.o_raw = []
+        self.x_raw = []
+        self.y_raw = []
+        self.z_raw = []
+        self.g_raw = []
+        self.halfex = []
+        self.halfey = []
+        self.halfez = []
+        self.halfvx = []
+        self.halfvy = []
+        self.halfvz = []
+        self.ifb_x = []
+        self.ifb_y = []
+        self.ifb_z = []
+        self.q0 = []
+        self.q1 = []
+        self.q2 = []
+        self.q3 = []
+        self.roll = []
+        self.pitch = []
+        self.yaw = []
+        self.roll_deg = []
+        self.pitch_deg = []
+        self.yaw_deg = []
+        self.ki = []
+        self.ki = []
 
 
 def main():

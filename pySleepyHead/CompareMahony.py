@@ -37,8 +37,8 @@ if sys.platform == 'darwin':
 plt.rcParams['axes.grid'] = True
 
 
-def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=False, init_time_in=None):
-    print(f"\ncompare_run_sim:\n{data_file=}\n{unit_key=}\n{time_end_in=}\n{data_only=}\n")
+def compare_Mahony(data_file=None, unit_key=None, time_end_in=None, data_only=False, init_time_in=None):
+    print(f"\ncompare_Mahony:\n{data_file=}\n{unit_key=}\n{time_end_in=}\n{data_only=}\n")
 
     date_time = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
     date_ = datetime.now().strftime("%y%m%d")
@@ -83,7 +83,7 @@ def compare_run_sim(data_file=None, unit_key=None, time_end_in=None, data_only=F
         return None, None, None, None, None, None
 
     # New run
-    patch = Sensors(mon_old)
+    patch = MahonyAHRS(mon_old)
     mon_ver = patch.calculate(init_time=init_time)
 
     # Plots
@@ -130,8 +130,8 @@ def main():
     data_only = False
     init_time_in = 0.
 
-    compare_run_sim(data_file=path_to_data, unit_key=unit_key, data_only=data_only, time_end_in=time_end_in,
-                    init_time_in=init_time_in)
+    compare_Mahony(data_file=path_to_data, unit_key=unit_key, data_only=data_only, time_end_in=time_end_in,
+                   init_time_in=init_time_in)
 
 
 # import cProfile

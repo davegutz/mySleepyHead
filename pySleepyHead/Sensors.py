@@ -88,7 +88,7 @@ class Sensors:
                                        min_=-Device.D_MAX, max_=Device.D_MAX)
         self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.D_MAX, Device.D_MAX)
         self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
-        self.TrackFilter = MahonyAHRS(sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
+        self.TrackFilter = MahonyAHRS(self.data, sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
 
         # Eye filters
         self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,

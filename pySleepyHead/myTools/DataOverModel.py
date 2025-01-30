@@ -159,6 +159,24 @@ class SavedData:
             self.pitch_rate = None
             self.yaw_rate = None
             self.eye_rate = None
+            self.halfex = None
+            self.halfey = None
+            self.halfez = None
+            self.halfvx = None
+            self.halfvy = None
+            self.halfvz = None
+            self.ifb_x = None
+            self.ifb_y = None
+            self.ifb_z = None
+            self.q0 = None
+            self.q1 = None
+            self.q2 = None
+            self.q3 = None
+            self.roll_deg = None
+            self.pitch_deg = None
+            self.yaw_deg = None
+            self.ki = None
+            self.kp = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -259,6 +277,24 @@ class SavedData:
             self.update_from_other(data, 'pitch_rate')
             self.update_from_other(data, 'yaw_rate')
             self.update_from_other(data, 'eye_rate')
+            self.update_from_other(data, 'halfex')
+            self.update_from_other(data, 'halfey')
+            self.update_from_other(data, 'halfez')
+            self.update_from_other(data, 'halfvx')
+            self.update_from_other(data, 'halfvy')
+            self.update_from_other(data, 'halfvz')
+            self.update_from_other(data, 'ifb_x')
+            self.update_from_other(data, 'ifb_y')
+            self.update_from_other(data, 'ifb_z')
+            self.update_from_other(data, 'q0')
+            self.update_from_other(data, 'q1')
+            self.update_from_other(data, 'q2')
+            self.update_from_other(data, 'q3')
+            self.update_from_other(data, 'roll_deg')
+            self.update_from_other(data, 'pitch_deg')
+            self.update_from_other(data, 'yaw_deg')
+            self.update_from_other(data, 'ki')
+            self.update_from_other(data, 'kp')
 
         if sel is None:
             self.c_time_s = None
