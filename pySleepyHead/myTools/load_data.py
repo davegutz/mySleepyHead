@@ -106,35 +106,13 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_
         mon_raw = None
         print(f"load_data: returning mon=None")
 
-    # Load sel (old)
-    sel_file_clean = write_clean_file(path_to_data, type_='_sel', hdr_key=hdr_key_sel,
-                                      unit_key=unit_key_sel, skip=skip)
-    if sel_file_clean:
-        sel_raw = np.genfromtxt(sel_file_clean, delimiter=',', names=True, dtype=float).view(np.recarray)
-    else:
-        sel_raw = None
-        print(f"load_data: returning sel_raw=None")
-
-    # Load ekf (old)
-    ekf_file_clean = write_clean_file(path_to_data, type_='_ekf', hdr_key=hdr_key_ekf,
-                                      unit_key=unit_key_ekf, skip=skip)
-    if ekf_file_clean:
-        ekf_raw = np.genfromtxt(ekf_file_clean, delimiter=',', names=True, dtype=float).view(np.recarray)
-    else:
-        ekf_raw = None
-        print(f"load_data: returning ekf_raw=None")
-
     mon = SavedData(data=mon_raw, time_end=time_end_in, zero_zero=zero_zero_in)
 
     # Load sim _s v24 portion of real-time run (old)
     data_file_sim_clean = write_clean_file(path_to_data, type_='_sim', hdr_key=hdr_key_sim,
                                            unit_key=unit_key_sim, skip=skip)
-    if data_file_sim_clean:
-        sim_raw = np.genfromtxt(data_file_sim_clean, delimiter=',', names=True, dtype=float).view(np.recarray)
-        sim = SavedDataSim(time_ref=mon.time_ref, data=sim_raw, time_end=time_end_in)
-    else:
-        sim = None
-        print(f"load_data: returning sim=None")
+    sim = None
+    print(f"load_data: returning sim=None")
 
     # Calculate sync information
     sync_info = SyncInfo(sav_mon=mon, sync=sync)
