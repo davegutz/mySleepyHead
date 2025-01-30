@@ -38,6 +38,7 @@ class MahonyAHRS:
         self.euler321_vec_check_deg = None
         self.euler321_vec_deg = None
         self.accel_vec = np.zeros(3)
+        self.gyr_vec = np.zeros(3)
         self.halfv = 0.
         self.halfe = 0.
         self.halfex_ = 0.
@@ -71,6 +72,7 @@ class MahonyAHRS:
             # print(f"pp7 Mahony AHRS {g_vec=} {euler321_vec=} {quat=} {euler321_vec_deg=}")
             print(f"  pp8: {(self.sample_period * 100.):.3f};  ", end='')
             print(f"\taccel_raw: [ {self.accel_vec[0]:6.3f}, {self.accel_vec[1]:6.3f}, {self.accel_vec[2]:6.3f} ], g's; ", end='')
+            print(f"\trot_raw: [ {self.gyr_vec[0]:6.4f}, {self.gyr_vec[1]:6.4f}, {self.gyr_vec[2]:6.4f} ], rps; ", end='')
             print(f"\thalfe: [ {self.halfe[0]:6.3f}, {self.halfe[1]:6.3f}, {self.halfe[2]:6.3f} ],", end='')
             print(f"\tquat: [ {self.quat[0]:6.3f}, {self.quat[1]:6.3f}, {self.quat[2]:6.3f}, {self.quat[3]:6.3f} ]")
 
@@ -82,6 +84,10 @@ class MahonyAHRS:
         if norm_acc == 0:
             return  # handle NaN
         self.accel_vec = accelerometer / norm_acc
+        norm_gyr = np.linalg.norm(gyroscope)
+        if norm_gyr == 0:
+            return  # handle NaN
+        self.gyr_vec = gyroscope / norm_acc
         # print(f"enter:  {self.accel_vec=} exit: ", end='')
         self.acc_x_ = self.accel_vec[0]
         self.acc_y_ = self.accel_vec[1]
@@ -147,6 +153,7 @@ class MahonyAHRS:
 
         self.euler321_vec = quaternion_to_euler321(self.quat)
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
+        # self.pp8()
         # print(f"{self.accel_vec=}")
 
 

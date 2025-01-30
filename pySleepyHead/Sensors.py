@@ -37,6 +37,7 @@ class Device:
     FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01)
     G_MAX = 4.  # Max G value, g's (4.)
     W_MAX = 34.9  # Max G value, g's (34.9)
+    D_MAX = 2000.  # Max rotational value, deg/s (34.9*180/pi) limit of hardware
     TAU_E_FILT = 0.1  # Tau rate filter, sec (0.1)
     TAU_FILT = 0.1  # Tau filter, sec (0.1)
     WN_Q_FILT = 5.  # Quiet filter-2 natural frequency, r/s (5.)
@@ -48,7 +49,7 @@ class Device:
     t_kp_def = 10.  # Proportional gain Kp (10.0)
     t_ki_def = 2.  # Integral gain Ki (2.0)
     G_QUIET_THR = 0.06  # g's quiet detection threshold, small is more sensitive (0.06)
-    O_QUIET_THR = 0.8  # rps quiet detection threshold, small is more sensitive (0.4)
+    O_QUIET_THR = 45.8  # rps quiet detection threshold, small is more sensitive (0.4)
     EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
@@ -79,13 +80,13 @@ class Sensors:
                                        min_=-Device.G_MAX, max_=Device.G_MAX)
         self.GQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.G_MAX, Device.G_MAX)
         self.GQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
-        self.A_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
-        self.B_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
-        self.C_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
-        self.O_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.W_MAX, Device.W_MAX)
+        self.A_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
+        self.B_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
+        self.C_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
+        self.O_Filt = LagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
         self.OQuietFilt = General2Pole(Device.NOMINAL_DT, Device.WN_Q_FILT, Device.ZETA_Q_FILT,
-                                       min_=-Device.W_MAX, max_=Device.W_MAX)
-        self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.W_MAX, Device.W_MAX)
+                                       min_=-Device.D_MAX, max_=Device.D_MAX)
+        self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.D_MAX, Device.D_MAX)
         self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
         self.TrackFilter = MahonyAHRS(sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
 
@@ -199,6 +200,8 @@ class Sensors:
                 candidate_dt = t[i] - t[i - 1]
                 if candidate_dt > 1e-6:
                     self.T = candidate_dt
+                else:
+                    self.T = Device.NOMINAL_DT
 
             # Run filters
             delta_pitch = self.Data.delta_pitch[i]
@@ -218,7 +221,8 @@ class Sensors:
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
-                print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
+                # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
+                self.TrackFilter.pp8()
 
         # Data
         if verbose:

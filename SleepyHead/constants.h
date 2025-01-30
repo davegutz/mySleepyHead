@@ -56,7 +56,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
 #define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
 #define G_MAX                   4.      // Max G value, g's (4.) limit of hardware 
-#define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
+#define D_MAX                2000.      // Max rotational value, deg/s (34.9*180/pi) limit of hardware
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
 #define TAU_E_FILT             0.1      // Eye filter time constant, sec (0.1)
 #define TAU_FILT               0.1      // Tau filter, sec (0.1)
@@ -64,7 +64,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define WN_Q_FILT               5.      // Quiet filter-2 natural frequency, r/s (5.)
 #define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
-#define O_QUIET_THR            0.8      // rps quiet detection threshold, small is more sensitive (4.)
+#define O_QUIET_THR           45.8      // deg/s quiet detection threshold, small is more sensitive (4.)
 #define G_QUIET_THR           0.06      // g's quiet detection threshold, small is more sensitive (0.3)
 #define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
 #define NHOLD                    5      // Number of precursor entries to store (5)

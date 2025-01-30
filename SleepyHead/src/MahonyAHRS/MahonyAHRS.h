@@ -28,8 +28,8 @@
 class Mahony {
 private:
 	char anglesComputed_;
-	float acc_x_, acc_y_, acc_z_;		// accelerometer data
-	float gyr_x_, gyr_y_, gyr_z_;  		// gyroscope data
+	float acc_x_, acc_y_, acc_z_;		// accelerometer data, g
+	float gyr_x_, gyr_y_, gyr_z_;  		// gyroscope data, deg/s
 	float halfex_, halfey_, halfez_;  	// track filter errors
 	float halfvx_, halfvy_, halfvz_; 	// estimated gravity directions
 	float integralFBx_, integralFBy_, integralFBz_;  // integral error terms scaled by Ki

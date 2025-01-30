@@ -90,9 +90,9 @@ void Sensors::filter_head(const boolean reset, const boolean run)
     yaw_filt = TrackFilter->getYaw();
 
     // Rates
-    roll_rate_ = RollRateFilt->calculate(TrackFilter->getRoll(), reset, min(T_rot_, MAX_DT_HEAD));
-    pitch_rate_ = PitchRateFilt->calculate(TrackFilter->getPitch(), reset, min(T_rot_, MAX_DT_HEAD));
-    yaw_rate_ = YawRateFilt->calculate(TrackFilter->getYaw(), reset, min(T_rot_, MAX_DT_HEAD));
+    roll_rate_ = RollRateFilt->calculate(a_raw, reset, min(T_rot_, MAX_DT_HEAD));
+    pitch_rate_ = PitchRateFilt->calculate(b_raw, reset, min(T_rot_, MAX_DT_HEAD));
+    yaw_rate_ = YawRateFilt->calculate(c_raw, reset, min(T_rot_, MAX_DT_HEAD));
 
     // Head sensor
     max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
@@ -373,6 +373,8 @@ void Sensors::print_rapid_10_hdr()
   Serial.print("yaw_rate,");
   Serial.print("eye_rate,");
   Serial.println("");
+  Serial.flush();
+  delay(100);
 }
 
 // Print pp10
@@ -483,9 +485,6 @@ void Sensors::sample_head(const boolean reset, const unsigned long long time_now
     if ( IMU.gyroscopeAvailable() )
     {
         IMU.readGyroscope(a_raw, b_raw, c_raw);
-        a_raw *= -deg_to_rps;
-        b_raw *= deg_to_rps;
-        c_raw *= -deg_to_rps;
         rot_available_ = true;
         o_raw = sqrt(a_raw*a_raw + b_raw*b_raw + c_raw*c_raw);
     }
