@@ -74,6 +74,7 @@ void loop()
   static boolean reset = true;
   static unsigned long long time_start = millis();
   static boolean monitoring_past = monitoring;
+  static uint8_t last_plot_num = 126;
 
   // Sensors
   boolean gyro_ready = false;
@@ -91,7 +92,6 @@ void loop()
 
   // Synchronize
   plotting = plotting_all;
-  boolean inhibit_talk = plotting_all && plot_num==10;
   static boolean run = true;  // Manual test feature for debugging Mahony filter
   S->calculate(&last_sync, &millis_flip, reset);
 
@@ -142,11 +142,17 @@ void loop()
   if ( S->publishing() )
   {
     if ( monitoring && ( monitoring != monitoring_past ) ) Sen->print_all_header();
-    if ( monitoring ) Sen->print_all();
+    if ( monitoring )
+    {
+      Sen->print_all();
+      last_plot_num = 126;
+    }
     else if ( plotting_all )
     {
-      request_plot(plot_num, Sen, reset);
+      request_plot(plot_num, plot_num!=last_plot_num, Sen, reset);
+      last_plot_num = plot_num;
     }
+    else last_plot_num = 126;
 
     monitoring_past = monitoring;
   }
@@ -162,4 +168,5 @@ void loop()
     read_serial();  // returns one command at a time
     process_input_str(Sen, &g_quiet_thr, &o_quiet_thr, &reset, &run);
   }
+
 }  // loop

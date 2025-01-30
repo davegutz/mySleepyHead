@@ -153,8 +153,9 @@ class Sensors:
         self.flt_thr_pos = Device.FLT_THR_POS
         self.pitch_filt = None
         self.roll_filt = None
-        self.pitch_filt_python = None
         self.roll_filt_python = None
+        self.pitch_filt_python = None
+        self.yaw_filt_python = None
         self.G_QUIET_THR = None
         self.O_QUIET_THR = None
         self.saved = Saved()  # for plots and prints
@@ -262,6 +263,7 @@ class Sensors:
                                    self.T, reset)
         self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
+        self.yaw_filt_python = self.TrackFilter.getYaw()
         self.G_QUIET_THR = Device.G_QUIET_THR
         self.O_QUIET_THR = Device.O_QUIET_THR
 
@@ -317,6 +319,7 @@ class Sensors:
         self.saved.head_buzz.append(self.head_buzz_f)  # yes, that's right
         self.saved.pitch_filt.append(self.pitch_filt)
         self.saved.pitch_filt_python.append(self.pitch_filt_python)
+        self.saved.yaw_filt_python.append(self.yaw_filt_python)
         self.saved.roll_filt.append(self.roll_filt)
         self.saved.roll_filt_python.append(self.roll_filt_python)
         self.saved.cf.append(self.cf)
@@ -370,10 +373,12 @@ class Saved:
         self.head_buzz_f = []
         self.head_buzz_p = []
         self.head_buzz = []
-        self.pitch_filt = []
-        self.pitch_filt_python = []
         self.roll_filt = []
+        self.pitch_filt = []
+        self.yaw_filt = []
         self.roll_filt_python = []
+        self.pitch_filt_python = []
+        self.yaw_filt_python = []
         self.cf = []
         self.o_quiet = []
         self.o_is_quiet = []

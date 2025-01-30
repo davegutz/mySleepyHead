@@ -180,8 +180,9 @@ void read_serial_add_verify(String *src, const String addend)
 }
 
 // Request plot
-void request_plot(const uint8_t plot_num, Sensors *Sen, const boolean reset)
+void request_plot(const uint8_t plot_num, const boolean print_hdr, Sensors *Sen, const boolean reset)
 {
+  static uint8_t last_plot_num = 126;
   switch ( plot_num )
   {
     case 0:
@@ -215,13 +216,13 @@ void request_plot(const uint8_t plot_num, Sensors *Sen, const boolean reset)
       Sen->plot_eye_buzz();  // pp9
       break;
     case 10:
-      debug = 10;
-      Sen->print_rapid(reset, true, Sen->time_eye_s());  // pp10
+      Sen->print_rapid(print_hdr, Sen->time_eye_s());  // pp10
       break;
     default:
       Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream)");
       break;
   }
+  last_plot_num = plot_num;
 }
 
 // Say hello

@@ -168,33 +168,13 @@ void Sensors::plot_all_rot()  // plot pp2
 // plot pp7
 void Sensors::plot_all_rpy()  // plot pp7
 {
-  float g_q = -2.;
-  float g_q_s = -2.; 
-  if ( g_is_quiet_ ) g_q = -1;
-  if ( g_is_quiet_sure_ ) g_q_s = -1;
-  Serial.print("T_acc*10:"); Serial.print(T_acc_*10., 3);
-  Serial.print("\tx_raw:"); Serial.print(TrackFilter->ax(), 3);
-  Serial.print("\ty_raw:"); Serial.print(TrackFilter->ay(), 3);
-  Serial.print("\tz_raw:"); Serial.print(TrackFilter->az(), 3);
-  // Serial.print("\tx_raw*200:"); Serial.print(x_raw*200+200, 3);
-  // Serial.print("\ty_raw*200:"); Serial.print(y_raw*200+200, 3);
-  // Serial.print("\tz_raw*200:"); Serial.print(z_raw*200+200, 3);
-  // Serial.print("\ta_raw*200:"); Serial.print(a_raw*200+200, 3);
-  // Serial.print("\tb_raw*200:"); Serial.print(b_raw*200+200, 3);
-  // Serial.print("\tc_raw*200:"); Serial.print(c_raw*200+200, 3);
-  // Serial.print("\troll_filt:"); Serial.print(roll_filt, 3);
-  // Serial.print("\tpitch_filt:"); Serial.print(pitch_filt, 3);
-  // Serial.print("\tyaw_filt:"); Serial.println(yaw_filt, 3);
   Serial.print("\troll_filt:"); Serial.print(TrackFilter->getRoll() + delta_roll_, 3);
   Serial.print("\tpitch_filt:"); Serial.print(TrackFilter->getPitch() + delta_pitch_, 3);
-  Serial.print("\tyaw_filt:"); Serial.print(TrackFilter->getYaw(), 3);
-  // Serial.print("\thalfex:"); Serial.print(TrackFilter->getHalfex(), 3);
-  // Serial.print("\thalfey:"); Serial.print(TrackFilter->getHalfey(), 3);
-  // Serial.print("\thalfez:"); Serial.println(TrackFilter->getHalfez(), 3);
-  Serial.print("\tq0:"); Serial.print(TrackFilter->q0(), 5);
-  Serial.print("\tq1:"); Serial.print(TrackFilter->q1(), 5);
-  Serial.print("\tq2:"); Serial.print(TrackFilter->q2(), 5);
-  Serial.print("\tq3:"); Serial.print(TrackFilter->q3(), 5);
+  Serial.print("\tyaw_filt:"); Serial.print(TrackFilter->getPitch() + delta_pitch_, 3);
+  Serial.print("\troll_rate:"); Serial.print(roll_rate_, 3);
+  Serial.print("\tpitch_rate:"); Serial.print(pitch_rate_, 3);
+  Serial.print("\tyaw_rate:"); Serial.print(yaw_rate_, 3);
+  Serial.print("\teye_rate:"); Serial.print(eye_rate_);
   Serial.println("");
 }
 
@@ -345,7 +325,7 @@ void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, cons
 }
 
 // Print pp10 header
-void Sensors::header_rapid_10()
+void Sensors::print_rapid_10_hdr()
 {
   Serial.print("key_Rapid,");
   Serial.print("reset,");
@@ -391,6 +371,7 @@ void Sensors::header_rapid_10()
   Serial.print("roll_rate,");
   Serial.print("pitch_rate,");
   Serial.print("yaw_rate,");
+  Serial.print("eye_rate,");
   Serial.println("");
 }
 
@@ -441,25 +422,15 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.print(roll_rate_, 3); Serial.print(",");
   Serial.print(pitch_rate_, 3); Serial.print(",");
   Serial.print(yaw_rate_, 3); Serial.print(",");
+  Serial.print(eye_rate_, 3); Serial.print(",");
   Serial.println("");
 }
 
 // Manage IR sensor data streaming
-void Sensors::print_rapid(const boolean reset, const boolean print_now, const float time_s)  // pp10
+void Sensors::print_rapid(const boolean print_hdr, const float time_s)  // pp10
 {
-  static uint8_t last_read_debug = 0;     // Remember first time with new debug to print headers
-  if ( ( debug==10 ) )
-  {
-    if ( reset || (last_read_debug != debug) )
-    {
-      header_rapid_10();  // pp10
-    }
-    if ( print_now )
-    {
-      print_rapid_10(time_s);  // pp10
-    }
-  }
-  last_read_debug = debug;
+    if ( print_hdr ) print_rapid_10_hdr();  // pp10
+    print_rapid_10(time_s);  // pp10
 }
 
 // Sample the IR (Eye)

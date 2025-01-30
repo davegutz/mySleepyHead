@@ -36,6 +36,7 @@
 #include "src/Filters/myFilters.h"
 
 extern int debug;
+extern int last_debug;
 
 
 // Sensors (like a big struct with public access)
@@ -118,7 +119,6 @@ public:
     float get_eye_set_time() { return eye_set_time_; };
     float get_wn_q_filt() { return wn_q_filt_; };
 
-    void header_rapid_10();
     boolean o_is_quiet_sure() { return o_is_quiet_sure_; };
     boolean eye_closed_sure() { return eye_closed_confirmed_; };
     float eye_rate() { return eye_rate_; };
@@ -143,8 +143,9 @@ public:
     void pretty_print_head();
     void print_all_header();
     void print_all();
-    void print_rapid(const boolean reset, const boolean print_now, const float time_s);  // pp10
+    void print_rapid(const boolean print_hdr, const float time_s);  // pp10
     void print_rapid_10(const float time_s);  // pp10
+    void print_rapid_10_hdr();
     void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
     void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
     void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);

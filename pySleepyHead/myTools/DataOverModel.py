@@ -158,6 +158,7 @@ class SavedData:
             self.roll_rate = None
             self.pitch_rate = None
             self.yaw_rate = None
+            self.eye_rate = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -257,6 +258,7 @@ class SavedData:
             self.update_from_other(data, 'roll_rate')
             self.update_from_other(data, 'pitch_rate')
             self.update_from_other(data, 'yaw_rate')
+            self.update_from_other(data, 'eye_rate')
 
         if sel is None:
             self.c_time_s = None

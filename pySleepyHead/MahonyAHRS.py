@@ -63,6 +63,9 @@ class MahonyAHRS:
     def getRoll(self):
         return self.roll_
 
+    def getYaw(self):
+        return self.yaw_
+
     def pp8(self):
             # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
             # print(f"pp7 Mahony AHRS {g_vec=} {euler321_vec=} {quat=} {euler321_vec_deg=}")
