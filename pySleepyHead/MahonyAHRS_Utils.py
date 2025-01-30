@@ -70,7 +70,8 @@ def pp7(accelerometer, euler321_vec_deg, quat, sample_period=None, label=""):
     # print(f"\troll_filt:"); print(roll_filt, 3);
     # print(f"\tpitch_filt:"); print(pitch_filt, 3);
     # print(f"\tyaw_filt:"); println(yaw_filt, 3);
-    print(f"\teuler321_filt: [ {euler321_vec_deg[0]:6.2f}, {euler321_vec_deg[1]:6.2f}, {euler321_vec_deg[2]:6.2f} ], deg; ", end='')
+    if euler321_vec_deg is not None:
+        print(f"\teuler321_filt: [ {euler321_vec_deg[0]:6.2f}, {euler321_vec_deg[1]:6.2f}, {euler321_vec_deg[2]:6.2f} ], deg; ", end='')
     # print(f"\tex:"); print(e[0], 3)
     # print(f"\tey:"); print(e[1], 3)
     # print(f"\tez:"); print(e[2], 3)

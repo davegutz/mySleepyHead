@@ -17,7 +17,7 @@ class MahonyAHRS:
     """
     ## Public properties
     def __init__(self, sample_period=None, quaternion=None, kp=None, ki=None):
-        if sample_period is not None:
+        if sample_period is None:
             self.sample_period = 1./256.
         else:
             self.sample_period = sample_period
@@ -104,10 +104,10 @@ class MahonyAHRS:
 
             q = self.quat # short name local variable for readability
 
-            # Estimated direction of gravity and magnetic flux
-            self.halfv = np.array([ 2*(q[1]*q[3] - q[0]*q[2]),
-                                    2*(q[0]*q[1] + q[2]*q[3]),
-                                    # q[0]^2 - q[1]^2 - q[2]^2 + q[3]^2  ])
+            # Estimated direction of gravity
+            self.halfv = np.array([ q[1]*q[3] - q[0]*q[2],
+                                    q[0]*q[1] + q[2]*q[3],
+                                    # q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3]  ])
                                     q[0]*q[0] + q[3]*q[3] - 0.5  ])
             self.halfvx_ = self.halfv[0]
             self.halfvy_ = self.halfv[1]
@@ -120,6 +120,9 @@ class MahonyAHRS:
             self.halfez_ = (self.acc_x_*self.halfvy_ - self.acc_y_*self.halfvx_)
 
             if self.Ki > 0 and not reset:
+                # self.integralFB_[0] += self.Ki * 2. * self.halfex_ * self.sample_period
+                # self.integralFB_[1] += self.Ki * 2. * self.halfey_ * self.sample_period
+                # self.integralFB_[2] += self.Ki * 2. * self.halfez_ * self.sample_period
                 self.integralFB_ += self.Ki * 2. * self.halfe * self.sample_period
                 gyroscope += self.integralFB_
                 self.gyr_x_ = gyroscope[0]
@@ -153,6 +156,10 @@ class MahonyAHRS:
 
         self.euler321_vec = quaternion_to_euler321(self.quat)
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
+        self.pitch_ = self.euler321_vec_deg[0]
+        self.roll_ = self.euler321_vec_deg[1]
+        self.yaw_ = self.euler321_vec_deg[2]
+        print("euler deg: ", self.euler321_vec_deg)
         # self.pp8()
         # print(f"{self.accel_vec=}")
 

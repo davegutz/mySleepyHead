@@ -132,7 +132,6 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mo, 'time', mo, 'eye_voltage_norm', color='magenta', linestyle='-', label='eye_voltage_norm' + ref_str)
     plt.legend(loc=1)
     plt.subplot(122)
-    plt.title(plot_title + ' GP 2')
     plq(plt, mo, 'time', mo, 'roll_rate', color='red', linestyle='-', label='roll_rate' + ref_str)
     plq(plt, mo, 'time', mo, 'pitch_rate', color='black', linestyle='-', label='pitch_rate' + ref_str)
     plq(plt, mo, 'time', mo, 'yaw_rate', color='orange', linestyle='-', label='yaw_rate' + ref_str)
@@ -142,5 +141,22 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
+    fig_list.append(plt.figure())  # GP 2
+    plt.subplot(131)
+    plt.title(plot_title + ' GP 2')
+    plq(plt, mo, 'time', mo, 'roll_filt', color='red', linestyle='-', label='roll_filt' + ref_str)
+    plq(plt, mv, 'time', mv, 'roll_filt_python', color='blue', linestyle='--', label='roll_filt_python' + test_str)
+    plt.legend(loc=1)
+    plt.subplot(132)
+    plq(plt, mo, 'time', mo, 'pitch_filt', color='black', linestyle='-', label='pitch_filt' + ref_str)
+    plq(plt, mv, 'time', mv, 'pitch_filt_python', color='green', linestyle='--', label='pitch_filt_python' + test_str)
+    plt.legend(loc=1)
+    plt.subplot(133)
+    plq(plt, mo, 'time', mo, 'yaw_filt', color='orange', linestyle='-', label='yaw_filt' + ref_str)
+    plq(plt, mv, 'time', mv, 'yaw_filt_python', color='cyan', linestyle='--', label='yaw_filt_python' + test_str)
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
 
     return fig_list, fig_files
