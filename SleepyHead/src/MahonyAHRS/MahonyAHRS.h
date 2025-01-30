@@ -59,6 +59,16 @@ public:
 	float getHalfex() { return halfex_; }
 	float getHalfey() { return halfey_; }
 	float getHalfez() { return halfez_; }
+	float getHalfvx() { return halfvx_; }
+	float getHalfvy() { return halfvy_; }
+	float getHalfvz() { return halfvz_; }
+	float getIntegralFBx() { return integralFBx_; }
+	float getIntegralFBy() { return integralFBy_; }
+	float getIntegralFBz() { return integralFBz_; }
+	float getQ0() { return q0_; }
+	float getQ1() { return q1_; }
+	float getQ2() { return q2_; }
+	float getQ3() { return q3_; }
 	float getRoll() {
 		if (!anglesComputed_) quaternion_to_euler321();
 		return roll_ * 57.29578f;

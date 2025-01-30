@@ -218,8 +218,11 @@ void request_plot(const uint8_t plot_num, const boolean print_hdr, Sensors *Sen,
     case 10:
       Sen->print_rapid(print_hdr, Sen->time_eye_s());  // pp10
       break;
+    case 11:
+      Sen->print_Mahony(print_hdr, Sen->time_eye_s());  // pp11
+      break;
     default:
-      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream)");
+      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony)");
       break;
   }
   last_plot_num = plot_num;

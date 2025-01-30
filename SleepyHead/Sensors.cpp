@@ -428,6 +428,89 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.println("");
 }
 
+// Print pp11 header
+void Sensors::print_rapid_11_hdr()
+{
+  Serial.print("key_Rapid,");
+  Serial.print("reset,");
+  Serial.print("cTime,");
+  Serial.print("head_reset,");
+  Serial.print("a_raw,");
+  Serial.print("b_raw,");
+  Serial.print("c_raw,");
+  Serial.print("x_raw,");
+  Serial.print("y_raw,");
+  Serial.print("z_raw,");
+  Serial.print("halfex,");
+  Serial.print("halfey,");
+  Serial.print("halfez,");
+  Serial.print("halfvx,");
+  Serial.print("halfvy,");
+  Serial.print("halfvz,");
+  Serial.print("ifb_x,");
+  Serial.print("ifb_y,");
+  Serial.print("ifb_z,");
+  Serial.print("q0,");
+  Serial.print("q1,");
+  Serial.print("q2,");
+  Serial.print("q3,");
+  Serial.print("roll,");
+  Serial.print("pitch,");
+  Serial.print("yaw,");
+  Serial.print("roll_deg,");
+  Serial.print("pitch_deg,");
+  Serial.print("yaw_deg,");
+  Serial.print("ki,");
+  Serial.print("kp,");
+  Serial.println("");
+  Serial.flush();
+  delay(100);
+}
+
+// Print pp11
+void Sensors::print_rapid_11(const float time)  // pp11
+{
+  Serial.print(unit_.c_str()); Serial.print(",");
+  Serial.print(reset_); Serial.print(",");
+  Serial.print(time, 6); Serial.print(",");
+  Serial.print(head_reset_); Serial.print(",");
+  Serial.print(a_raw, 4); Serial.print(",");
+  Serial.print(b_raw, 4); Serial.print(",");
+  Serial.print(c_raw, 4); Serial.print(",");
+  Serial.print(x_raw, 4); Serial.print(",");
+  Serial.print(y_raw, 4); Serial.print(",");
+  Serial.print(z_raw, 4); Serial.print(",");
+  Serial.print(TrackFilter->getHalfex(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getHalfey(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getHalfez(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getHalfvx(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getHalfvy(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getHalfvz(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getIntegralFBx(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getIntegralFBy(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getIntegralFBz(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getQ0(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getQ1(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getQ2(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getQ3(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getRollRadians(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getPitchRadians(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getYawRadians(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getRoll(), 3); Serial.print(",");
+  Serial.print(TrackFilter->getPitch(), 3); Serial.print(",");
+  Serial.print(TrackFilter->getYaw(), 3); Serial.print(",");
+  Serial.print(TrackFilter->getKi(), 3); Serial.print(",");
+  Serial.print(TrackFilter->getKp(), 3); Serial.print(",");
+  Serial.println("");
+}
+
+// Manage Mahony data streaming
+void Sensors::print_Mahony(const boolean print_hdr, const float time_s)  // pp11
+{
+    if ( print_hdr ) print_rapid_11_hdr();  // pp11
+    print_rapid_11(time_s);  // pp11
+}
+
 // Manage IR sensor data streaming
 void Sensors::print_rapid(const boolean print_hdr, const float time_s)  // pp10
 {

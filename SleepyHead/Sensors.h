@@ -36,7 +36,6 @@
 #include "src/Filters/myFilters.h"
 
 extern int debug;
-extern int last_debug;
 
 
 // Sensors (like a big struct with public access)
@@ -76,12 +75,12 @@ public:
         float Tfilt_head_init = HEAD_DELAY/1000.;
         float Tfilt_eye_init = EYE_DELAY/1000.;
         
-        A_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        B_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        C_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        O_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        OQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, -W_MAX, W_MAX);  // actual update time provided run time
-        OQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, -W_MAX, W_MAX);
+        A_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        B_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        C_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        O_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        OQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, -D_MAX, D_MAX);  // actual update time provided run time
+        OQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, -D_MAX, D_MAX);
         OQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
         
         X_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -G_MAX, G_MAX);
@@ -99,9 +98,9 @@ public:
         GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
         HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init);
         EyeRateFilt = new RateLagExp(Tfilt_head_init, TAU_E_FILT, -v3v3_nom, v3v3_nom);
-        RollRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        PitchRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
-        YawRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -W_MAX, W_MAX);
+        RollRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        PitchRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        YawRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
 
     };
 
@@ -143,9 +142,12 @@ public:
     void pretty_print_head();
     void print_all_header();
     void print_all();
+    void print_Mahony(const boolean print_hdr, const float time_s);  // pp11
     void print_rapid(const boolean print_hdr, const float time_s);  // pp10
     void print_rapid_10(const float time_s);  // pp10
-    void print_rapid_10_hdr();
+    void print_rapid_10_hdr();  // pp10
+    void print_rapid_11(const float time_s);  // pp11
+    void print_rapid_11_hdr();  // pp11
     void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
     void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
     void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);

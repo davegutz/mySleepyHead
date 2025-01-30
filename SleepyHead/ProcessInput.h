@@ -24,7 +24,7 @@
 #pragma once
 #include "SleepyHead.h"
 
-uint8_t plot_num = 10;
+uint8_t plot_num = 11;
 boolean monitoring = false;
 boolean plotting_all = true;
 boolean enable_motor = false;
@@ -220,13 +220,13 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
             case ( 'p' ):  // pp - plot all filtered pp0, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9, pp10
               switch ( i_value )
               {
-                case 0 ... 10:
+                case 0 ... 11:
                   plot_num = i_value;
                   plotting_all = true;
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream)");
+                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony)");
                   plotting_all = false;
                   break;
               }
