@@ -32,9 +32,6 @@ class MahonyAHRS_MW:
             self.Ki = ki
         self.integralFB_ = np.zeros(3)  # integral error
         self.e = np.zeros(3) # error
-        self.roll_ = 0.
-        self.pitch_ = 0.
-        self.yaw_ = 0.
         self.accel_vec = np.zeros(3)  # saved g-load inputs
         self.gyroscope = np.zeros(3)  # saved gyro rate inputs
         self.euler321_vec_check_deg = np.zeros(3)

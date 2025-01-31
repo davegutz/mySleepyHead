@@ -53,9 +53,6 @@ class MahonyAHRS:
         self.halfvx_ = 0.
         self.halfvy_ = 0.
         self.halfvz_ = 0.
-        self.roll_ = 0.
-        self.pitch_ = 0.
-        self.yaw_ = 0.
         self.gyr_x_ = 0.
         self.gyr_y_ = 0.
         self.gyr_z_ = 0.
@@ -69,6 +66,9 @@ class MahonyAHRS:
         self.q1 = 0.
         self.q2 = 0.
         self.q3 = 0.
+        self.roll_rps = 0.
+        self.pitch_rps = 0.
+        self.yaw_rps = 0.
         self.roll_deg = 0.
         self.pitch_deg = 0.
         self.yaw_deg = 0.
@@ -93,7 +93,7 @@ class MahonyAHRS:
         s += "  [halfvx, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.halfvx_, self.halfvy_, self.halfvz_)
         s += "  [ifb_x, _y, _z] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.ifb_x, self.ifb_y, self.ifb_z)
         s += "  [q0, q1, q2, q3]=  [ {:5.3f}, {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.q0, self.q1, self.q2, self.q3)
-        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ]".format(self.roll_, self.pitch_, self.yaw_)
+        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ]".format(self.roll_rps, self.pitch_rps, self.yaw_rps)
         s += "  [roll, pitch, yaw]=[ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.roll_deg, self.pitch_deg, self.yaw_deg)
         return s
 
@@ -108,7 +108,7 @@ class MahonyAHRS:
         s += "  [halfvx, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.halfvx_, self.halfvy_, self.halfvz_)
         s += "  [ifb_x, _y, _z] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.ifb_x, self.ifb_y, self.ifb_z)
         s += "  [q0, q1, q2, q3]=  [ {:5.3f}, {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.q0, self.q1, self.q2, self.q3)
-        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ] // rad\n".format(self.roll_, self.pitch_, self.yaw_)
+        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ] // rad\n".format(self.roll_rps, self.pitch_rps, self.yaw_rps)
         s += "  [roll, pitch, yaw]=[ {:5.3f}, {:5.3f}, {:5.3f} ] // deg\n".format(self.roll_deg, self.pitch_deg, self.yaw_deg)
         return s
 
@@ -165,8 +165,9 @@ class MahonyAHRS:
 
             # print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
             #       f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
-            print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ] "
-                  f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  ")
+            # print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ] "
+            #       f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  ")
+            print(f"quat: old : [ {self.Data.q0[i]}, {self.Data.q1[i]}, {self.Data.q2[i]}, {self.Data.q3[i]} ]  ver: [ {self.quat[0]}, {self.quat[1]}, {self.quat[2]}, {self.quat[3]} ] ")
 
         # Data
         if verbose:
@@ -176,13 +177,13 @@ class MahonyAHRS:
 
 
     def getPitch(self):
-        return self.pitch_
+        return self.pitch_deg
 
     def getRoll(self):
-        return self.roll_
+        return self.roll_deg
 
     def getYaw(self):
-        return self.yaw_
+        return self.yaw_deg
 
     def pp8(self):
             # euler321_vec_deg = quaternion_to_euler321(quat) * np.array(180.) / np.pi
@@ -213,13 +214,13 @@ class MahonyAHRS:
         self.saved.ifb_x.append(self.ifb_x)
         self.saved.ifb_y.append(self.ifb_y)
         self.saved.ifb_z.append(self.ifb_z)
-        self.saved.q0.append(self.q0)
-        self.saved.q1.append(self.q1)
-        self.saved.q2.append(self.q2)
-        self.saved.q3.append(self.q3)
-        self.saved.roll.append(self.roll_)
-        self.saved.pitch.append(self.pitch_)
-        self.saved.yaw.append(self.yaw_)
+        self.saved.q0.append(self.quat[0])
+        self.saved.q1.append(self.quat[1])
+        self.saved.q2.append(self.quat[2])
+        self.saved.q3.append(self.quat[3])
+        self.saved.roll_rps.append(self.roll_rps)
+        self.saved.pitch_rps.append(self.pitch_rps)
+        self.saved.yaw_rps.append(self.yaw_rps)
         self.saved.roll_deg.append(self.roll_deg)
         self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.yaw_deg.append(self.yaw_deg)
@@ -242,9 +243,7 @@ class MahonyAHRS:
         self.gyr_vec = gyroscope / norm_gyr
         # print(f"{self.gyr_vec=} {self.accel_vec=} {sample_time=} {reset=}")
 
-        self.acc_x_ = self.accel_vec[0]
-        self.acc_y_ = self.accel_vec[1]
-        self.acc_z_ = self.accel_vec[2]
+        self.acc_x_, self.acc_y_, self.acc_z_ = self.accel_vec
 
         if sample_time is not None:
             self.sample_period = sample_time
@@ -254,17 +253,15 @@ class MahonyAHRS:
                 g_vec = np.array([self.acc_x_, self.acc_y_, self.acc_z_])
                 self.euler321_vec = g_to_euler321(g_vec)
                 self.quat = euler321_to_quaternion(self.euler321_vec)
-
-            q = self.quat # short name local variable for readability
+                # short name local variable for readability
+                q = np.float64( [self.quat[0], self.quat[1], self.quat[2], self.quat[3] ]).copy()
 
             # Estimated direction of gravity
             self.halfv = np.array([ q[1]*q[3] - q[0]*q[2],
                                     q[0]*q[1] + q[2]*q[3],
                                     # q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3]  ])
                                     q[0]*q[0] + q[3]*q[3] - 0.5  ])
-            self.halfvx_ = self.halfv[0]
-            self.halfvy_ = self.halfv[1]
-            self.halfvz_ = self.halfv[2]
+            self.halfvx_, self.halfvy_, self.halfvz_ = self.halfv
 
             # Error is sum of cross product between estimated direction and measured direction of field
             self.halfe = np.linalg.cross(self.accel_vec, self.halfv)
@@ -273,17 +270,10 @@ class MahonyAHRS:
             self.halfez_ = (self.acc_x_*self.halfvy_ - self.acc_y_*self.halfvx_)
 
             if self.Ki > 0 and not reset:
-                # self.integralFB_[0] += self.Ki * 2. * self.halfex_ * self.sample_period
-                # self.integralFB_[1] += self.Ki * 2. * self.halfey_ * self.sample_period
-                # self.integralFB_[2] += self.Ki * 2. * self.halfez_ * self.sample_period
                 self.integralFB_ += self.Ki * 2. * self.halfe * self.sample_period
-                self.ifb_x = self.integralFB_[0]
-                self.ifb_y = self.integralFB_[1]
-                self.ifb_z = self.integralFB_[2]
+                self.ifb_x, self.ifb_y, self.ifb_z = self.integralFB_
                 gyroscope += self.integralFB_
-                self.gyr_x_ = self.gyr_vec[0]
-                self.gyr_y_ = self.gyr_vec[1]
-                self.gyr_z_ = self.gyr_vec[2]
+                self.gyr_x_, self.gyr_y_, self.gyr_z_ = self.gyr_vec
             else:
                 self.integralFB_ = np.zeros(3)
 
@@ -297,25 +287,20 @@ class MahonyAHRS:
             self.gyr_x_ *= 0.5 * self.sample_period
             self.gyr_y_ *= 0.5 * self.sample_period
             self.gyr_z_ *= 0.5 * self.sample_period
-            qa = q[0]
-            qb = q[1]
-            qc = q[2]
+            qa, qb, qc, _ = q
             q[0] += (-qb * self.gyr_x_ - qc * self.gyr_y_ - q[3] * self.gyr_z_)
             q[1] += ( qa * self.gyr_x_ + qc * self.gyr_z_ - q[3] * self.gyr_y_)
             q[2] += ( qa * self.gyr_y_ - qb * self.gyr_z_ + q[3] * self.gyr_x_)
             q[3] += ( qa * self.gyr_z_ + qb * self.gyr_y_ - qc * self.gyr_x_)
             recipNorm = 1. / np.sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3])
-            q[0] *= recipNorm
-            q[1] *= recipNorm
-            q[2] *= recipNorm
-            q[3] *= recipNorm
+            q *= recipNorm
+            self.quat = q
 
         # Finish up
         self.euler321_vec = quaternion_to_euler321(self.quat)
+        self.roll_rps, self.pitch_rps, self.yaw_rps = self.euler321_vec
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
-        self.pitch_ = self.euler321_vec_deg[0]
-        self.roll_ = self.euler321_vec_deg[1]
-        self.yaw_ = self.euler321_vec_deg[2]
+        self.roll_deg, self.pitch_deg, self.yaw_deg = self.euler321_vec_deg
 
 
 class Saved:
@@ -345,9 +330,9 @@ class Saved:
         self.q1 = []
         self.q2 = []
         self.q3 = []
-        self.roll = []
-        self.pitch = []
-        self.yaw = []
+        self.roll_rps = []
+        self.pitch_rps = []
+        self.yaw_rps = []
         self.roll_deg = []
         self.pitch_deg = []
         self.yaw_deg = []
