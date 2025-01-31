@@ -129,7 +129,7 @@ def main():
         path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
 
     skip = 1
-    unit_key = 'v20250113_pro0n33iot_Rapid,'
+    unit_key = 'v20250113_wearDn33iot_Rapid,'
     zero_zero_in = False
     time_end_in = None
     load_data(path_to_data=path_to_data, skip=skip, unit_key=unit_key, zero_zero_in=zero_zero_in, time_end_in=time_end_in)

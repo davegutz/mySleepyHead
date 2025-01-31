@@ -125,6 +125,8 @@ class MahonyAHRS:
             # Inputs
             accelerometer = np.array([ self.Data.x_raw[i], self.Data.y_raw[i], self.Data.z_raw[i] ])
             gyroscope = np.array([ self.Data.a_raw[i], self.Data.b_raw[i], self.Data.c_raw[i] ])
+            self.Ki = self.Data.ki[i]
+            self.Kp = self.Data.kp[i]
 
             # Update time
             self.T = None

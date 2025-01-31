@@ -181,7 +181,8 @@ class SavedData:
             self.i = 0
             self.cTime = np.array(data.cTime)
             self.time = np.array(data.cTime)
-            self.eye_voltage_norm = np.array(data.eye_voltage_norm)
+            # self.eye_voltage_norm = np.array(data.eye_voltage_norm)
+            self.update_from_other(data, 'eye_voltage_norm')
             # manage data shape
             # Find first non-zero ib and use to adjust time
             # Ignore initial run of non-zero ib because resetting from previous run
@@ -192,18 +193,19 @@ class SavedData:
             else:
                 try:
                     self.zero_end = 0
-                    # stop after first non-zero
-                    while self.zero_end < len(self.eye_voltage_norm) and abs(self.eye_voltage_norm[self.zero_end]) < zero_thr:
-                        self.zero_end += 1
-                    self.zero_end -= 1  # backup one
-                    if self.zero_end == len(self.eye_voltage_norm) - 1:
-                        print(Colors.fg.red, f"\n\nLikely ib is zero throughout the data.  Check setup and retry\n\n",
-                              Colors.reset)
-                        self.zero_end = 0
-                    elif self.zero_end == -1:
-                        # print(Colors.fg.red, f"\n\nLikely ib is noisy throughout the data.  Check setup and retry\n\n",
-                        #       Colors.reset)
-                        self.zero_end = 0
+                    if hasattr(self, 'eye_voltage_norm'):
+                        # stop after first non-zero
+                        while self.zero_end < len(self.eye_voltage_norm) and abs(self.eye_voltage_norm[self.zero_end]) < zero_thr:
+                            self.zero_end += 1
+                        self.zero_end -= 1  # backup one
+                        if self.zero_end == len(self.eye_voltage_norm) - 1:
+                            print(Colors.fg.red, f"\n\nLikely ib is zero throughout the data.  Check setup and retry\n\n",
+                                  Colors.reset)
+                            self.zero_end = 0
+                        elif self.zero_end == -1:
+                            # print(Colors.fg.red, f"\n\nLikely ib is noisy throughout the data.  Check setup and retry\n\n",
+                            #       Colors.reset)
+                            self.zero_end = 0
                 except IOError:
                     self.zero_end = 0
             self.time_ref = self.time[self.zero_end]

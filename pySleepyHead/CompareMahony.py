@@ -104,27 +104,16 @@ def compare_Mahony(data_file=None, unit_key=None, time_end_in=None, data_only=Fa
         cleanup_fig_files(fig_files)
         plt.show(block=False)
         string = 'plots ' + str(fig_list[0].number) + ' - ' + str(fig_list[-1].number)
-        show_killer(string, 'CompareRunSim', fig_list=fig_list)
+        show_killer(string, 'CompareMahony', fig_list=fig_list)
 
     return data_file_clean, mon_old, sim_old, None, None, None
 
 
 def main():
     if sys.platform == 'win32':
-        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
-        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/test_config.csv'
-        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/put_on_tilt_wink.csv'
-        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/full_rate_test.csv'
-        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rest_test_kitty.csv'
-        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rest_test_kitty2.csv'
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test.csv'
+        path_to_data = 'C:\\Users\\daveg\\Documents\\GitHub\\mySleepyHead\\pySleepyHead\\dataReduction\\Mahony_test.csv'
     else:
-        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
-    # unit_key = 'v20250113_pro0n33iot_Rapid'
-    # unit_key = 'v20250113_wearDn33iot_Rapid'
-    # unit_key = 'v20250113_wearDn33iot_Rapid'
-    # unit_key = 'v20250113_wearDn33iot_Rapid'
-    # unit_key = 'v20250113_wearDn33iot_Rapid'
+        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
     unit_key = 'v20250113_wearDn33iot_Rapid'
     time_end_in = None
     data_only = False
