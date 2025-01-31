@@ -65,9 +65,9 @@ class MahonyAHRS:
         self.q1 = 0.
         self.q2 = 0.
         self.q3 = 0.
-        self.roll_rps = 0.
-        self.pitch_rps = 0.
-        self.yaw_rps = 0.
+        self.roll_rad = 0.
+        self.pitch_rad = 0.
+        self.yaw_rad = 0.
         self.roll_deg = 0.
         self.pitch_deg = 0.
         self.yaw_deg = 0.
@@ -92,7 +92,7 @@ class MahonyAHRS:
         s += "  [halfvx, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.halfvx_, self.halfvy_, self.halfvz_)
         s += "  [ifb_x, _y, _z] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.ifb_x, self.ifb_y, self.ifb_z)
         s += "  [q0, q1, q2, q3]=  [ {:5.3f}, {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.q0, self.q1, self.q2, self.q3)
-        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ]".format(self.roll_rps, self.pitch_rps, self.yaw_rps)
+        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ]".format(self.roll_rad, self.pitch_rad, self.yaw_rad)
         s += "  [roll, pitch, yaw]=[ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.roll_deg, self.pitch_deg, self.yaw_deg)
         return s
 
@@ -107,7 +107,7 @@ class MahonyAHRS:
         s += "  [halfvx, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.halfvx_, self.halfvy_, self.halfvz_)
         s += "  [ifb_x, _y, _z] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.ifb_x, self.ifb_y, self.ifb_z)
         s += "  [q0, q1, q2, q3]=  [ {:5.3f}, {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.q0, self.q1, self.q2, self.q3)
-        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ] // rad\n".format(self.roll_rps, self.pitch_rps, self.yaw_rps)
+        s += "  [roll, pitch, yaw]=[ {:7.5f}, {:7.5f}, {:7.5f} ] // rad\n".format(self.roll_rad, self.pitch_rad, self.yaw_rad)
         s += "  [roll, pitch, yaw]=[ {:5.3f}, {:5.3f}, {:5.3f} ] // deg\n".format(self.roll_deg, self.pitch_deg, self.yaw_deg)
         return s
 
@@ -138,6 +138,8 @@ class MahonyAHRS:
             accelerometer = np.array([ self.x_raw, self.y_raw, self.z_raw ])
             self.Ki = self.Data.twoKi[i] / 2.
             self.Kp = self.Data.twoKp[i] / 2.
+            if self.reset:
+                self.quat = Qu(self.Data.q0[i], self.Data.q1[i], self.Data.q2[i], self.Data.q3[i])
 
             # Update time
             self.T = None
@@ -162,10 +164,11 @@ class MahonyAHRS:
             if verbose:
                 self.__repr__()
 
-            print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
-                  f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
-            # print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ] "
-            #       f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  ")
+            # print(f"{i=} {t[i]}")
+            # print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
+            #       f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
+            print(f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  end=''")
+            # print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ]")
             # print(f"quat: old : [ {self.Data.q0[i]}, {self.Data.q1[i]}, {self.Data.q2[i]}, {self.Data.q3[i]} ]  ver: [ {self.quat[0]}, {self.quat[1]}, {self.quat[2]}, {self.quat[3]} ] ")
 
         # Data
@@ -174,14 +177,13 @@ class MahonyAHRS:
 
         return self.saved
 
-
-    def getPitch(self):
+    def getPitchDeg(self):
         return self.pitch_deg
 
-    def getRoll(self):
+    def getRollDeg(self):
         return self.roll_deg
 
-    def getYaw(self):
+    def getYawDeg(self):
         return self.yaw_deg
 
     def pp8(self):
@@ -217,9 +219,9 @@ class MahonyAHRS:
         self.saved.q1.append(self.quat[1])
         self.saved.q2.append(self.quat[2])
         self.saved.q3.append(self.quat[3])
-        self.saved.roll_rps.append(self.roll_rps)
-        self.saved.pitch_rps.append(self.pitch_rps)
-        self.saved.yaw_rps.append(self.yaw_rps)
+        self.saved.roll_rad.append(self.roll_rad)
+        self.saved.pitch_rad.append(self.pitch_rad)
+        self.saved.yaw_rad.append(self.yaw_rad)
         self.saved.roll_deg.append(self.roll_deg)
         self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.yaw_deg.append(self.yaw_deg)
@@ -263,7 +265,7 @@ class MahonyAHRS:
             self.halfvx_, self.halfvy_, self.halfvz_ = self.halfv
 
             # Error is sum of cross product between estimated direction and measured direction of field
-            self.halfe = np.linalg.cross(self.accel_vec, self.halfv)
+            # self.halfe = np.linalg.cross(self.accel_vec, self.halfv)
             self.halfex_ = (self.acc_y_*self.halfvz_ - self.acc_z_*self.halfvy_)
             self.halfey_ = (self.acc_z_*self.halfvx_ - self.acc_x_*self.halfvz_)
             self.halfez_ = (self.acc_x_*self.halfvy_ - self.acc_y_*self.halfvx_)
@@ -297,9 +299,11 @@ class MahonyAHRS:
 
         # Finish up
         self.euler321_vec = quaternion_to_euler321(self.quat)
-        self.roll_rps, self.pitch_rps, self.yaw_rps = self.euler321_vec
+        self.roll_rad, self.pitch_rad, self.yaw_rad = self.euler321_vec
+        self.yaw_rad += np.pi
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
         self.roll_deg, self.pitch_deg, self.yaw_deg = self.euler321_vec_deg
+        self.yaw_deg += 180.
 
 
 class Saved:
@@ -329,9 +333,9 @@ class Saved:
         self.q1 = []
         self.q2 = []
         self.q3 = []
-        self.roll_rps = []
-        self.pitch_rps = []
-        self.yaw_rps = []
+        self.roll_rad = []
+        self.pitch_rad = []
+        self.yaw_rad = []
         self.roll_deg = []
         self.pitch_deg = []
         self.yaw_deg = []

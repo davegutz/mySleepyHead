@@ -265,9 +265,9 @@ class Sensors:
         self.TrackFilter.updateIMU(gyroscope=np.array([self.a_raw, self.b_raw, self.c_raw]),
                                    accelerometer=np.array([self.x_raw, self.y_raw, self.z_raw]),
                                    sample_time=self.T, reset=reset)
-        self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
-        self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
-        self.yaw_filt_python = self.TrackFilter.getYaw()
+        self.roll_filt_python = self.TrackFilter.getRollDeg() + delta_roll
+        self.pitch_filt_python = self.TrackFilter.getPitchDeg() + delta_pitch
+        self.yaw_filt_python = self.TrackFilter.getYawDeg()
         self.G_QUIET_THR = Device.G_QUIET_THR
         self.O_QUIET_THR = Device.O_QUIET_THR
 
