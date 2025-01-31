@@ -111,7 +111,7 @@ def compare_Mahony(data_file=None, unit_key=None, time_end_in=None, data_only=Fa
 
 def main():
     if sys.platform == 'win32':
-        path_to_data = 'C:\\Users\\daveg\\Documents\\GitHub\\mySleepyHead\\pySleepyHead\\dataReduction\\Mahony_test.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
     else:
         path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
     unit_key = 'v20250113_wearDn33iot_Rapid'

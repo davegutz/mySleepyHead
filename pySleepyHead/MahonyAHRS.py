@@ -8,7 +8,7 @@ from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_t
 
 class Device:
     NOMINAL_DT = 0.1
-
+    deg_to_rps = 0.0174533
 
 class MahonyAHRS:
     """#MAYHONYAHRS Madgwick's implementation of Mayhony's AHRS algorithm
@@ -216,7 +216,7 @@ class MahonyAHRS:
 
     def updateIMU(self, gyroscope, accelerometer, sample_time, reset):
         q = self.quat # short name local variable for readability
-        gyroscope *= 0.0174533
+        gyroscope *= Device.deg_to_rps
         # Normalise accelerometer measurement
         norm_acc = np.linalg.norm(accelerometer)
         if norm_acc == 0:

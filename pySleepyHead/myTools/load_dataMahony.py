@@ -84,7 +84,7 @@ class SyncInfo:
 # Load from files
 def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_in=0.02):
 
-    print(f"load_data: \n{path_to_data=}\n{skip=}\n{unit_key=}\n{zero_zero_in=}\n{time_end_in=}\n")
+    print(f"load_dataMahony: \n{path_to_data=}\n{skip=}\n{unit_key=}\n{zero_zero_in=}\n{time_end_in=}\n")
 
     hdr_key = "key_Rapid,"  # Find one instance of title
     hdr_key_sel = "Analog_s,"  # Find one instance of title
@@ -124,7 +124,7 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_
 
 def main():
     if platform.system() == 'Windows':
-        path_to_data = 'C:\\Users\\daveg\\Documents\\GitHub\\mySleepyHead\\pySleepyHead\\dataReduction\\Mahony_test.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
     else:
         path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
 

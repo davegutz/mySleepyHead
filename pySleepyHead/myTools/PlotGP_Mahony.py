@@ -42,13 +42,13 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_list.append(plt.figure())  # GP 1
     plt.subplot(111)
     plt.title(plot_title + ' Mahony 1')
-    plq(plt, mo, 'time', mo, 'head_reset', add=8, color='red', linestyle='-', label='head_reset' + ref_str + '+8')
-    plq(plt, mv, 'time', mv, 'x_raw', add=6, color='pink', linestyle='--', label='x_raw' + test_str + '+6')
-    plq(plt, mv, 'time', mv, 'y_raw', add=4, color='cyan', linestyle='-.', label='y_raw' + test_str + '+4')
-    plq(plt, mv, 'time', mv, 'z_raw', add=2, color='red', linestyle='-', label='z_raw' + test_str + '+2')
+    plq(plt, mo, 'time', mo, 'reset', add=8, color='red', linestyle='-', label='head_reset' + ref_str + '+8')
     plq(plt, mv, 'time', mv, 'a_raw', add= 0, color='cyan', linestyle='-', label='a_raw' + test_str + '+0')
     plq(plt, mv, 'time', mv, 'b_raw', add= -2, color='magenta', linestyle='--', label='b_raw' + test_str + '-2')
     plq(plt, mv, 'time', mv, 'c_raw', add= -4, color='blue', linestyle='-.', label='c_raw' + test_str + '-4')
+    plq(plt, mv, 'time', mv, 'x_raw', add=6, color='pink', linestyle='--', label='x_raw' + test_str + '+6')
+    plq(plt, mv, 'time', mv, 'y_raw', add=4, color='cyan', linestyle='-.', label='y_raw' + test_str + '+4')
+    plq(plt, mv, 'time', mv, 'z_raw', add=2, color='red', linestyle='-', label='z_raw' + test_str + '+2')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
