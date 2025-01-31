@@ -281,9 +281,9 @@ class MahonyAHRS:
                 self.ifb_y = self.integralFB_[1]
                 self.ifb_z = self.integralFB_[2]
                 gyroscope += self.integralFB_
-                self.gyr_x_ = gyroscope[0]
-                self.gyr_y_ = gyroscope[1]
-                self.gyr_z_ = gyroscope[2]
+                self.gyr_x_ = self.gyr_vec[0]
+                self.gyr_y_ = self.gyr_vec[1]
+                self.gyr_z_ = self.gyr_vec[2]
             else:
                 self.integralFB_ = np.zeros(3)
 
