@@ -85,9 +85,9 @@ void Sensors::filter_head(const boolean reset, const boolean run)
     }
 
     // RPY
-    roll_filt = TrackFilter->getRoll() + delta_roll_;
-    pitch_filt = TrackFilter->getPitch() + delta_pitch_;
-    yaw_filt = TrackFilter->getYaw();
+    roll_filt = TrackFilter->getRollDeg() + delta_roll_;
+    pitch_filt = TrackFilter->getPitchDeg() + delta_pitch_;
+    yaw_filt = TrackFilter->getYawDeg();
 
     // Rates
     roll_rate_ = RollRateFilt->calculate(a_raw, reset, min(T_rot_, MAX_DT_HEAD));
@@ -168,9 +168,9 @@ void Sensors::plot_all_rot()  // plot pp2
 // plot pp7
 void Sensors::plot_all_rpy()  // plot pp7
 {
-  Serial.print("\troll_filt:"); Serial.print(TrackFilter->getRoll() + delta_roll_, 3);
-  Serial.print("\tpitch_filt:"); Serial.print(TrackFilter->getPitch() + delta_pitch_, 3);
-  Serial.print("\tyaw_filt:"); Serial.print(TrackFilter->getPitch() + delta_pitch_, 3);
+  Serial.print("\troll_filt:"); Serial.print(TrackFilter->getRollDeg() + delta_roll_, 3);
+  Serial.print("\tpitch_filt:"); Serial.print(TrackFilter->getPitchDeg() + delta_pitch_, 3);
+  Serial.print("\tyaw_filt:"); Serial.print(TrackFilter->getPitchDeg() + delta_pitch_, 3);
   Serial.print("\troll_rate:"); Serial.print(roll_rate_, 3);
   Serial.print("\tpitch_rate:"); Serial.print(pitch_rate_, 3);
   Serial.print("\tyaw_rate:"); Serial.print(yaw_rate_, 3);
@@ -496,9 +496,9 @@ void Sensors::print_rapid_11(const float time)  // pp11
   Serial.print(TrackFilter->getRollRadians(), 5); Serial.print(",");
   Serial.print(TrackFilter->getPitchRadians(), 5); Serial.print(",");
   Serial.print(TrackFilter->getYawRadians(), 5); Serial.print(",");
-  Serial.print(TrackFilter->getRoll(), 4); Serial.print(",");
-  Serial.print(TrackFilter->getPitch(), 4); Serial.print(",");
-  Serial.print(TrackFilter->getYaw(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getRollDeg(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getPitchDeg(), 4); Serial.print(",");
+  Serial.print(TrackFilter->getYawDeg(), 4); Serial.print(",");
   Serial.print(TrackFilter->getTwoKi(), 3); Serial.print(",");
   Serial.print(TrackFilter->getTwoKp(), 3); Serial.print(",");
   Serial.println("");

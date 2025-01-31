@@ -199,7 +199,7 @@ void Mahony::updateIMU(const float gx, const float gy, const float gz, const flo
 			g_to_euler321();
 			euler321_to_quaternion();
 			Serial.print("acc_x_ = "); Serial.print(acc_x_); Serial.print("\tay_ = "); Serial.print(acc_y_); Serial.print("\taz_ = "); Serial.print(acc_z_);
-			Serial.print("\troll_init = "); Serial.print(getRoll()); Serial.print("\tpitch_init = "); Serial.print(getPitch()); Serial.print("\tyaw_init = "); Serial.print(getYaw());
+			Serial.print("\troll_init = "); Serial.print(getRollDeg()); Serial.print("\tpitch_init = "); Serial.print(getPitchDeg()); Serial.print("\tyaw_init = "); Serial.print(getYawDeg());
 			Serial.print("\tq0_init = "); Serial.print(q0_, 5); Serial.print("\tq1_init = "); Serial.print(q1_, 5); Serial.print("\tq2_init = "); Serial.print(q2_, 5); Serial.print("\tq3_init = "); Serial.println(q3_, 5);
 		}
 

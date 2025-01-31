@@ -69,15 +69,15 @@ public:
 	float getQ1() { return q1_; }
 	float getQ2() { return q2_; }
 	float getQ3() { return q3_; }
-	float getRoll() {
+	float getRollDeg() {
 		if (!anglesComputed_) quaternion_to_euler321();
 		return roll_ * 57.29578f;
 	}
-	float getPitch() {
+	float getPitchDeg() {
 		if (!anglesComputed_) quaternion_to_euler321();
 		return pitch_ * 57.29578f;
 	}
-	float getYaw() {
+	float getYawDeg() {
 		if (!anglesComputed_) quaternion_to_euler321();
 		return yaw_ * 57.29578f + 180.0f;
 	}
