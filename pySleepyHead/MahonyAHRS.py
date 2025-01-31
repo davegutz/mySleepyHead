@@ -1,7 +1,6 @@
 import numpy as np
 from numpy.ma.core import angle
 from pyquaternion import Quaternion as Qu
-from MahonyAHRS_Mathworks import MahonyAHRS_MW
 from MahonyAHRS_Utils import euler321_to_quaternion, quaternion_to_euler321, g_to_euler321, pp7, \
     quaternion_to_g, ppv3, ppv4
 
@@ -20,7 +19,7 @@ class MahonyAHRS:
     #   28/09/2011    SOH Madgwick    Initial release
     """
     ## Public properties
-    def __init__(self, data=None, sample_period=None, quaternion=None, kp=None, ki=None):
+    def __init__(self, data=None, sample_period=None, quaternion=None, Kp=None, Ki=None):
         self.Data = data
         self.reset = None
         if sample_period is None:
@@ -31,14 +30,14 @@ class MahonyAHRS:
             self.quat = Qu([1., 0., 0., 0.])  # output quaternion describing the Earth relative to the sensor
         else:
             self.quat = quaternion
-        if kp is None:
+        if Kp is None:
             self.Kp = 1.  # algorithm proportional gain
         else:
-            self.Kp = kp
-        if ki is None:
+            self.Kp = Kp
+        if Ki is None:
             self.Ki = 0.  # algorithm integral gain
         else:
-            self.Ki = ki
+            self.Ki = Ki
         self.integralFB_ = np.zeros(3)  # integral error
         self.euler321_vec = None
         self.euler321_vec_check_deg = None
@@ -86,7 +85,7 @@ class MahonyAHRS:
         s = "MahonyAHRS:\n"
         s += "  reset =  {:2d}".format(self.reset)
         s += "  T   =  {:5.1f}".format(self.T)
-        s += "  ki = {:5.1f} kp = {:5.1f}".format(self.Ki, self.Kp)
+        s += "  Ki = {:5.1f} Kp = {:5.1f}".format(self.Ki, self.Kp)
         s += "  [x_raw, y_, z_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.acc_x_, self.acc_y_, self.acc_z_)
         s += "  [a_raw, b_, c_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.gyr_x_, self.gyr_y_, self.gyr_z_)
         s += "  [halfex, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ]".format(self.halfex_, self.halfey_, self.halfez_)
@@ -101,7 +100,7 @@ class MahonyAHRS:
         s = prefix + "MahonyAHRS:\n"
         s += "  reset =  {:2d}  // s\n".format(self.reset)
         s += "  T   =  {:5.1f}  // s\n".format(self.T)
-        s += "  ki = {:5.1f} kp = {:5.1f}  // s\n".format(self.Ki, self.Kp)
+        s += "  Ki = {:5.1f} Kp = {:5.1f}  // s\n".format(self.Ki, self.Kp)
         s += "  [x_raw, y_, z_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // g's\n".format(self.acc_x_, self.acc_y_, self.acc_z_)
         s += "  [a_raw, b_, c_] =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // dps\n".format(self.gyr_x_, self.gyr_y_, self.gyr_z_)
         s += "  [halfex, y, z]  =  [ {:5.3f}, {:5.3f}, {:5.3f} ] // ?\n".format(self.halfex_, self.halfey_, self.halfez_)
@@ -137,8 +136,8 @@ class MahonyAHRS:
             self.z_raw = self.Data.z_raw[i]
             gyroscope = np.array([ self.a_raw, self.b_raw, self.c_raw ])
             accelerometer = np.array([ self.x_raw, self.y_raw, self.z_raw ])
-            self.Ki = self.Data.ki[i]
-            self.Kp = self.Data.kp[i]
+            self.Ki = self.Data.twoKi[i] / 2.
+            self.Kp = self.Data.twoKp[i] / 2.
 
             # Update time
             self.T = None
@@ -163,11 +162,11 @@ class MahonyAHRS:
             if verbose:
                 self.__repr__()
 
-            # print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
-            #       f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
+            print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
+                  f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
             # print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ] "
             #       f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  ")
-            print(f"quat: old : [ {self.Data.q0[i]}, {self.Data.q1[i]}, {self.Data.q2[i]}, {self.Data.q3[i]} ]  ver: [ {self.quat[0]}, {self.quat[1]}, {self.quat[2]}, {self.quat[3]} ] ")
+            # print(f"quat: old : [ {self.Data.q0[i]}, {self.Data.q1[i]}, {self.Data.q2[i]}, {self.Data.q3[i]} ]  ver: [ {self.quat[0]}, {self.quat[1]}, {self.quat[2]}, {self.quat[3]} ] ")
 
         # Data
         if verbose:
@@ -336,8 +335,8 @@ class Saved:
         self.roll_deg = []
         self.pitch_deg = []
         self.yaw_deg = []
-        self.ki = []
-        self.ki = []
+        self.twoKi = []
+        self.twoKp = []
 
 
 def main():
@@ -414,8 +413,8 @@ def main():
         print("")
         print("")
 
-    track_filter = MahonyAHRS(sample_period=0.1, kp=5., ki=8.)  # Kp=5, Ki=8
-    track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, kp=10., ki=1.)
+    track_filter = MahonyAHRS(sample_period=0.1, Kp=5., Ki=8.)  # Kp=5, Ki=8
+    track_filter_mathworks = MahonyAHRS_MW(sample_period=0.1, Kp=10., Ki=1.)
 
     # Local steady state check
     print('Local steady state check:')

@@ -175,8 +175,8 @@ class SavedData:
             self.roll_deg = None
             self.pitch_deg = None
             self.yaw_deg = None
-            self.ki = None
-            self.kp = None
+            self.twoKi = None
+            self.twoKp = None
         else:
             self.i = 0
             self.cTime = np.array(data.cTime)
@@ -295,8 +295,8 @@ class SavedData:
             self.update_from_other(data, 'roll_deg')
             self.update_from_other(data, 'pitch_deg')
             self.update_from_other(data, 'yaw_deg')
-            self.update_from_other(data, 'ki')
-            self.update_from_other(data, 'kp')
+            self.update_from_other(data, 'twoKi')
+            self.update_from_other(data, 'twoKp')
 
         if sel is None:
             self.c_time_s = None

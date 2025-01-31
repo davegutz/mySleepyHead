@@ -124,13 +124,13 @@ def load_data(path_to_data, skip, unit_key, zero_zero_in, time_end_in, zero_thr_
     return mon, sim, None, data_file_clean, temp_flt_file_clean, sync_info
 
 def main():
-    if platform.system() == 'win32':
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+    if platform.system() == 'Windows':
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
     else:
-        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/slip_slide_repeats_winks_sleeps.csv'
+        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/Mahony_test.csv'
 
     skip = 1
-    unit_key = 'v20250113_pro0n33iot_Rapid,'
+    unit_key = 'v20250113_wearDn33iot_Rapid,'
     zero_zero_in = False
     time_end_in = None
     load_data(path_to_data=path_to_data, skip=skip, unit_key=unit_key, zero_zero_in=zero_zero_in, time_end_in=time_end_in)

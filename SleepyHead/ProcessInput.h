@@ -54,14 +54,14 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           switch ( letter_1 )
           {
             case ( 'p' ):  // ap - proportional gain
-              Serial.print("Mahony prop gain from "); Serial.print(Sen->TrackFilter->getKp(), 3);
+              Serial.print("Mahony prop gain from "); Serial.print(Sen->TrackFilter->getTwoKp(), 3);
               Sen->TrackFilter->setKp(f_value);
-              Serial.print(" to "); Serial.println(Sen->TrackFilter->getKp(), 3);
+              Serial.print(" to "); Serial.println(Sen->TrackFilter->getTwoKp(), 3);
               break;
             case ( 'i' ):  // ai - integral gain
-              Serial.print("Mahony int gain from "); Serial.print(Sen->TrackFilter->getKi(), 3);
-              Sen->TrackFilter->setKi(f_value);
-              Serial.print(" to "); Serial.println(Sen->TrackFilter->getKi(), 3);
+              Serial.print("Mahony int gain from "); Serial.print(Sen->TrackFilter->getTwoKi(), 3);
+              Sen->TrackFilter->setTwoKi(f_value);
+              Serial.print(" to "); Serial.println(Sen->TrackFilter->getTwoKi(), 3);
               break;
             case ( 'l' ):  // al - LTST fault threshold
               Serial.print("LTST fault threshold from "); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3);
@@ -155,8 +155,8 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           plotting_all = false;
           monitoring = false;
           Serial.println("a?<val> - adjust");
-          Serial.print("\t ap = Mahony proportional gain ("); Serial.print(Sen->TrackFilter->getKp(), 3); Serial.println(")");
-          Serial.print("\t ai = Mahony integral gain ("); Serial.print(Sen->TrackFilter->getKi(), 3); Serial.println(")");
+          Serial.print("\t ap = Mahony proportional gain ("); Serial.print(Sen->TrackFilter->getTwoKp(), 3); Serial.println(")");
+          Serial.print("\t ai = Mahony integral gain ("); Serial.print(Sen->TrackFilter->getTwoKi(), 3); Serial.println(")");
           Serial.print("\t al = LTST fault thr ("); Serial.print(Sen->LTST_Filter->get_fault_thr_pos(), 3); Serial.println(")");
           Serial.print("\t aR = eye RESET time, s ("); Serial.print(Sen->get_eye_reset_time(), 3); Serial.println(")");
           Serial.print("\t aS = eye SET time, s ("); Serial.print(Sen->get_eye_set_time(), 3); Serial.println(")");

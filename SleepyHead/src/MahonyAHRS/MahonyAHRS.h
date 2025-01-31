@@ -47,10 +47,10 @@ private:
 // Function declarations
 
 public:
-	Mahony(const float t_kp, const float t_ki);
-	float getKi() { return twoKi_; }
-	float getKp() { return twoKp_; }
-	void setKi(const float inp) { twoKi_ = inp; }
+	Mahony(const float two_kp, const float two_ki);
+	float getTwoKi() { return twoKi_; }
+	float getTwoKp() { return twoKp_; }
+	void setTwoKi(const float inp) { twoKi_ = inp; }
 	void setKp(const float inp) { twoKp_ = inp; }
 	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float invSampleFreq,
 	 	const boolean reset);

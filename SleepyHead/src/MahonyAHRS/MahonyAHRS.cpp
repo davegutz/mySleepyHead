@@ -34,12 +34,12 @@
 //-------------------------------------------------------------------------------------------
 // AHRS algorithm update
 
-Mahony::Mahony(const float t_kp, const float t_ki):  anglesComputed_(0),
+Mahony::Mahony(const float two_kp, const float two_ki):  anglesComputed_(0),
 	acc_x_(0.0f), acc_y_(0.0f), acc_z_(0.0f), gyr_x_(0.0f), gyr_y_(0.0f), gyr_z_(0.0f),
 	halfex_(0.0f), halfey_(0.0f), halfez_(0.0f), halfvx_(0.0f), halfvy_(0.0f), halfvz_(0.0f),
 	integralFBx_(0.0f), integralFBy_(0.0f), integralFBz_(0.0f),
 	mx_(0.0f), my_(0.0f), mz_(0.0f), q0_(1.0f), q1_(0.0f), q2_(0.0f), q3_(0.0f),
-	roll_(0.0f), pitch_(0.0f), yaw_(0.0f), twoKp_(t_kp), twoKi_(t_ki) {}
+	roll_(0.0f), pitch_(0.0f), yaw_(0.0f), twoKp_(two_kp), twoKi_(two_ki) {}
 
 void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz,
 	float invSampleFreq, const boolean reset)

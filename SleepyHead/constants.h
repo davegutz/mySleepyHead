@@ -74,8 +74,8 @@ const float QUIET_S = 0.4;              // Quiet set persistence, sec (0.4)
 const float R_SCL = 10.;                // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
 
-const float t_kp_def = 10.0;             // Proportional gain Kp (10.0)
-const float t_ki_def = 2.0;              // Integral gain Ki (2.0)
+const float two_kp_def = 10.0;             // Proportional gain Kp (10.0)
+const float two_ki_def = 2.0;              // Integral gain Ki (2.0)
 const float pitch_thr_def_forte = 17.;   // Threshold sleep detect screech (17.), deg
 const float roll_thr_def_forte = 17.;    // Threshold sleep detect screech (17.), deg
 const float pitch_thr_def_piano = 12.;   // Threshold sleep detect buzz only (12.), deg 
