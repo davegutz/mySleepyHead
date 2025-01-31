@@ -1,4 +1,4 @@
-# PlotGP_Mahony - general purpose plotting
+# PlotMahony_Mahony - general purpose plotting
 # Copyright (C) 2025 Dave Gutz
 #
 # This library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ plt.rcParams.update({'figure.max_open_warning': 0})
 
 
 def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, ref_str='_ref', test_str='_test'):
-    fig_list.append(plt.figure())  # GP 1
+    fig_list.append(plt.figure())  # Mahony 1
     plt.subplot(111)
     plt.title(plot_title + ' Mahony 1')
     plq(plt, mo, 'time', mo, 'reset', add=8, color='red', linestyle='-', label='head_reset' + ref_str + '+8')
@@ -60,9 +60,9 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
-    fig_list.append(plt.figure())  # GP 1
+    fig_list.append(plt.figure())  # Mahony 2
     plt.subplot(111)
-    plt.title(plot_title + ' Mahony 1')
+    plt.title(plot_title + ' Mahony 2')
     plq(plt, mo, 'time', mo, 'halfex', add= 6, color='red', linestyle='-', label='halfex' + ref_str + '+6')
     plq(plt, mv, 'time', mv, 'halfex', add= 6, color='blue', linestyle='--', label='halfex' + test_str + '+6')
     plq(plt, mo, 'time', mo, 'halfey', add= 4, color='red', linestyle='-', label='halfey' + ref_str + '+4')
@@ -80,9 +80,39 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
-    fig_list.append(plt.figure())  # GP 2
+    fig_list.append(plt.figure())  # Mahony 3
+    plt.subplot(111)
+    plt.title(plot_title + ' Mahony 3')
+    plq(plt, mo, 'time', mo, 'ifb_x', add= 6, color='red', linestyle='-', label='ifb_x' + ref_str + '+6')
+    plq(plt, mv, 'time', mv, 'ifb_x', add= 6, color='blue', linestyle='--', label='ifb_x' + test_str + '+6')
+    plq(plt, mo, 'time', mo, 'ifb_y', add= 4, color='red', linestyle='-', label='ifb_y' + ref_str + '+4')
+    plq(plt, mv, 'time', mv, 'ifb_y', add= 4, color='blue', linestyle='--', label='ifb_y' + test_str + '+4')
+    plq(plt, mo, 'time', mo, 'ifb_z', add= 2, color='red', linestyle='-', label='ifb_z' + ref_str + '+2')
+    plq(plt, mv, 'time', mv, 'ifb_z', add= 2, color='blue', linestyle='--', label='ifb_z' + test_str + '+2')
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
+
+    fig_list.append(plt.figure())  # Mahony 4
+    plt.subplot(111)
+    plt.title(plot_title + ' Mahony 4')
+    plq(plt, mo, 'time', mo, 'q0', add= 6, color='red', linestyle='-', label='q0' + ref_str + '+6')
+    plq(plt, mv, 'time', mv, 'q0', add= 6, color='blue', linestyle='--', label='q0' + test_str + '+6')
+    plq(plt, mo, 'time', mo, 'q1', add= 4, color='red', linestyle='-', label='q1' + ref_str + '+4')
+    plq(plt, mv, 'time', mv, 'q1', add= 4, color='blue', linestyle='--', label='q1' + test_str + '+4')
+    plq(plt, mo, 'time', mo, 'q2', add= 2, color='red', linestyle='-', label='q2' + ref_str + '+2')
+    plq(plt, mv, 'time', mv, 'q2', add= 2, color='blue', linestyle='--', label='q2' + test_str + '+2')
+    plq(plt, mo, 'time', mo, 'q3', add= 0, color='red', linestyle='-', label='q3' + ref_str + '+0')
+    plq(plt, mv, 'time', mv, 'q3', add= 0, color='blue', linestyle='--', label='q3' + test_str + '+0')
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
+
+    fig_list.append(plt.figure())  # Mahony 5
     plt.subplot(131)
-    plt.title(plot_title + ' Mahony 2')
+    plt.title(plot_title + ' Mahony 5')
     plq(plt, mo, 'time', mo, 'roll_deg', color='red', linestyle='-', label='roll_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'roll_deg', color='blue', linestyle='--', label='roll_deg' + test_str)
     plt.legend(loc=1)

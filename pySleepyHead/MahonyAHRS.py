@@ -277,6 +277,9 @@ class MahonyAHRS:
                 # self.integralFB_[1] += self.Ki * 2. * self.halfey_ * self.sample_period
                 # self.integralFB_[2] += self.Ki * 2. * self.halfez_ * self.sample_period
                 self.integralFB_ += self.Ki * 2. * self.halfe * self.sample_period
+                self.ifb_x = self.integralFB_[0]
+                self.ifb_y = self.integralFB_[1]
+                self.ifb_z = self.integralFB_[2]
                 gyroscope += self.integralFB_
                 self.gyr_x_ = gyroscope[0]
                 self.gyr_y_ = gyroscope[1]
