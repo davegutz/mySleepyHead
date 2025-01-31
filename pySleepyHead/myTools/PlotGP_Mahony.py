@@ -57,15 +57,15 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_list.append(plt.figure())  # GP 2
     plt.subplot(131)
     plt.title(plot_title + ' Mahony 2')
-    plq(plt, mo, 'time', mo, 'roll_filt', color='red', linestyle='-', label='roll_filt' + ref_str)
+    plq(plt, mo, 'time', mo, 'roll_deg', color='red', linestyle='-', label='roll_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'roll_deg', color='blue', linestyle='--', label='roll_deg' + test_str)
     plt.legend(loc=1)
     plt.subplot(132)
-    plq(plt, mo, 'time', mo, 'pitch_filt', color='black', linestyle='-', label='pitch_filt' + ref_str)
+    plq(plt, mo, 'time', mo, 'pitch_deg', color='black', linestyle='-', label='pitch_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'pitch_deg', color='green', linestyle='--', label='pitch_deg' + test_str)
     plt.legend(loc=1)
     plt.subplot(133)
-    plq(plt, mo, 'time', mo, 'yaw_filt', color='orange', linestyle='-', label='yaw_filt' + ref_str)
+    plq(plt, mo, 'time', mo, 'yaw_deg', color='orange', linestyle='-', label='yaw_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'yaw_deg', color='cyan', linestyle='--', label='yaw_deg' + test_str)
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"

@@ -88,7 +88,7 @@ class Sensors:
                                        min_=-Device.D_MAX, max_=Device.D_MAX)
         self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.D_MAX, Device.D_MAX)
         self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
-        self.TrackFilter = MahonyAHRS(self.data, sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
+        self.TrackFilter = MahonyAHRS(self.Data, sample_period=Device.NOMINAL_DT, kp=Device.t_kp_def, ki=Device.t_ki_def)
 
         # Eye filters
         self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,
@@ -262,9 +262,9 @@ class Sensors:
         self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
-        self.TrackFilter.updateIMU(np.array([self.a_raw, self.b_raw, self.c_raw]),
-                                   np.array([self.x_raw, self.y_raw, self.z_raw]),
-                                   self.T, reset)
+        self.TrackFilter.updateIMU(gyroscope=np.array([self.a_raw, self.b_raw, self.c_raw]),
+                                   accelerometer=np.array([self.x_raw, self.y_raw, self.z_raw]),
+                                   sample_time=self.T, reset=reset)
         self.roll_filt_python = self.TrackFilter.getRoll() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitch() + delta_pitch
         self.yaw_filt_python = self.TrackFilter.getYaw()

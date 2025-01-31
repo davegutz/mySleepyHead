@@ -140,7 +140,7 @@ class MahonyAHRS:
                     self.T = Device.NOMINAL_DT
 
             # Run filters
-            self.updateIMU(accelerometer=accelerometer, gyroscope=gyroscope, sample_time=self.T, reset=self.reset)
+            self.updateIMU(gyroscope=gyroscope, accelerometer=accelerometer, sample_time=self.T, reset=self.reset)
 
             # Log
             self.save(t[i], self.T)
@@ -214,7 +214,7 @@ class MahonyAHRS:
         self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.yaw_deg.append(self.yaw_deg)
 
-    def updateIMU(self, accelerometer, gyroscope, sample_time, reset):
+    def updateIMU(self, gyroscope, accelerometer, sample_time, reset):
         q = self.quat # short name local variable for readability
         gyroscope *= 0.0174533
         # Normalise accelerometer measurement
@@ -292,14 +292,13 @@ class MahonyAHRS:
             q[2] *= recipNorm
             q[3] *= recipNorm
 
+        # Finish up
         self.euler321_vec = quaternion_to_euler321(self.quat)
         self.euler321_vec_deg = self.euler321_vec * 180. / np.pi
         self.pitch_ = self.euler321_vec_deg[0]
         self.roll_ = self.euler321_vec_deg[1]
         self.yaw_ = self.euler321_vec_deg[2]
-        print("euler deg: ", self.euler321_vec_deg)
-        # self.pp8()
-        # print(f"{self.accel_vec=}")
+
 
 class Saved:
     # For plot savings.   A better way is 'Saver' class in pyfilter helpers and requires making a __dict__
@@ -428,11 +427,11 @@ def main():
     count = 0
     init = True
     gyro_vec = np.zeros(3)
-    track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    track_filter.updateIMU(gyroscope=gyro_vec, accelerometer=accel_vec, sample_time=0.1, reset=init)
     init = False
     while err_tf > 1e-3 and count < 100:
         gyro_vec = np.zeros(3)
-        track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        track_filter.updateIMU(gyroscope=gyro_vec, accelerometer=accel_vec, sample_time=0.1, reset=init)
         # pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         err_tf = np.linalg.norm(abs(track_filter.halfe))
         err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
@@ -449,11 +448,11 @@ def main():
     init = True
     accel_vec = np.array([0., 0., 1.])
     gyro_vec = np.zeros(3)
-    track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+    track_filter.updateIMU(gyroscope=gyro_vec, accelerometer=accel_vec, sample_time=0.1, reset=init)
     init = False
     while err_tf > 1e-3 and count < 100:
         gyro_vec = np.zeros(3)
-        track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time=0.1, reset=init)
+        track_filter.updateIMU(gyroscope=gyro_vec, accelerometer=accel_vec, sample_time=0.1, reset=init)
         # pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
         err_tf = np.linalg.norm(abs(track_filter.halfe))
         err_tfmw = np.linalg.norm(abs(track_filter_mathworks.e))
@@ -473,7 +472,7 @@ def main():
         if i == 24:
             accel_vec = np.zeros(3) + np.array([0., 0., 1.])
         gyro_vec = np.zeros(3)
-        track_filter.updateIMU(accelerometer=accel_vec, gyroscope=gyro_vec, sample_time = 0.1, reset=init)
+        track_filter.updateIMU(gyroscope=gyro_vec, accelerometer=accel_vec, sample_time = 0.1, reset=init)
         print(f"{i:3d}\t", end='')
         # track_filter.pp8()
         pp7(track_filter.accel_vec, track_filter.euler321_vec_deg, track_filter.quat, sample_period=track_filter.sample_period, label=track_filter.label)
