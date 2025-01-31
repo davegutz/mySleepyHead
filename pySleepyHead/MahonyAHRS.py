@@ -167,9 +167,10 @@ class MahonyAHRS:
             # print(f"{i=} {t[i]}")
             # print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
             #       f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
-            print(f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  end=''")
+            # print(f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  end=''")
             # print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ]")
             # print(f"quat: old : [ {self.Data.q0[i]}, {self.Data.q1[i]}, {self.Data.q2[i]}, {self.Data.q3[i]} ]  ver: [ {self.quat[0]}, {self.quat[1]}, {self.quat[2]}, {self.quat[3]} ] ")
+            print(f"IFB: old : [ {self.Data.ifb_x[i]}, {self.Data.ifb_y[i]}, {self.Data.ifb_z[i]} ]  ver: [ {self.ifb_x}, {self.ifb_y}, {self.ifb_z} ]  end=''")
 
         # Data
         if verbose:
@@ -269,12 +270,13 @@ class MahonyAHRS:
             self.halfex_ = (self.acc_y_*self.halfvz_ - self.acc_z_*self.halfvy_)
             self.halfey_ = (self.acc_z_*self.halfvx_ - self.acc_x_*self.halfvz_)
             self.halfez_ = (self.acc_x_*self.halfvy_ - self.acc_y_*self.halfvx_)
+            self.halfe = np.array([self.halfex_, self.halfey_, self.halfez_])
 
             if self.Ki > 0 and not reset:
                 self.integralFB_ += self.Ki * 2. * self.halfe * self.sample_period
                 self.ifb_x, self.ifb_y, self.ifb_z = self.integralFB_
                 gyroscope += self.integralFB_
-                self.gyr_x_, self.gyr_y_, self.gyr_z_ = self.gyr_vec
+                self.gyr_x_, self.gyr_y_, self.gyr_z_ = gyroscope
             else:
                 self.integralFB_ = np.zeros(3)
 
