@@ -74,6 +74,12 @@ class MahonyAHRS:
         self.yaw_deg = 0.
         self.label = "pp7 Mahony AHRS"
         self.time = 0.
+        self.a_raw = 0.
+        self.b_raw = 0.
+        self.c_raw = 0.
+        self.x_raw = 0.
+        self.y_raw = 0.
+        self.z_raw = 0.
         self.saved = Saved()  # for plots and prints
 
     def __repr__(self):
@@ -123,8 +129,14 @@ class MahonyAHRS:
             self.time = now
 
             # Inputs
-            accelerometer = np.array([ self.Data.x_raw[i], self.Data.y_raw[i], self.Data.z_raw[i] ])
-            gyroscope = np.array([ self.Data.a_raw[i], self.Data.b_raw[i], self.Data.c_raw[i] ])
+            self.a_raw = self.Data.a_raw[i]
+            self.b_raw = self.Data.b_raw[i]
+            self.c_raw = self.Data.c_raw[i]
+            self.x_raw = self.Data.x_raw[i]
+            self.y_raw = self.Data.y_raw[i]
+            self.z_raw = self.Data.z_raw[i]
+            gyroscope = np.array([ self.a_raw, self.b_raw, self.c_raw ])
+            accelerometer = np.array([ self.x_raw, self.y_raw, self.z_raw ])
             self.Ki = self.Data.ki[i]
             self.Kp = self.Data.kp[i]
 
@@ -140,7 +152,7 @@ class MahonyAHRS:
                     self.T = Device.NOMINAL_DT
 
             # Run filters
-            self.updateIMU(gyroscope=gyroscope, accelerometer=accelerometer, sample_time=self.T, reset=self.reset)
+            self.updateIMU(gyroscope_=gyroscope, accelerometer=accelerometer, sample_time=self.T, reset=self.reset)
 
             # Log
             self.save(t[i], self.T)
@@ -149,17 +161,15 @@ class MahonyAHRS:
             if i == 0 and verbose:
                 print('time=', t[i])
             if verbose:
-                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self))
-                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
-                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
-                # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
-                # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
                 self.__repr__()
+
+            # print(f"GYR: old : [ {self.Data.a_raw[i]}, {self.Data.b_raw[i]}, {self.Data.c_raw[i]} ]  ver: [ {self.a_raw}, {self.b_raw}, {self.c_raw} ] "
+            #       f"ACC: old : [ {self.Data.x_raw[i]}, {self.Data.y_raw[i]}, {self.Data.z_raw[i]} ]  ver: [ {self.x_raw}, {self.y_raw}, {self.z_raw} ]  ")
+            print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ] "
+                  f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  ")
 
         # Data
         if verbose:
-            print('   time mo.eye_voltage_norm ')
-            print('time=', now)
             print('Sensors:  ', str(self.__str__()))
 
         return self.saved
@@ -188,12 +198,12 @@ class MahonyAHRS:
         self.saved.reset.append(self.reset)
         self.saved.time.append(time)
         self.saved.T.append(dt)
-        self.saved.a_raw.append(self.gyr_x_)
-        self.saved.b_raw.append(self.gyr_y_)
-        self.saved.c_raw.append(self.gyr_z_)
-        self.saved.x_raw.append(self.acc_x_)
-        self.saved.y_raw.append(self.acc_y_)
-        self.saved.z_raw.append(self.acc_z_)
+        self.saved.a_raw.append(self.a_raw)
+        self.saved.b_raw.append(self.b_raw)
+        self.saved.c_raw.append(self.c_raw)
+        self.saved.a_raw.append(self.x_raw)
+        self.saved.b_raw.append(self.y_raw)
+        self.saved.c_raw.append(self.z_raw)
         self.saved.halfex.append(self.halfex_)
         self.saved.halfey.append(self.halfey_)
         self.saved.halfez.append(self.halfez_)
@@ -214,10 +224,14 @@ class MahonyAHRS:
         self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.yaw_deg.append(self.yaw_deg)
 
-    def updateIMU(self, gyroscope, accelerometer, sample_time, reset):
+    def updateIMU(self, gyroscope_, accelerometer, sample_time, reset):
+        # print(f"{gyroscope_=} {accelerometer=} {sample_time=} {reset=}")
+
         q = self.quat # short name local variable for readability
-        gyroscope *= Device.deg_to_rps
-        # Normalise accelerometer measurement
+
+        gyroscope = gyroscope_ * Device.deg_to_rps
+
+        # Normalize
         norm_acc = np.linalg.norm(accelerometer)
         if norm_acc == 0:
             return  # handle NaN
@@ -225,8 +239,9 @@ class MahonyAHRS:
         norm_gyr = np.linalg.norm(gyroscope)
         if norm_gyr == 0:
             return  # handle NaN
-        self.gyr_vec = gyroscope / norm_acc
-        # print(f"enter:  {self.accel_vec=} exit: ", end='')
+        self.gyr_vec = gyroscope / norm_gyr
+        # print(f"{self.gyr_vec=} {self.accel_vec=} {sample_time=} {reset=}")
+
         self.acc_x_ = self.accel_vec[0]
         self.acc_y_ = self.accel_vec[1]
         self.acc_z_ = self.accel_vec[2]
