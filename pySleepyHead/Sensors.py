@@ -279,6 +279,9 @@ class Sensors:
         self.TrackFilter.updateIMU(gyroscope_=np.array([self.a_raw, self.b_raw, self.c_raw]),
                                    accelerometer=np.array([self.x_raw, self.y_raw, self.z_raw]),
                                    sample_time=self.T, reset=reset)
+        self.roll_deg = self.TrackFilter.roll_deg
+        self.pitch_deg = self.TrackFilter.pitch_deg
+        self.yaw_deg = self.TrackFilter.yaw_deg
         self.roll_filt_python = self.TrackFilter.getRollDeg() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitchDeg() + delta_pitch
         self.yaw_filt_python = self.TrackFilter.getYawDeg()
@@ -287,8 +290,8 @@ class Sensors:
 
         # Rates
         self.roll_rate = self.RollRateFilt.calculate(self.roll_deg, reset, min(self.T, Device.MAX_DT_HEAD))
-        self.pitch_rate = self.RollRateFilt.calculate(self.roll_deg, reset, min(self.T, Device.MAX_DT_HEAD))
-        self.yaw_rate = self.RollRateFilt.calculate(self.roll_deg, reset, min(self.T, Device.MAX_DT_HEAD))
+        self.pitch_rate = self.PitchRateFilt.calculate(self.pitch_deg, reset, min(self.T, Device.MAX_DT_HEAD))
+        self.yaw_rate = self.YawRateFilt.calculate(self.yaw_deg, reset, min(self.T, Device.MAX_DT_HEAD))
 
         # Head nod
         self.max_nod_f = max( abs(self.pitch_deg)- Device.pitch_thr_def_forte, abs(self.roll_deg) - Device.roll_thr_def_forte )
