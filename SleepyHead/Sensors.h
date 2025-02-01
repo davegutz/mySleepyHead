@@ -47,7 +47,7 @@ public:
       x_raw(0), y_raw(0), z_raw(0), g_raw(0), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(0ULL), time_eye_last_(0LL), time_rot_last_(0ULL),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
-      roll_filt(0), pitch_filt(0), yaw_filt(0),
+      roll_deg(0), pitch_deg(0), yaw_deg(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false),
       head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
@@ -61,7 +61,7 @@ public:
       x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
       time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
       o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
-      roll_filt(0), pitch_filt(0), yaw_filt(0),
+      roll_deg(0), pitch_deg(0), yaw_deg(0),
       eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_buzz_(false),
       head_buzz_f_(false), head_buzz_p_(false),
       pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
@@ -142,6 +142,7 @@ public:
     void pretty_print_head();
     void print_all_header();
     void print_all();
+    void print_default_hdr(const uint8_t plot_num);
     void print_Mahony(const boolean print_hdr, const float time_s);  // pp11
     void print_rapid(const boolean print_hdr, const float time_s);  // pp10
     void print_rapid_10(const float time_s);  // pp10
@@ -161,7 +162,7 @@ public:
     float time_eye_s() { return float(time_eye_ms_)/1000.0; };
     float time_now_s() { return float(time_head_ms_)/1000.0; };
 
-    // Gyroscope in radians/second
+    // Gyroscope in deg/second
     float a_raw;
     float b_raw;
     float c_raw;
@@ -171,21 +172,27 @@ public:
     float y_raw;
     float z_raw;
     float g_raw;  // Total acceleration
+    // Filtered in deg/second
     float a_filt;
     float b_filt;
     float c_filt;
     float o_filt;
+    // Filtered for quiet detection
     float o_qrate;
     float o_quiet;
+    // Filtered in g's
     float x_filt;
     float y_filt;
     float z_filt;
     float g_filt;
-    float g_qrate;
-    float g_quiet;
-    float roll_filt;
-    float pitch_filt;
-    float yaw_filt;
+    // Filtered for quiet detection
+    float g_qrate;  // Gyro quiet rate for logic, g/s
+    float g_quiet;  // Gyro quiet for logic, g/s
+    // Euler 321 angles, deg
+    float roll_deg;  // Roll about x-axis, deg
+    float pitch_deg;  // Pitch about y-axis, deg
+    float yaw_deg;  // Yaw about z-axis, deg
+
     Mahony *TrackFilter;   // Mahony tracking filter
     LongTermShortTerm_Filter *LTST_Filter;  // LTST filter
 protected:
@@ -215,46 +222,48 @@ protected:
     unsigned long long time_acc_last_;
     unsigned long long time_eye_last_;
     unsigned long long time_rot_last_;
-    double T_acc_;
-    double T_eye_;
-    double T_rot_;
-    boolean acc_available_;
-    boolean rot_available_;
-    boolean o_is_quiet_;
-    boolean o_is_quiet_sure_;
-    boolean g_is_quiet_;
-    boolean g_is_quiet_sure_;
-    float max_nod_f_;
-    float max_nod_p_;
-    boolean eye_closed_;
-    boolean eye_closed_confirmed_;
-    int sensorPin_;
-    boolean eye_buzz_;
-    boolean head_buzz_f_;
-    boolean head_buzz_p_;
+    double T_acc_;  // Detected update of accelerometer time, s
+    double T_eye_;  // Detected update of eye voltage time, s
+    double T_rot_;  // Detected update of gyroscope time, s
+    boolean acc_available_;  // IMU available
+    boolean rot_available_;  // IMU available
+    boolean o_is_quiet_;  // Quiet detected on gyroscope
+    boolean o_is_quiet_sure_;  // Quiet detected on gyroscope and persistent
+    boolean g_is_quiet_;  // Quiet detected on acceleration
+    boolean g_is_quiet_sure_; // Quiet detected on acceleration and persistent
+    float max_nod_f_;  // in deg for forte signal
+    float max_nod_p_;  // in deg for piano signal
+    boolean eye_closed_;  // Eye closed detected
+    boolean eye_closed_confirmed_;  // Eye closed detected and persistent
+    int sensorPin_;  // Pin connected to the IR sensor
+    boolean eye_buzz_;  // Declaring a buzz to wake driver
+    boolean head_buzz_f_;  // Declaring a buzz to wake driver
+    boolean head_buzz_p_;  // Declaring a buzz to wake driver
+    // in deg for forte signal
     float pitch_thr_f_;
     float roll_thr_f_;
+    // in deg for piano signal
     float pitch_thr_p_;
     float roll_thr_p_;
-    float eye_voltage_norm_;
+    float eye_voltage_norm_;  // Sensed eye voltage normalized to 3.3V
     unsigned long long time_eye_ms_;
     unsigned long long time_head_ms_;
     String unit_;
-    float v3v3_;
-    float delta_pitch_;
-    float delta_roll_;
-    boolean eye_reset_;
-    float eye_set_time_;
-    float eye_reset_time_;
-    boolean head_reset_;
-    float head_set_time_;
-    float head_reset_time_;
-    boolean max_nod_f_confirmed_;
-    boolean max_nod_p_confirmed_;
-    boolean reset_;
-    float wn_q_filt_;
-    float eye_rate_;
-    float roll_rate_;
-    float pitch_rate_;
-    float yaw_rate_;
+    float v3v3_;  // VCC voltage in 3.3V units
+    float delta_pitch_;  //bias, deg
+    float delta_roll_;   //bias, deg
+    boolean eye_reset_;  // Eye reset signal
+    float eye_set_time_;  // Eye persistent reset time, s
+    float eye_reset_time_;  // Eye persistent reset time, s
+    boolean head_reset_;  // Head reset signal
+    float head_set_time_;  // Head persistent set time, s
+    float head_reset_time_;  // Head persistent reset time, s
+    boolean max_nod_f_confirmed_;  // Forte nod exceedance persistent
+    boolean max_nod_p_confirmed_;  // Piano nod exceedance persistent
+    boolean reset_;  // Logic initialization indicator
+    float wn_q_filt_;  // Quiet filter-2 natural frequency, r/s
+    float eye_rate_;  // Eye rate, v/s
+    float roll_rate_;  // Roll rate based on raw data, deg/s
+    float pitch_rate_;  // Pitch rate based on raw data, deg/s
+    float yaw_rate_;  // Yaw rate based on raw data, deg/s
 };

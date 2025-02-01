@@ -152,8 +152,9 @@ class Sensors:
         self.st_state = None
         self.frz_thr_pos = Device.FRZ_THR_POS
         self.flt_thr_pos = Device.FLT_THR_POS
-        self.pitch_filt = None
-        self.roll_filt = None
+        self.roll_deg = None
+        self.pitch_deg = None
+        self.yaw_deg = None
         self.roll_filt_python = None
         self.pitch_filt_python = None
         self.yaw_filt_python = None
@@ -189,8 +190,8 @@ class Sensors:
             self.y_raw = self.Data.y_raw[i]
             self.z_raw = self.Data.z_raw[i]
             self.g_raw = np.sqrt(self.x_raw*self.x_raw + self.y_raw*self.y_raw + self.z_raw*self.z_raw)
-            self.pitch_filt = self.Data.pitch_filt[i]
-            self.roll_filt = self.Data.roll_filt[i]
+            self.pitch_deg = self.Data.pitch_deg[i]
+            self.roll_deg = self.Data.roll_deg[i]
 
             # Update time
             self.T = None
@@ -262,7 +263,7 @@ class Sensors:
         self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
-        self.TrackFilter.updateIMU(gyroscope=np.array([self.a_raw, self.b_raw, self.c_raw]),
+        self.TrackFilter.updateIMU(gyroscope_=np.array([self.a_raw, self.b_raw, self.c_raw]),
                                    accelerometer=np.array([self.x_raw, self.y_raw, self.z_raw]),
                                    sample_time=self.T, reset=reset)
         self.roll_filt_python = self.TrackFilter.getRollDeg() + delta_roll
@@ -272,8 +273,8 @@ class Sensors:
         self.O_QUIET_THR = Device.O_QUIET_THR
 
         # Head nod
-        self.max_nod_f = max( abs(self.pitch_filt)- Device.pitch_thr_def_forte, abs(self.roll_filt) - Device.roll_thr_def_forte )
-        self.max_nod_p = max( abs(self.pitch_filt)- Device.pitch_thr_def_piano, abs(self.roll_filt) - Device.roll_thr_def_piano )
+        self.max_nod_f = max( abs(self.pitch_deg)- Device.pitch_thr_def_forte, abs(self.roll_deg) - Device.roll_thr_def_forte )
+        self.max_nod_p = max( abs(self.pitch_deg)- Device.pitch_thr_def_piano, abs(self.roll_deg) - Device.roll_thr_def_piano )
         self.head_reset = reset or self.HeadShakePer.calculate( not(self.o_is_quiet_sure and self.g_is_quiet_sure),
                                                                 Device.SHAKE_S, Device.SHAKE_R, self.T, reset )
         self.max_nod_f_confirmed = self.HeadNodPerF.calculate( self.max_nod_f > 0 and not self.head_reset, Device.HEAD_S,
@@ -321,10 +322,10 @@ class Sensors:
         self.saved.head_buzz_f.append(self.head_buzz_f)
         self.saved.head_buzz_p.append(self.head_buzz_p)
         self.saved.head_buzz.append(self.head_buzz_f)  # yes, that's right
-        self.saved.pitch_filt.append(self.pitch_filt)
+        self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.pitch_filt_python.append(self.pitch_filt_python)
         self.saved.yaw_filt_python.append(self.yaw_filt_python)
-        self.saved.roll_filt.append(self.roll_filt)
+        self.saved.roll_deg.append(self.roll_deg)
         self.saved.roll_filt_python.append(self.roll_filt_python)
         self.saved.cf.append(self.cf)
         self.saved.o_quiet.append(self.o_quiet)
@@ -377,9 +378,9 @@ class Saved:
         self.head_buzz_f = []
         self.head_buzz_p = []
         self.head_buzz = []
-        self.roll_filt = []
-        self.pitch_filt = []
-        self.yaw_filt = []
+        self.roll_deg = []
+        self.pitch_deg = []
+        self.yaw_deg = []
         self.roll_filt_python = []
         self.pitch_filt_python = []
         self.yaw_filt_python = []

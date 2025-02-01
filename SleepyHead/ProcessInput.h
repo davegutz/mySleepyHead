@@ -23,8 +23,9 @@
 
 #pragma once
 #include "SleepyHead.h"
+#include "constants.h"
 
-uint8_t plot_num = 11;
+uint8_t plot_num = plot_num_def;
 boolean monitoring = false;
 boolean plotting_all = true;
 boolean enable_motor = false;
@@ -151,6 +152,9 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               break;
           }
           break;
+        case ( 'H' ):  // H - header print legend top row and one line of data
+          Sen->print_default_hdr(plot_num_def);
+          break;
         case ( 'h' ):  // h  - help
           plotting_all = false;
           monitoring = false;
@@ -172,6 +176,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.print("\t fl = tau_lt ("); Serial.print(Sen->LTST_Filter->get_tau_lt(), 3); Serial.println(")");
           Serial.print("\t fs = tau_st ("); Serial.print(Sen->LTST_Filter->get_tau_st(), 3); Serial.println(")");
           Serial.println("h - this help");
+          Serial.println("H - print header and one line of data for the default data stream that starts automatically on startup");
           Serial.println("P? - Print stuff");
           Serial.println("\t PL - LTST Filter");
           Serial.println("pp? - plot all version X");
@@ -183,7 +188,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("\t pp4 - quiet:     (T_rot, o_filt, o_quiet, o_is_quiet_sure, T_acc, g_filt, g_quiet, g_is_quiet_sure)");
           Serial.println("\t pp5 - quiet raw: (o_quiet, g_quiet)");
           Serial.println("\t pp6 - total:     (T_rot, o_filt, T_acc, g_filt)");
-          Serial.println("\t pp7 - rpy:       (roll_filt, pitch_filt, roll_rate, pitch_rate, yaw_rate, eye_rate)");
+          Serial.println("\t pp7 - rpy:       (roll_deg, pitch_deg, roll_rate, pitch_rate, yaw_rate, eye_rate)");
           Serial.println("\t pp8 - head buzz: (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
           Serial.println("\t pp9 - eye buzz:  (ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, eye_cf)");
           Serial.println("\t pp10- stream:    (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
@@ -195,10 +200,6 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.print("\t tw = noise filter cutoff ("); Serial.print(Sen->get_wn_q_filt(), 3); Serial.println(")");
           Serial.println("vv?  - verbosity debug level (not implemented)");
           Serial.println("x?  - manually test Mahony tracking filter ( true = real time, false = pulse )");
-          break;
-        case ( 'm' ):  // m  - print all
-          plotting_all = false;
-          monitoring = !monitoring;
           break;
         case ( 'P' ):  // P - print
           switch ( letter_1 )

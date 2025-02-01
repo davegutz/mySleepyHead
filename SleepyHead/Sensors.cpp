@@ -85,18 +85,18 @@ void Sensors::filter_head(const boolean reset, const boolean run)
     }
 
     // RPY
-    roll_filt = TrackFilter->getRollDeg() + delta_roll_;
-    pitch_filt = TrackFilter->getPitchDeg() + delta_pitch_;
-    yaw_filt = TrackFilter->getYawDeg();
+    roll_deg = TrackFilter->getRollDeg() + delta_roll_;
+    pitch_deg = TrackFilter->getPitchDeg() + delta_pitch_;
+    yaw_deg = TrackFilter->getYawDeg();
 
-    // Rates
+    // Rates, deg/s
     roll_rate_ = RollRateFilt->calculate(a_raw, reset, min(T_rot_, MAX_DT_HEAD));
     pitch_rate_ = PitchRateFilt->calculate(b_raw, reset, min(T_rot_, MAX_DT_HEAD));
     yaw_rate_ = YawRateFilt->calculate(c_raw, reset, min(T_rot_, MAX_DT_HEAD));
 
     // Head sensor
-    max_nod_f_ = max( abs(pitch_filt)- pitch_thr_f_, abs(roll_filt) - roll_thr_f_ ) ;
-    max_nod_p_ = max( abs(pitch_filt)- pitch_thr_p_, abs(roll_filt) - roll_thr_p_ ) ;
+    max_nod_f_ = max( abs(pitch_deg)- pitch_thr_f_, abs(roll_deg) - roll_thr_f_ ) ;
+    max_nod_p_ = max( abs(pitch_deg)- pitch_thr_p_, abs(roll_deg) - roll_thr_p_ ) ;
 
     head_reset_ = reset || HeadShakePer->calculate(!(o_is_quiet_sure_ && g_is_quiet_sure_), SHAKE_S, SHAKE_R, T_acc_, reset);
 
@@ -279,8 +279,8 @@ void Sensors::pretty_print_head()
 {
   Serial.println("Head:");
   Serial.print("\thead_reset\t"); Serial.println(head_reset_, 3);
-  Serial.print("\tpitch\t\t"); Serial.println(pitch_filt, 3);
-  Serial.print("\troll\t\t"); Serial.println(roll_filt, 3);
+  Serial.print("\tpitch\t\t"); Serial.println(pitch_deg, 3);
+  Serial.print("\troll\t\t"); Serial.println(roll_deg, 3);
   Serial.print("\tmax_nod_p\t"); Serial.println(max_nod_p_, 3);
   Serial.print("\tmax_nod_f\t"); Serial.println(max_nod_f_, 3);
   Serial.print("\tnod_p_conf\t"); Serial.println(max_nod_p_confirmed_, 2);
@@ -312,16 +312,27 @@ void Sensors::print_all_header()
 {
   Serial.println("T_rot_*\ta_filt\tb_filt\tc_filt\to_filt\to_is_quiet\to_is_quiet_sure\t\tT_acc\tx_filt\ty_filt\tz_filt\tg_filt\tg_is_quiet\tg_is_quiet_sure");
 }
-// Detect no signal present based on detection of quiet signal.
-// Research by sound industry found that 2-pole filtering is the sweet spot between seeing noise
-// and actual motion without 'guilding the lily'
-void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr)
+
+// Print default header key
+void Sensors::print_default_hdr(const uint8_t plot_num)
 {
-  o_is_quiet_ = abs(o_quiet) <= o_quiet_thr;  // o_filt is rss
-  o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
-  g_is_quiet_ = abs(g_quiet) <= g_quiet_thr;  // g_filt is rss
-  g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
-  static int count = 0;
+ switch ( plot_num )
+  {
+    case 0 ... 9:
+      Serial.println("header embedded in each line of output for Arduino Serial Plotter use");
+      break;
+    case 10:
+      Serial.println("pp10");
+      print_rapid(true, time_eye_s());  // pp10
+      break;
+    case 11:
+      Serial.println("pp11");
+      print_Mahony(true, time_eye_s());  // pp11
+      break;
+    default:
+      Serial.println("unknown input; check code");
+      break;
+  }
 }
 
 // Print pp10 header
@@ -348,10 +359,10 @@ void Sensors::print_rapid_10_hdr()
   Serial.print("max_nod_p,");
   Serial.print("max_nod_p_confirmed,");
   Serial.print("delta_pitch,");
-  Serial.print("pitch_filt,");
+  Serial.print("pitch_deg,");
   Serial.print("delta_roll,");
-  Serial.print("roll_filt,");
-  Serial.print("yaw_filt,");
+  Serial.print("roll_deg,");
+  Serial.print("yaw_deg,");
   Serial.print("head_buzz_f,");
   Serial.print("head_buzz_p,");
   Serial.print("eye_buzz,");
@@ -401,10 +412,10 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.print(max_nod_p_, 3); Serial.print(",");
   Serial.print(max_nod_p_confirmed_, 3); Serial.print(",");
   Serial.print(delta_pitch_, 3); Serial.print(",");
-  Serial.print(pitch_filt, 3); Serial.print(",");
+  Serial.print(pitch_deg, 3); Serial.print(",");
   Serial.print(delta_roll_, 3); Serial.print(",");
-  Serial.print(roll_filt, 3); Serial.print(",");
-  Serial.print(yaw_filt, 3); Serial.print(",");
+  Serial.print(roll_deg, 3); Serial.print(",");
+  Serial.print(yaw_deg, 3); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
   Serial.print(head_buzz_p_); Serial.print(",");
   Serial.print(eye_buzz_); Serial.print(",");
@@ -516,6 +527,18 @@ void Sensors::print_rapid(const boolean print_hdr, const float time_s)  // pp10
 {
     if ( print_hdr ) print_rapid_10_hdr();  // pp10
     print_rapid_10(time_s);  // pp10
+}
+
+// Detect no signal present based on detection of quiet signal.
+// Research by sound industry found that 2-pole filtering is the sweet spot between seeing noise
+// and actual motion without 'guilding the lily'
+void Sensors::quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr)
+{
+  o_is_quiet_ = abs(o_quiet) <= o_quiet_thr;  // o_filt is rss
+  o_is_quiet_sure_ = OQuietPer->calculate(o_is_quiet_, QUIET_S, QUIET_R, T_rot_, reset);
+  g_is_quiet_ = abs(g_quiet) <= g_quiet_thr;  // g_filt is rss
+  g_is_quiet_sure_ = GQuietPer->calculate(g_is_quiet_, QUIET_S, QUIET_R, T_acc_, reset);
+  static int count = 0;
 }
 
 // Sample the IR (Eye)
