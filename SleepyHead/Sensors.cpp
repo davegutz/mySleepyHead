@@ -90,9 +90,9 @@ void Sensors::filter_head(const boolean reset, const boolean run)
     yaw_deg = TrackFilter->getYawDeg();
 
     // Rates, deg/s
-    roll_rate_ = RollRateFilt->calculate(a_raw, reset, min(T_rot_, MAX_DT_HEAD));
-    pitch_rate_ = PitchRateFilt->calculate(b_raw, reset, min(T_rot_, MAX_DT_HEAD));
-    yaw_rate_ = YawRateFilt->calculate(c_raw, reset, min(T_rot_, MAX_DT_HEAD));
+    roll_rate_ = RollRateFilt->calculate(roll_deg, reset, min(T_rot_, MAX_DT_HEAD));
+    pitch_rate_ = PitchRateFilt->calculate(pitch_deg, reset, min(T_rot_, MAX_DT_HEAD));
+    yaw_rate_ = YawRateFilt->calculate(yaw_deg, reset, min(T_rot_, MAX_DT_HEAD));
 
     // Head sensor
     max_nod_f_ = max( abs(pitch_deg)- pitch_thr_f_, abs(roll_deg) - roll_thr_f_ ) ;

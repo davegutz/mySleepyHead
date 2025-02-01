@@ -98,9 +98,9 @@ public:
         GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
         HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init);
         EyeRateFilt = new RateLagExp(Tfilt_head_init, TAU_E_FILT, -v3v3_nom, v3v3_nom);
-        RollRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
-        PitchRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
-        YawRateFilt = new RateLagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
+        RollRateFilt = new RateLagExp(Tfilt_head_init, TAU_HEAD_RATE_FILT, -D_MAX, D_MAX);
+        PitchRateFilt = new RateLagExp(Tfilt_head_init, TAU_HEAD_RATE_FILT, -D_MAX, D_MAX);
+        YawRateFilt = new RateLagExp(Tfilt_head_init, TAU_HEAD_RATE_FILT, -D_MAX, D_MAX);
 
     };
 

@@ -61,6 +61,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
 #define TAU_E_FILT             0.1      // Eye filter time constant, sec (0.1)
 #define TAU_FILT               0.1      // Tau filter, sec (0.1)
+#define TAU_HEAD_RATE_FILT     0.2      // Head rate filter time constant, sec (0.2)
 #define TAU_Q_FILT             0.1      // Quiet rate time constant, sec (0.1)
 #define WN_Q_FILT               5.      // Quiet filter-2 natural frequency, r/s (5.)
 #define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)

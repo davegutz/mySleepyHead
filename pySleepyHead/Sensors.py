@@ -40,6 +40,7 @@ class Device:
     D_MAX = 2000.  # Max rotational value, deg/s (34.9*180/pi) limit of hardware
     TAU_E_FILT = 0.1  # Tau rate filter, sec (0.1)
     TAU_FILT = 0.1  # Tau filter, sec (0.1)
+    TAU_HEAD_RATE_FILT = 0.2  # Tau filter, sec (0.1)
     WN_Q_FILT = 5.  # Quiet filter-2 natural frequency, r/s (5.)
     ZETA_Q_FILT = 0.9  # Quiet fiter-2 damping factor (0.9)
     TAU_Q_FILT = 0.1  # Quiet rate time constant, sec (0.1)
@@ -103,9 +104,9 @@ class Sensors:
 
         # Rates
         self.EyeRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_E_FILT, -Device.v3v3_nom, Device.v3v3_nom)
-        self.RollRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
-        self.PitchRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
-        self.YawRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_FILT, -Device.D_MAX, Device.D_MAX)
+        self.RollRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_HEAD_RATE_FILT, -Device.D_MAX, Device.D_MAX)
+        self.PitchRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_HEAD_RATE_FILT, -Device.D_MAX, Device.D_MAX)
+        self.YawRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_HEAD_RATE_FILT, -Device.D_MAX, Device.D_MAX)
 
         # data
         self.time = None
