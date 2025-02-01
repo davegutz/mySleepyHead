@@ -65,7 +65,7 @@ def main(dt=0.1, set_all=0.2, hold_1=3., hold_2=2., hold_3=5.):
     my_wag = Wag(init=False, nom_dt=dt, set_all=set_all, hold_1=hold_1, hold_2=hold_2, hold_3=hold_3)
     freq_hz = 0.6
     freq_rps = freq_hz * 2. * np.pi  # r/s
-    period = 1. / freq_hz
+    period = 1.5 / freq_hz
     low_thresh = -25.
     high_thresh = 25.
     reset = True
