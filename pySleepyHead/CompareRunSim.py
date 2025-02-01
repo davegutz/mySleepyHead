@@ -117,8 +117,9 @@ def main():
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/full_rate_test.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rest_test_kitty.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rest_test_kitty2.csv'
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test.csv'
+        # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test_noreset.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test_head_shake.csv'
     else:
         path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test.csv'
     # unit_key = 'v20250113_pro0n33iot_Rapid'
@@ -126,8 +127,9 @@ def main():
     # unit_key = 'v20250113_wearDn33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
-    unit_key = 'v20250113_wearDn33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
+    # unit_key = 'v20250113_wearDn33iot_Rapid'
+    unit_key = 'v20250113_wearDn33iot_Rapid'
     time_end_in = None
     data_only = False
     init_time_in = 0.
