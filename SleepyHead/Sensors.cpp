@@ -377,8 +377,8 @@ void Sensors::print_rapid_10_hdr()
   Serial.print("o_quiet,");
   Serial.print("g_is_quiet_sure,");
   Serial.print("o_is_quiet_sure,");
-  Serial.print("g_is_quiet_,");
-  Serial.print("o_is_quiet_,");
+  Serial.print("g_is_quiet,");
+  Serial.print("o_is_quiet,");
   Serial.print("roll_rate,");
   Serial.print("pitch_rate,");
   Serial.print("yaw_rate,");

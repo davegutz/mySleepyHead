@@ -223,7 +223,8 @@ class Sensors:
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
                 # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
-                self.TrackFilter.pp8()
+                # self.TrackFilter.pp8()
+                pass
 
         # Data
         if verbose:

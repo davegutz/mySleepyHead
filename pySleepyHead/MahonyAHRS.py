@@ -170,7 +170,7 @@ class MahonyAHRS:
             # print(f"HALFV: old : [ {self.Data.halfvx[i]}, {self.Data.halfvy[i]}, {self.Data.halfvz[i]} ]  ver: [ {self.halfvx_}, {self.halfvy_}, {self.halfvz_} ]  end=''")
             # print(f"HALFE: old : [ {self.Data.halfex[i]}, {self.Data.halfey[i]}, {self.Data.halfez[i]} ]  ver: [ {self.halfex_}, {self.halfey_}, {self.halfez_} ]")
             # print(f"quat: old : [ {self.Data.q0[i]}, {self.Data.q1[i]}, {self.Data.q2[i]}, {self.Data.q3[i]} ]  ver: [ {self.quat[0]}, {self.quat[1]}, {self.quat[2]}, {self.quat[3]} ] ")
-            print(f"IFB: old : [ {self.Data.ifb_x[i]}, {self.Data.ifb_y[i]}, {self.Data.ifb_z[i]} ]  ver: [ {self.ifb_x}, {self.ifb_y}, {self.ifb_z} ]  end=''")
+            # print(f"IFB: old : [ {self.Data.ifb_x[i]}, {self.Data.ifb_y[i]}, {self.Data.ifb_z[i]} ]  ver: [ {self.ifb_x}, {self.ifb_y}, {self.ifb_z} ]  end=''")
 
         # Data
         if verbose:
