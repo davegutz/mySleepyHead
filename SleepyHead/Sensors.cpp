@@ -106,6 +106,11 @@ void Sensors::filter_head(const boolean reset, const boolean run)
     // Head buzz
     head_buzz_f_ = max_nod_f_confirmed_;
     head_buzz_p_ = max_nod_p_confirmed_;
+
+    // Yaw head wag to reset eye sensors
+    eye_reset_RLR_ = YawWagRLR->calculate(reset, T_rot_, yaw_rate_<=YAW_RATE_LOW, yaw_rate_>=YAW_RATE_HIGH);
+    eye_reset_LRL_ = YawWagLRL->calculate(reset, T_rot_, yaw_rate_>=YAW_RATE_HIGH, yaw_rate_<=YAW_RATE_LOW);
+
 }
 
 // Print publish
@@ -275,6 +280,16 @@ void Sensors::plot_total()  // pp6
   Serial.println("");
 }
 
+
+void Sensors::plot_yaw_reset()  // pp12
+{
+  Serial.print("yaw/100:"); Serial.print( (TrackFilter->getYawDeg()-180.) / 100.);
+  Serial.print("\tyaw_rate/100:"); Serial.print(yaw_rate_/100.);
+  Serial.print("\tyawRLR-4:"); Serial.print(eye_reset_RLR_-4.);
+  Serial.print("\tyawLRL-2:"); Serial.print(eye_reset_LRL_-2.);
+  Serial.println("");
+}
+
 void Sensors::pretty_print_head()
 {
   Serial.println("Head:");
@@ -328,6 +343,10 @@ void Sensors::print_default_hdr(const uint8_t plot_num)
     case 11:
       Serial.println("pp11");
       print_Mahony(true, time_eye_s());  // pp11
+      break;
+    case 12:
+      Serial.println("pp12");
+      plot_yaw_reset();  // pp12
       break;
     default:
       Serial.println("unknown input; check code");

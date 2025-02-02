@@ -192,6 +192,8 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("\t pp8 - head buzz: (g_is_quiet_sure, o_is_quiet_sure, max_nod_f, max_nod_p, head_buzz, cf, eye_buzz)");
           Serial.println("\t pp9 - eye buzz:  (ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, eye_cf)");
           Serial.println("\t pp10- stream:    (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
+          Serial.println("\t pp11 - Mahony:   (...)");
+          Serial.println("\t pp12 - yaw reset:(yaw, yaw_rate, yawRLR, yawLRL)");
           Serial.println("t?<val> - trim attitude");
           Serial.print("\t tg = G quiet thr, small more sensitive ("); Serial.print(*g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t to = O angular speed quiet thr, small more sensitive ("); Serial.print(*o_quiet_thr, 3); Serial.println(")");
@@ -218,16 +220,16 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
         case ( 'p' ):  // p - plot
           switch ( letter_1 )
           {
-            case ( 'p' ):  // pp - plot all filtered pp0, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9, pp10
+            case ( 'p' ):  // pp - plot all filtered pp0, pp1, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9, pp10, pp11, pp12
               switch ( i_value )
               {
-                case 0 ... 11:
+                case 0 ... 12:
                   plot_num = i_value;
                   plotting_all = true;
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony)");
+                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
                   plotting_all = false;
                   break;
               }

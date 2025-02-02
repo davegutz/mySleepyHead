@@ -34,5 +34,31 @@
 #else
   #include "application.h"
 #endif
+#include "myFilters.h"
 
-
+class Wag
+{
+public:
+  Wag();
+  Wag(const boolean init, const float nom_dt, const float set_all, const float hold_1, const float hold_2, const float hold_3);
+  ~Wag();
+  // operators
+  // functions
+  bool calculate(const boolean reset, const float T, const float in_1, const float in_2);
+  void repr();
+protected:
+  bool reset_;
+  float T_;
+  float in_1_;
+  float in_2_;
+  boolean output_;
+  float time_set_;
+  float time_reset_1_;
+  float time_reset_2_;
+  float time_reset_3_;
+  TFDelay *timer_1;
+  TFDelay *timer_2;
+  TFDelay *timer_3;
+  boolean state_1_;
+  boolean state_2_;
+};

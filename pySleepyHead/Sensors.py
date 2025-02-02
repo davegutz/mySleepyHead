@@ -67,9 +67,9 @@ class Device:
     roll_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
     v3v3_nom = 3.3  # IR detector power supply, v (3.3)
     YAW_SET = 0.2  # Persistence to detect yaw motion, sec (0.2)
-    YAW_1 = 3.0  # Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
-    YAW_2 = 2.0  # Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
-    YAW_3 = 1.0  # Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
+    YAW_HOLD_1 = 3.0  # Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
+    YAW_HOLD_2 = 2.0  # Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
+    YAW_HOLD_3 = 1.0  # Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
     YAW_RATE_LOW = -60.  # Yaw rate to declare right motion detected, deg/sec (-25.)
     YAW_RATE_HIGH = 60.  # Yaw rat to declare left motion detected, deg/sec (25.)
     YAW_RESET_S = 0.2  # Persistence of reset flag to latch in, sec (0.2)
@@ -102,9 +102,9 @@ class Sensors:
         self.TrackFilter = MahonyAHRS(self.Data, sample_period=Device.NOMINAL_DT, Kp=Device.t_kp_def,
                                       Ki=Device.t_ki_def)
         self.yaw_LRL_detect = Wag(init=False, nom_dt=Device.NOMINAL_DT, set_all=Device.YAW_SET,
-                                    hold_1=Device.YAW_1, hold_2=Device.YAW_2, hold_3=Device.YAW_3)
+                                    hold_1=Device.YAW_HOLD_1, hold_2=Device.YAW_HOLD_2, hold_3=Device.YAW_HOLD_3)
         self.yaw_RLR_detect = Wag(init=False, nom_dt=Device.NOMINAL_DT, set_all=Device.YAW_SET,
-                                    hold_1=Device.YAW_1, hold_2=Device.YAW_2, hold_3=Device.YAW_3)
+                                    hold_1=Device.YAW_HOLD_1, hold_2=Device.YAW_HOLD_2, hold_3=Device.YAW_HOLD_3)
         self.YawResetPer = TFDelay(False, Device.YAW_RESET_S, Device.YAW_RESET_R, Device.NOMINAL_DT)
 
         # Eye filters

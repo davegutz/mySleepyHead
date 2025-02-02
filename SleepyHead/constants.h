@@ -73,9 +73,9 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
 const float YAW_SET = 0.2;              // Persistence to detect yaw motion, sec (0.2)
-const float YAW_1 = 3.0;                // Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
-const float YAW_2 = 2.0;                // Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
-const float YAW_3 = 1.0;                // Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
+const float YAW_HOLD_1 = 3.0;                // Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
+const float YAW_HOLD_2 = 2.0;                // Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
+const float YAW_HOLD_3 = 1.0;                // Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
 const float YAW_RATE_LOW = -60.;        // Yaw rate to declare right motion detected, deg/sec (-25.)
 const float YAW_RATE_HIGH = 60.;        // Yaw rat to declare left motion detected, deg/sec (25.)
 const float YAW_RESET_S = 0.2;          // Persistence of reset flag to latch in, sec (0.2)
