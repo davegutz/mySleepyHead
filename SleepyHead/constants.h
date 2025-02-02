@@ -34,7 +34,7 @@
 // Setup
 #include "local_config.h"
 const String unit_key = version + "_" + HDWE_UNIT;
-const uint8_t plot_num_def = 10;
+const uint8_t plot_num_def = 126;
 
 const double MAX_DT_EYE = 0.1;      // Maximum filter update time in call to prevent aliasing, sec (0.1)
 const double MAX_DT_HEAD = 0.2;     // Maximum filter update time in call to prevent aliasing, sec (0.2)

@@ -32,10 +32,10 @@ extern int debug;
 void Sensors::filter_eye(const boolean reset)
 {
     reset_ = reset;
+    glasses_off_ = eye_voltage_norm_ > GLASSES_OFF_VOLTAGE;
+    glasses_reset_ = glasses_off_ || eye_reset_RLR_ || eye_reset_LRL_;
     // IR Sensor
-    eye_reset_ = reset  ||
-      GlassesOffPer->calculate( (eye_voltage_norm_ > GLASSES_OFF_VOLTAGE) || eye_reset_RLR_ || eye_reset_LRL_,
-                            OFF_S, OFF_R, T_eye_, reset);
+    eye_reset_ = reset_ || GlassesOffPer->calculate( glasses_reset_, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE));
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
     eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));     
@@ -239,6 +239,7 @@ void Sensors::plot_eye_buzz()  // plot pp9
   Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
   Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
+  Serial.print("\teye_reset+2:"); Serial.print(eye_reset_+2);
   Serial.println("");
 }
 
@@ -289,7 +290,11 @@ void Sensors::plot_yaw_reset()  // pp12
   Serial.print("\tyaw_rate/100:"); Serial.print(yaw_rate_/100.);
   Serial.print("\tyawRLR-4:"); Serial.print(eye_reset_RLR_-4.);
   Serial.print("\tyawLRL-2:"); Serial.print(eye_reset_LRL_-2.);
+  Serial.print("\treset+2:"); Serial.print(reset_+2.);
+  Serial.print("\tglasses_off-6:"); Serial.print(glasses_off_-6.);
+  Serial.print("\tglasses_reset-8:"); Serial.print(glasses_off_-8.);
   Serial.print("\teye_reset+2:"); Serial.print(eye_reset_+2.);
+  Serial.print("\tcf-8:"); Serial.print(LTST_Filter->cf()-8.);
   Serial.println("");
 }
 

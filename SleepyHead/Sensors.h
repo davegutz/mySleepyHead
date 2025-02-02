@@ -54,7 +54,7 @@ public:
     pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
     eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
     head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
-    reset_(false), wn_q_filt_(0)
+    reset_(false), wn_q_filt_(0), glasses_off_(true), glasses_reset_(true)
   {};
   Sensors(const unsigned long long time_now, const float two_kp, const float two_ki,
     const int sensorPin, const String unit):
@@ -70,7 +70,7 @@ public:
     unit_(unit), v3v3_(v3v3_nom), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
     eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
     head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
-    reset_(true), wn_q_filt_(WN_Q_FILT)
+    reset_(true), wn_q_filt_(WN_Q_FILT), glasses_off_(true), glasses_reset_(true)
   {
     // Update time and time constant changed on the fly
     float Tfilt_head_init = HEAD_DELAY/1000.;
@@ -275,4 +275,6 @@ protected:
   float yaw_rate_;  // Yaw rate based on raw data, deg/s
   boolean eye_reset_LRL_;  // Eye reset signal based off left-right-left yaw motion
   boolean eye_reset_RLR_;  // Eye reset signal based off right-left-right yaw motion
+  boolean glasses_off_;  // Eye glasses off signal
+  boolean glasses_reset_;  // Eye glasses reset signal
 };
