@@ -273,11 +273,17 @@ boolean turn_off_motor_and_led()
 }
 
 // Motor on
-boolean turn_on_motor_and_led(const boolean enable)
+boolean turn_on_motor_and_led(const boolean enable, const boolean piano)
 {
+  static uint8_t count = 0;
+  if ( count > 90 ) count = 0;
   if ( enable )
   {
-    digitalWrite(motorPin, HIGH);
+    if ( count < DUTY_WARN || !piano)
+      digitalWrite(motorPin, HIGH);
+    else
+      digitalWrite(motorPin, LOW);
+    count += 10;
     digitalWrite(LED_BUILTIN, HIGH);
     return true;
   }

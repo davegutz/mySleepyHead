@@ -72,6 +72,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
+#define DUTY_WARN               20      // Warning duty cycle for head piano case, % (20)
 const float YAW_SET = 0.2;              // Persistence to detect yaw motion, sec (0.2)
 const float YAW_HOLD_1 = 3.0;                // Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
 const float YAW_HOLD_2 = 2.0;                // Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
