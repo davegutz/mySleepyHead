@@ -55,7 +55,7 @@ class Device:
     EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
-    OFF_R = 3.  # Persistence glasses off IR sense reset, sec (3.0)
+    OFF_R = 8.  # Persistence glasses off IR sense reset, sec (8.0)
     GLASSES_OFF_VOLTAGE = 2.5  # Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
     SHAKE_S = 0.2  # Persistence head shake motion sense set, sec (0.2) update time is 0.1
     SHAKE_R = 4.0  # Persistence head shake motion sense reset, sec (4.0)

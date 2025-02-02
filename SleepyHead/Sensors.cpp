@@ -33,7 +33,9 @@ void Sensors::filter_eye(const boolean reset)
 {
     reset_ = reset;
     // IR Sensor
-    eye_reset_ = reset || GlassesOffPer->calculate(eye_voltage_norm_ > GLASSES_OFF_VOLTAGE, OFF_S, OFF_R, T_eye_, reset);
+    eye_reset_ = reset  ||
+      GlassesOffPer->calculate( (eye_voltage_norm_ > GLASSES_OFF_VOLTAGE) || eye_reset_RLR_ || eye_reset_LRL_,
+                            OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE));
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
     eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));     
@@ -287,6 +289,7 @@ void Sensors::plot_yaw_reset()  // pp12
   Serial.print("\tyaw_rate/100:"); Serial.print(yaw_rate_/100.);
   Serial.print("\tyawRLR-4:"); Serial.print(eye_reset_RLR_-4.);
   Serial.print("\tyawLRL-2:"); Serial.print(eye_reset_LRL_-2.);
+  Serial.print("\teye_reset+2:"); Serial.print(eye_reset_+2.);
   Serial.println("");
 }
 

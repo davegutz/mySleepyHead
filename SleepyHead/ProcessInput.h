@@ -193,7 +193,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("\t pp9 - eye buzz:  (ltstate, ststate, dltst, eye_closed, eye_closed_confirmed, eye_buzz, max_nod_f, max_nod_p, eye_cf)");
           Serial.println("\t pp10- stream:    (key_Rapid, cTime, v3v3, eye_voltage_norm, eye_closed, eye_closed_confirmed, max_nod_f, max_nod_p, head_buzz, eye_buzz, lt_state, st_state, dltst, freeze)");
           Serial.println("\t pp11 - Mahony:   (...)");
-          Serial.println("\t pp12 - yaw reset:(yaw, yaw_rate, yawRLR, yawLRL)");
+          Serial.println("\t pp12 - yaw reset:(yaw, yaw_rate, yawRLR, yawLRL, eye_reset)");
           Serial.println("t?<val> - trim attitude");
           Serial.print("\t tg = G quiet thr, small more sensitive ("); Serial.print(*g_quiet_thr, 3); Serial.println(")");
           Serial.print("\t to = O angular speed quiet thr, small more sensitive ("); Serial.print(*o_quiet_thr, 3); Serial.println(")");
