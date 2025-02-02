@@ -70,8 +70,8 @@ class Device:
     YAW_1 = 3.0  # Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
     YAW_2 = 2.0  # Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
     YAW_3 = 1.0  # Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
-    YAW_RATE_LOW = -25.  # Yaw rate to declare right motion detected, deg/sec (-25.)
-    YAW_RATE_HIGH = 25.  # Yaw rat to declare left motion detected, deg/sec (25.)
+    YAW_RATE_LOW = -60.  # Yaw rate to declare right motion detected, deg/sec (-25.)
+    YAW_RATE_HIGH = 60.  # Yaw rat to declare left motion detected, deg/sec (25.)
     YAW_RESET_S = 0.2  # Persistence of reset flag to latch in, sec (0.2)
     YAW_RESET_R = 5.0  # Hold time of yaw head wag reset used to reset eye filters and silence alarm temporarily, sec (5.0)
 
@@ -332,7 +332,7 @@ class Sensors:
         yaw_rate_left = self.yaw_rate >= Device.YAW_RATE_HIGH
         self.yaw_LRL = self.yaw_LRL_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_left,
                                                      in_2=yaw_rate_right)
-        self.yaw_RLR = self.yaw_LRL_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_right,
+        self.yaw_RLR = self.yaw_RLR_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_right,
                                                      in_2=yaw_rate_left)
         self.yaw_eye_reset = self.YawResetPer.calculate(self.yaw_LRL or self.yaw_RLR, Device.YAW_RESET_S,
                                                         Device.YAW_RESET_R, self.T, reset)

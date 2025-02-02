@@ -22,6 +22,8 @@ Dependencies:
 """
 import numpy as np
 import matplotlib.pyplot as plt
+
+from MahonyAHRS import Device
 from myFilters import InlineExpLag
 from DataOverModel import plq
 # below suppresses runtime error display******************
@@ -31,6 +33,7 @@ from DataOverModel import plq
 # if platform != 'linux':
 #     from unite_pictures import unite_pictures_into_pdf, cleanup_fig_files
 import sys
+from Sensors import Device
 if sys.platform == 'darwin':
     import matplotlib
     matplotlib.use('tkagg')
@@ -180,18 +183,18 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plt.savefig(fig_file_name, format="png")
 
     fig_list.append(plt.figure())  # GP 5
-    plt.subplot(121)
+    plt.subplot(111)
     plt.title(plot_title + ' GP 5')
-    plq(plt, mo, 'time', mo, 'yaw_rate', color='red', linestyle='-', label='yaw_rate' + ref_str)
-    plq(plt, mv, 'time', mv, 'yaw_rate', color='blue', linestyle='--', label='yaw_rate' + test_str)
-    plt.legend(loc=1)
-    plt.subplot(122)
     plq(plt, mo, 'time', mo, 'yaw_eye_reset', add=2, color='red', linestyle='-', label='yaw_eye_reset' + ref_str + '+2')
     plq(plt, mv, 'time', mv, 'yaw_eye_reset', add=2, color='blue', linestyle='--', label='yaw_eye_reset' + test_str + '+2')
     plq(plt, mo, 'time', mo, 'yaw_RLR', add=0, color='red', linestyle='-', label='yaw_RLR' + ref_str + '-0')
     plq(plt, mv, 'time', mv, 'yaw_RLR', add=0, color='blue', linestyle='--', label='yaw_RLR' + test_str + '-0')
     plq(plt, mo, 'time', mo, 'yaw_LRL', add=-2, color='red', linestyle='-', label='yaw_LRL' + ref_str + '-2')
     plq(plt, mv, 'time', mv, 'yaw_LRL', add=-2, color='blue', linestyle='--', label='yaw_LRL' + test_str + '-2')
+    plq(plt, mv, 'time', mv, 'yaw_rate', slr=0, add=Device.YAW_RATE_LOW/20., color='orange', linestyle='--', label='YAW_RATE_LOW' + test_str + '/20')
+    plq(plt, mv, 'time', mv, 'yaw_rate', slr=0, add=Device.YAW_RATE_HIGH/20., color='orange', linestyle='--', label='YAW_RATE_HIGH' + test_str + '/20')
+    plq(plt, mo, 'time', mo, 'yaw_rate', slr=.05, color='red', linestyle='-', label='yaw_rate' + ref_str + '/20')
+    plq(plt, mv, 'time', mv, 'yaw_rate', slr=.05, color='blue', linestyle='--', label='yaw_rate' + test_str + '/20')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
