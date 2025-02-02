@@ -12,15 +12,14 @@
 # Lesser General Public License for more details.
 #
 # See http://www.fsf.org/licensing/licenses/lgpl.txt for full license text.
-import numpy as np
-from matplotlib.bezier import NonIntersectingPathException
-from numpy import arange
-
 from TFDelay import TFDelay
+from numpy import arange
+import numpy as np
 
 
 class Wag:
-    """Go once with in_by_2 then with in_by_1 then complete with in_by_2"""
+    """Detect a double head move to use as a reset flag.
+    Go once with in_by_2 then with in_by_1 then complete with in_by_2"""
     def __init__(self, init=False, nom_dt=0.1, set_all=0.1, hold_1=3., hold_2=2., hold_3=5.):
         self.reset = None
         self.T = nom_dt
@@ -69,8 +68,6 @@ def main(dt=0.1, set_all=0.2, hold_1=3., hold_2=2., hold_3=5.):
     low_thresh = -25.
     high_thresh = 25.
     reset = True
-    low = False
-    high = False
     for i in arange(0, 100):
         t = dt * i
         signal = -100.*np.sin(t * freq_rps)
@@ -86,7 +83,7 @@ def main(dt=0.1, set_all=0.2, hold_1=3., hold_2=2., hold_3=5.):
               " inx1{:2d}:".format(my_wag.in_by_1),
               " state_1{:2d}:".format(my_wag.state_1),
               " state_2{:2d}:".format(my_wag.state_2),
-              " output{:2d}:".format(my_wag.output))
+              " output{:2d}:".format(triggered))
         reset = False
 
 

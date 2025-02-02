@@ -27,7 +27,7 @@ from DataOverModel import plq
 # below suppresses runtime error display******************
 # import os
 # os.environ["KIVY_NO_CONSOLELOG"] = "1"
-# from kivy.utils import platform  # failed experiment to run BLE data plotting realtime on android
+# from kivy.utils import platform  # failed experiment to run blue data plotting realtime on android
 # if platform != 'linux':
 #     from unite_pictures import unite_pictures_into_pdf, cleanup_fig_files
 import sys
@@ -143,9 +143,9 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
-    fig_list.append(plt.figure())  # GP 2
+    fig_list.append(plt.figure())  # GP 3
     plt.subplot(131)
-    plt.title(plot_title + ' GP 2')
+    plt.title(plot_title + ' GP 3')
     plq(plt, mo, 'time', mo, 'roll_deg', color='red', linestyle='-', label='roll_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'roll_filt_python', color='blue', linestyle='--', label='roll_filt_python' + test_str)
     plt.legend(loc=1)
@@ -161,9 +161,9 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
-    fig_list.append(plt.figure())  # GP 2
+    fig_list.append(plt.figure())  # GP 4
     plt.subplot(131)
-    plt.title(plot_title + ' GP 2')
+    plt.title(plot_title + ' GP 4')
     plq(plt, mo, 'time', mo, 'roll_rate', color='red', linestyle='-', label='roll_rate' + ref_str)
     plq(plt, mv, 'time', mv, 'roll_rate', color='blue', linestyle='--', label='roll_rate' + test_str)
     plt.legend(loc=1)
@@ -174,6 +174,24 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plt.subplot(133)
     plq(plt, mo, 'time', mo, 'yaw_rate', color='orange', linestyle='-', label='yaw_rate' + ref_str)
     plq(plt, mv, 'time', mv, 'yaw_rate', color='cyan', linestyle='--', label='yaw_rate' + test_str)
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
+
+    fig_list.append(plt.figure())  # GP 5
+    plt.subplot(121)
+    plt.title(plot_title + ' GP 5')
+    plq(plt, mo, 'time', mo, 'yaw_rate', color='red', linestyle='-', label='yaw_rate' + ref_str)
+    plq(plt, mv, 'time', mv, 'yaw_rate', color='blue', linestyle='--', label='yaw_rate' + test_str)
+    plt.legend(loc=1)
+    plt.subplot(122)
+    plq(plt, mo, 'time', mo, 'yaw_eye_reset', add=2, color='red', linestyle='-', label='yaw_eye_reset' + ref_str + '+2')
+    plq(plt, mv, 'time', mv, 'yaw_eye_reset', add=2, color='blue', linestyle='--', label='yaw_eye_reset' + test_str + '+2')
+    plq(plt, mo, 'time', mo, 'yaw_RLR', add=0, color='red', linestyle='-', label='yaw_RLR' + ref_str + '-0')
+    plq(plt, mv, 'time', mv, 'yaw_RLR', add=0, color='blue', linestyle='--', label='yaw_RLR' + test_str + '-0')
+    plq(plt, mo, 'time', mo, 'yaw_LRL', add=-2, color='red', linestyle='-', label='yaw_LRL' + ref_str + '-2')
+    plq(plt, mv, 'time', mv, 'yaw_LRL', add=-2, color='blue', linestyle='--', label='yaw_LRL' + test_str + '-2')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
