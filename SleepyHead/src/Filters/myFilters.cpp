@@ -853,14 +853,14 @@ void LongTermShortTerm_Filter::assign_coeff(const double T)
   kst_ = T_ / tau_st_;
 }
 
-boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T)
+boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T, const double lt_bias_init)
 {
   tau_lt_ = tau_lt;
   tau_st_ = tau_st;
-  return LongTermShortTerm_Filter::calculate(in, RESET, T);
+  return LongTermShortTerm_Filter::calculate(in, RESET, T, lt_bias_init);
 }
 
-boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double T)
+boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET, const double T, const double lt_bias_init)
 {
   RESET_ = RESET;
   T_ = T;
@@ -870,8 +870,13 @@ boolean LongTermShortTerm_Filter::calculate(const double in, const boolean RESET
   assign_coeff(T_);
   if ( RESET_ )
   {
-    lt_state_ = input_;
+    lt_state_ = input_ + lt_bias_init;
     st_state_ = input_;
+    dltst_ = 0.0;
+    cf_ = 1.0;
+    freeze_ = false;
+    fault_ = false;
+    return fault_;
   }
 
   if ( ! freeze_ )

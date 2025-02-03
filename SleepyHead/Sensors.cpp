@@ -36,7 +36,7 @@ void Sensors::filter_eye(const boolean reset)
     glasses_reset_ = glasses_off_ || eye_reset_RLR_ || eye_reset_LRL_;
     // IR Sensor
     eye_reset_ = reset_ || GlassesOffPer->calculate( glasses_reset_, OFF_S, OFF_R, T_eye_, reset);
-    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE));
+    eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE), -FRZ_THR_POS);
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
     eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));     
 

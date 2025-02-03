@@ -494,8 +494,8 @@ public:
                            const double flt_thr_pos, const double frz_thr_pos);
   ~LongTermShortTerm_Filter(){};
   void assign_coeff(const double T);
-  virtual boolean calculate(const double in, const boolean RESET, const double T);
-  virtual boolean calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T);
+  virtual boolean calculate(const double in, const boolean RESET, const double T, const double lt_bias_init);
+  virtual boolean calculate(const double in, const boolean RESET, const double tau_lt, const double tau_st, const double T, const double lt_bias_init);
   double cf() { return (cf_); };
   double dltst() { return (dltst_); };
   boolean freeze() { return (freeze_); };
