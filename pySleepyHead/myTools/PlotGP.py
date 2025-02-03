@@ -22,15 +22,18 @@ Dependencies:
 """
 import numpy as np
 import matplotlib.pyplot as plt
+
+from MahonyAHRS import Device
 from myFilters import InlineExpLag
 from DataOverModel import plq
 # below suppresses runtime error display******************
 # import os
 # os.environ["KIVY_NO_CONSOLELOG"] = "1"
-# from kivy.utils import platform  # failed experiment to run BLE data plotting realtime on android
+# from kivy.utils import platform  # failed experiment to run blue data plotting realtime on android
 # if platform != 'linux':
 #     from unite_pictures import unite_pictures_into_pdf, cleanup_fig_files
 import sys
+from Sensors import Device
 if sys.platform == 'darwin':
     import matplotlib
     matplotlib.use('tkagg')
@@ -42,8 +45,10 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_list.append(plt.figure())  # GP 1
     plt.subplot(231)
     plt.title(plot_title + ' GP 1')
-    plq(plt, mo, 'time', mo, 'max_nod_f', color='cyan', linestyle='-', label='max_nod_f' + ref_str)
-    plq(plt, mo, 'time', mo, 'max_nod_p', color='magenta', linestyle='--', label='max_nod_p' + ref_str)
+    plq(plt, mo, 'time', mo, 'max_nod_f', color='red', linestyle='-', label='max_nod_f' + ref_str)
+    plq(plt, mv, 'time', mv, 'max_nod_f', color='blue', linestyle='--', label='max_nod_f' + test_str)
+    plq(plt, mo, 'time', mo, 'max_nod_p', color='magenta', linestyle='-', label='max_nod_p' + ref_str)
+    plq(plt, mv, 'time', mv, 'max_nod_p', color='blue', linestyle='--', label='max_nod_p' + test_str)
     plt.legend(loc=1)
     plt.subplot(232)
     plq(plt, mo, 'time', mo, 'eye_voltage_norm', color='black', linestyle='-', label='eye_voltage_norm' + ref_str)
@@ -98,22 +103,22 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mv, 'time', mv, 'g_quiet', slr=10, add= 2, color='blue', linestyle='--', label='g_quiet' + test_str + '*10+2')
     plq(plt, mv, 'time', mv, 'G_QUIET_THR', slr=10, add= 2, color='red', linestyle=':', label='G_QUIET_THR' + test_str + '*10+2')
     plq(plt, mv, 'time', mv, 'G_QUIET_THR', slr=-10, add= 2, color='red', linestyle=':', label='G_QUIET_THR' + test_str + '*10+2')
-    plq(plt, mo, 'time', mo, 'o_quiet', add=-4, color='blue', linestyle='-', label='o_quiet' + ref_str + '-4')
-    plq(plt, mv, 'time', mv, 'o_quiet', add=-4, color='magenta', linestyle='--', label='o_quiet' + test_str + '-4')
-    plq(plt, mv, 'time', mv, 'O_QUIET_THR', add=-4, color='magenta', linestyle=':', label='O_QUIET_THR' + test_str + '-4')
-    plq(plt, mv, 'time', mv, 'O_QUIET_THR', slr=-1, add=-4, color='magenta', linestyle=':', label='O_QUIET_THR' + test_str + '-4')
+    plq(plt, mo, 'time', mo, 'o_quiet', slr=0.01, add=-4, color='red', linestyle='-', label='o_quiet' + ref_str + '/100-4')
+    plq(plt, mv, 'time', mv, 'o_quiet', slr=0.01, add=-4, color='blue', linestyle='--', label='o_quiet' + test_str + '/100-4')
+    plq(plt, mv, 'time', mv, 'O_QUIET_THR', slr=0.01, add=-4, color='green', linestyle=':', label='O_QUIET_THR' + test_str + '/100-4')
+    plq(plt, mv, 'time', mv, 'O_QUIET_THR', slr=-0.01, add=-4, color='green', linestyle=':', label='O_QUIET_THR' + test_str + '/100-4')
     plt.ylim([-7, 16])
     ax.set_yticks(np.arange(-7, 16, 2))
     plt.legend(loc=1)
     plt.subplot(235)
+    plq(plt, mv, 'time', mv, 'a_raw', slr=0.01, add= 4, color='cyan', linestyle='-', label='a_raw' + test_str + '/100+4')
+    plq(plt, mv, 'time', mv, 'b_raw', slr=0.01, add= 4, color='magenta', linestyle='--', label='b_raw' + test_str + '/100+4')
+    plq(plt, mv, 'time', mv, 'c_raw', slr=0.01, add= 4, color='blue', linestyle='-.', label='c_raw' + test_str + '/100+4')
+    plq(plt, mv, 'time', mv, 'o_raw', slr=0.01, add= 4, color='black', linestyle='-', label='o_raw' + test_str + '/100+4')
     plq(plt, mv, 'time', mv, 'x_raw', color='pink', linestyle='--', label='x_raw' + test_str)
     plq(plt, mv, 'time', mv, 'y_raw', color='cyan', linestyle='-.', label='y_raw' + test_str)
     plq(plt, mv, 'time', mv, 'z_raw', color='red', linestyle='-', label='z_raw' + test_str)
     plq(plt, mv, 'time', mv, 'g_raw', color='orange', linestyle='--', label='g_raw' + test_str)
-    plq(plt, mv, 'time', mv, 'a_raw', add= 2, color='cyan', linestyle='-', label='a_raw' + test_str + '+2')
-    plq(plt, mv, 'time', mv, 'b_raw', add= 2, color='magenta', linestyle='--', label='b_raw' + test_str + '+2')
-    plq(plt, mv, 'time', mv, 'c_raw', add= 2, color='blue', linestyle='-.', label='c_raw' + test_str + '+2')
-    plq(plt, mv, 'time', mv, 'o_raw', add= 2, color='black', linestyle='-', label='o_raw' + test_str + '+2')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
@@ -123,12 +128,12 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_list.append(plt.figure())  # GP 2
     plt.subplot(121)
     plt.title(plot_title + ' GP 2')
-    plq(plt, mo, 'time', mo, 'roll_filt', color='red', linestyle='-', label='roll_filt' + ref_str)
-    plq(plt, mv, 'time', mv, 'roll_filt_python', color='blue', linestyle='--', label='roll_filt' + test_str)
-    plq(plt, mo, 'time', mo, 'pitch_filt', color='black', linestyle='-', label='pitch_filt' + ref_str)
-    plq(plt, mv, 'time', mv, 'pitch_filt_python', color='green', linestyle='--', label='pitch_filt' + test_str)
-    plq(plt, mo, 'time', mo, 'yaw_filt', color='orange', linestyle='-', label='yaw_filt' + ref_str)
-    plq(plt, mv, 'time', mv, 'yaw_filt_python', color='cyan', linestyle='--', label='yaw_filt' + test_str)
+    plq(plt, mo, 'time', mo, 'roll_deg', color='red', linestyle='-', label='roll_deg' + ref_str)
+    plq(plt, mv, 'time', mv, 'roll_filt_python', color='blue', linestyle='--', label='roll_deg' + test_str)
+    plq(plt, mo, 'time', mo, 'pitch_deg', color='black', linestyle='-', label='pitch_deg' + ref_str)
+    plq(plt, mv, 'time', mv, 'pitch_filt_python', color='green', linestyle='--', label='pitch_deg' + test_str)
+    plq(plt, mo, 'time', mo, 'yaw_deg', color='orange', linestyle='-', label='yaw_deg' + ref_str)
+    plq(plt, mv, 'time', mv, 'yaw_filt_python', color='cyan', linestyle='--', label='yaw_deg' + test_str)
     plq(plt, mo, 'time', mo, 'eye_voltage_norm', color='magenta', linestyle='-', label='eye_voltage_norm' + ref_str)
     plt.legend(loc=1)
     plt.subplot(122)
@@ -141,19 +146,55 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
-    fig_list.append(plt.figure())  # GP 2
+    fig_list.append(plt.figure())  # GP 3
     plt.subplot(131)
-    plt.title(plot_title + ' GP 2')
-    plq(plt, mo, 'time', mo, 'roll_filt', color='red', linestyle='-', label='roll_filt' + ref_str)
+    plt.title(plot_title + ' GP 3')
+    plq(plt, mo, 'time', mo, 'roll_deg', color='red', linestyle='-', label='roll_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'roll_filt_python', color='blue', linestyle='--', label='roll_filt_python' + test_str)
     plt.legend(loc=1)
     plt.subplot(132)
-    plq(plt, mo, 'time', mo, 'pitch_filt', color='black', linestyle='-', label='pitch_filt' + ref_str)
+    plq(plt, mo, 'time', mo, 'pitch_deg', color='black', linestyle='-', label='pitch_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'pitch_filt_python', color='green', linestyle='--', label='pitch_filt_python' + test_str)
     plt.legend(loc=1)
     plt.subplot(133)
-    plq(plt, mo, 'time', mo, 'yaw_filt', color='orange', linestyle='-', label='yaw_filt' + ref_str)
+    plq(plt, mo, 'time', mo, 'yaw_deg', color='orange', linestyle='-', label='yaw_deg' + ref_str)
     plq(plt, mv, 'time', mv, 'yaw_filt_python', color='cyan', linestyle='--', label='yaw_filt_python' + test_str)
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
+
+    fig_list.append(plt.figure())  # GP 4
+    plt.subplot(131)
+    plt.title(plot_title + ' GP 4')
+    plq(plt, mo, 'time', mo, 'roll_rate', color='red', linestyle='-', label='roll_rate' + ref_str)
+    plq(plt, mv, 'time', mv, 'roll_rate', color='blue', linestyle='--', label='roll_rate' + test_str)
+    plt.legend(loc=1)
+    plt.subplot(132)
+    plq(plt, mo, 'time', mo, 'pitch_rate', color='black', linestyle='-', label='pitch_rate' + ref_str)
+    plq(plt, mv, 'time', mv, 'pitch_rate', color='green', linestyle='--', label='pitch_rate' + test_str)
+    plt.legend(loc=1)
+    plt.subplot(133)
+    plq(plt, mo, 'time', mo, 'yaw_rate', color='orange', linestyle='-', label='yaw_rate' + ref_str)
+    plq(plt, mv, 'time', mv, 'yaw_rate', color='cyan', linestyle='--', label='yaw_rate' + test_str)
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
+
+    fig_list.append(plt.figure())  # GP 5
+    plt.subplot(111)
+    plt.title(plot_title + ' GP 5')
+    plq(plt, mo, 'time', mo, 'yaw_eye_reset', add=2, color='red', linestyle='-', label='yaw_eye_reset' + ref_str + '+2')
+    plq(plt, mv, 'time', mv, 'yaw_eye_reset', add=2, color='blue', linestyle='--', label='yaw_eye_reset' + test_str + '+2')
+    plq(plt, mo, 'time', mo, 'yaw_RLR', add=0, color='red', linestyle='-', label='yaw_RLR' + ref_str + '-0')
+    plq(plt, mv, 'time', mv, 'yaw_RLR', add=0, color='blue', linestyle='--', label='yaw_RLR' + test_str + '-0')
+    plq(plt, mo, 'time', mo, 'yaw_LRL', add=-2, color='red', linestyle='-', label='yaw_LRL' + ref_str + '-2')
+    plq(plt, mv, 'time', mv, 'yaw_LRL', add=-2, color='blue', linestyle='--', label='yaw_LRL' + test_str + '-2')
+    plq(plt, mv, 'time', mv, 'yaw_rate', slr=0, add=Device.YAW_RATE_LOW/20., color='orange', linestyle='--', label='YAW_RATE_LOW' + test_str + '/20')
+    plq(plt, mv, 'time', mv, 'yaw_rate', slr=0, add=Device.YAW_RATE_HIGH/20., color='orange', linestyle='--', label='YAW_RATE_HIGH' + test_str + '/20')
+    plq(plt, mo, 'time', mo, 'yaw_rate', slr=.05, color='red', linestyle='-', label='yaw_rate' + ref_str + '/20')
+    plq(plt, mv, 'time', mv, 'yaw_rate', slr=.05, color='blue', linestyle='--', label='yaw_rate' + test_str + '/20')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)

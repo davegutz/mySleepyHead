@@ -221,8 +221,11 @@ void request_plot(const uint8_t plot_num, const boolean print_hdr, Sensors *Sen,
     case 11:
       Sen->print_Mahony(print_hdr, Sen->time_eye_s());  // pp11
       break;
+    case 12:
+      Sen->plot_yaw_reset();  // pp12
+      break;
     default:
-      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony)");
+      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
       break;
   }
   last_plot_num = plot_num;
@@ -270,11 +273,17 @@ boolean turn_off_motor_and_led()
 }
 
 // Motor on
-boolean turn_on_motor_and_led(const boolean enable)
+boolean turn_on_motor_and_led(const boolean enable, const boolean piano)
 {
+  static uint8_t count = 0;
+  if ( count > 90 ) count = 0;
   if ( enable )
   {
-    digitalWrite(motorPin, HIGH);
+    if ( count < DUTY_WARN || !piano)
+      digitalWrite(motorPin, HIGH);
+    else
+      digitalWrite(motorPin, LOW);
+    count += 10;
     digitalWrite(LED_BUILTIN, HIGH);
     return true;
   }

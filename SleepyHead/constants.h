@@ -34,6 +34,7 @@
 // Setup
 #include "local_config.h"
 const String unit_key = version + "_" + HDWE_UNIT;
+const uint8_t plot_num_def = 126;
 
 const double MAX_DT_EYE = 0.1;      // Maximum filter update time in call to prevent aliasing, sec (0.1)
 const double MAX_DT_HEAD = 0.2;     // Maximum filter update time in call to prevent aliasing, sec (0.2)
@@ -60,6 +61,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define SERIAL_BAUD         115200      // Serial baud rate (115200).
 #define TAU_E_FILT             0.1      // Eye filter time constant, sec (0.1)
 #define TAU_FILT               0.1      // Tau filter, sec (0.1)
+#define TAU_HEAD_RATE_FILT     0.2      // Head rate filter time constant, sec (0.2)
 #define TAU_Q_FILT             0.1      // Quiet rate time constant, sec (0.1)
 #define WN_Q_FILT               5.      // Quiet filter-2 natural frequency, r/s (5.)
 #define ZETA_Q_FILT            0.9      // Quiet fiter-2 damping factor (0.9)
@@ -70,6 +72,16 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define NHOLD                    5      // Number of precursor entries to store (5)
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
+#define DUTY_WARN               20      // Warning duty cycle for head piano case, % (20)
+const float YAW_SET = 0.2;              // Persistence to detect yaw motion, sec (0.2)
+const float YAW_HOLD_1 = 3.0;                // Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
+const float YAW_HOLD_2 = 2.0;                // Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
+const float YAW_HOLD_3 = 1.0;                // Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
+const float YAW_RATE_LOW = -60.;        // Yaw rate to declare right motion detected, deg/sec (-25.)
+const float YAW_RATE_HIGH = 60.;        // Yaw rat to declare left motion detected, deg/sec (25.)
+const float YAW_RESET_S = 0.2;          // Persistence of reset flag to latch in, sec (0.2)
+const float YAW_RESET_R = 5.0;          // Hold time of yaw head wag reset used to reset eye filters and silence alarm temporarily, sec (5.0)
+
 const float QUIET_S = 0.4;              // Quiet set persistence, sec (0.4)
 const float R_SCL = 10.;                // Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
 const float QUIET_R = (QUIET_S/R_SCL);  // Quiet reset persistence, sec
@@ -87,7 +99,7 @@ const float TAU_ST = 0.1;                // Short term filter time constant, sec
 const float FLT_THR_POS = 0.04;          // LTST filter positive dltst fault threshold, v (0.04)
 const float FRZ_THR_POS = 0.01;          // LTST filter positive dltst freeze threshold, v (0.01)
 const float OFF_S = 0.04;                // Persistence glasses off IR sense set, sec (0.04)
-const float OFF_R = 3.0;                 // Persistence glasses off IR sense reset, sec (3.0)
+const float OFF_R = 8.0;                 // Persistence glasses off IR sense reset, sec (8.0)
 const float GLASSES_OFF_VOLTAGE = 2.5;   // Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
 const float HEAD_S = 0.04;               // Persistence head sense set, sec (0.04)  Head needs little; heavily filtered by Mahony
 const float HEAD_R = 0.04;               // Persistence head sense reset, sec (0.04)

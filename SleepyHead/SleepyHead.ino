@@ -114,7 +114,7 @@ void loop()
   {
     if ( Sen->eye_closed_sure() )
     {
-      turn_on_motor_and_led(enable_motor);
+      turn_on_motor_and_led(enable_motor, false);
       if ( buzz_en_ir )
       {
         if ( !buzz.isPlaying() ) buzz.play_ir();
@@ -124,9 +124,10 @@ void loop()
     {
       if ( Sen->head_buzz_p() > 0 )
       {
-        turn_on_motor_and_led(enable_motor);
+        turn_on_motor_and_led(enable_motor, true);
         if ( buzz_en_grav && Sen->head_buzz_f() > 0 )
         {
+          turn_on_motor_and_led(enable_motor, false);
           if ( !buzz.isPlaying() ) buzz.play_grav();
         }
       }

@@ -19,6 +19,7 @@ Filter data and try candidate filters to detect sleepiness.
 from myFilters import General2Pole, LongTermShortTermFilter, LagExp, RateLagExp
 from MahonyAHRS import MahonyAHRS
 from TFDelay import TFDelay
+from Wag import Wag
 import numpy as np
 
 
@@ -40,6 +41,7 @@ class Device:
     D_MAX = 2000.  # Max rotational value, deg/s (34.9*180/pi) limit of hardware
     TAU_E_FILT = 0.1  # Tau rate filter, sec (0.1)
     TAU_FILT = 0.1  # Tau filter, sec (0.1)
+    TAU_HEAD_RATE_FILT = 0.2  # Tau filter, sec (0.1)
     WN_Q_FILT = 5.  # Quiet filter-2 natural frequency, r/s (5.)
     ZETA_Q_FILT = 0.9  # Quiet fiter-2 damping factor (0.9)
     TAU_Q_FILT = 0.1  # Quiet rate time constant, sec (0.1)
@@ -53,7 +55,7 @@ class Device:
     EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
-    OFF_R = 3.  # Persistence glasses off IR sense reset, sec (3.0)
+    OFF_R = 8.  # Persistence glasses off IR sense reset, sec (8.0)
     GLASSES_OFF_VOLTAGE = 2.5  # Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
     SHAKE_S = 0.2  # Persistence head shake motion sense set, sec (0.2) update time is 0.1
     SHAKE_R = 4.0  # Persistence head shake motion sense reset, sec (4.0)
@@ -63,6 +65,15 @@ class Device:
     roll_thr_def_forte = 17.  # Threshold sleep detect screech (17.), deg
     pitch_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
     roll_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
+    v3v3_nom = 3.3  # IR detector power supply, v (3.3)
+    YAW_SET = 0.2  # Persistence to detect yaw motion, sec (0.2)
+    YAW_HOLD_1 = 3.0  # Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
+    YAW_HOLD_2 = 2.0  # Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
+    YAW_HOLD_3 = 1.0  # Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
+    YAW_RATE_LOW = -60.  # Yaw rate to declare right motion detected, deg/sec (-25.)
+    YAW_RATE_HIGH = 60.  # Yaw rat to declare left motion detected, deg/sec (25.)
+    YAW_RESET_S = 0.2  # Persistence of reset flag to latch in, sec (0.2)
+    YAW_RESET_R = 5.0  # Hold time of yaw head wag reset used to reset eye filters and silence alarm temporarily, sec (5.0)
 
 
 class Sensors:
@@ -88,7 +99,13 @@ class Sensors:
                                        min_=-Device.D_MAX, max_=Device.D_MAX)
         self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.D_MAX, Device.D_MAX)
         self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
-        self.TrackFilter = MahonyAHRS(self.Data, sample_period=Device.NOMINAL_DT, Kp=Device.t_kp_def, Ki=Device.t_ki_def)
+        self.TrackFilter = MahonyAHRS(self.Data, sample_period=Device.NOMINAL_DT, Kp=Device.t_kp_def,
+                                      Ki=Device.t_ki_def)
+        self.yaw_LRL_detect = Wag(init=False, nom_dt=Device.NOMINAL_DT, set_all=Device.YAW_SET,
+                                    hold_1=Device.YAW_HOLD_1, hold_2=Device.YAW_HOLD_2, hold_3=Device.YAW_HOLD_3)
+        self.yaw_RLR_detect = Wag(init=False, nom_dt=Device.NOMINAL_DT, set_all=Device.YAW_SET,
+                                    hold_1=Device.YAW_HOLD_1, hold_2=Device.YAW_HOLD_2, hold_3=Device.YAW_HOLD_3)
+        self.YawResetPer = TFDelay(False, Device.YAW_RESET_S, Device.YAW_RESET_R, Device.NOMINAL_DT)
 
         # Eye filters
         self.LTST_Filter = LongTermShortTermFilter(dt, tau_lt=Device.TAU_LT, tau_st=Device.TAU_ST,
@@ -99,6 +116,12 @@ class Sensors:
         self.EyeClosedPer = TFDelay(False, Device.EYE_S, Device.EYE_R, Device.NOMINAL_DT)
         self.GlassesOffPer = TFDelay(True, Device.OFF_S, Device.OFF_R, Device.NOMINAL_DT)
         self.HeadShakePer = TFDelay(False, Device.SHAKE_S, Device.SHAKE_R, Device.NOMINAL_DT)
+
+        # Rates
+        self.EyeRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_E_FILT, -Device.v3v3_nom, Device.v3v3_nom)
+        self.RollRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_HEAD_RATE_FILT, -Device.D_MAX, Device.D_MAX)
+        self.PitchRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_HEAD_RATE_FILT, -Device.D_MAX, Device.D_MAX)
+        self.YawRateFilt = RateLagExp(Device.NOMINAL_DT, Device.TAU_HEAD_RATE_FILT, -Device.D_MAX, Device.D_MAX)
 
         # data
         self.time = None
@@ -152,16 +175,22 @@ class Sensors:
         self.st_state = None
         self.frz_thr_pos = Device.FRZ_THR_POS
         self.flt_thr_pos = Device.FLT_THR_POS
-        self.pitch_filt = None
-        self.roll_filt = None
+        self.roll_deg = None
+        self.pitch_deg = None
+        self.yaw_deg = None
         self.roll_filt_python = None
         self.pitch_filt_python = None
         self.yaw_filt_python = None
         self.G_QUIET_THR = None
         self.O_QUIET_THR = None
+        self.eye_rate = None
+        self.roll_rate = None
+        self.pitch_rate = None
+        self.yaw_rate = None
+        self.yaw_LRL = None
+        self.yaw_RLR = None
+        self.yaw_eye_reset = None
         self.saved = Saved()  # for plots and prints
-
-
 
     def calculate(self, init_time=-4., verbose=True, t_max=None):
         """Filter data set and calculate candidate filter"""
@@ -189,8 +218,8 @@ class Sensors:
             self.y_raw = self.Data.y_raw[i]
             self.z_raw = self.Data.z_raw[i]
             self.g_raw = np.sqrt(self.x_raw*self.x_raw + self.y_raw*self.y_raw + self.z_raw*self.z_raw)
-            self.pitch_filt = self.Data.pitch_filt[i]
-            self.roll_filt = self.Data.roll_filt[i]
+            self.pitch_deg = self.Data.pitch_deg[i]
+            self.roll_deg = self.Data.roll_deg[i]
 
             # Update time
             self.T = None
@@ -214,15 +243,16 @@ class Sensors:
 
             # Print initial
             if i == 0 and verbose:
-                print('time=', t[i])
-                print(' object   T  reset  time   eye_voltage_norm  filt_dt filt_reset eye_voltage_filt  filt_a  filt_b  filt_in filt_out')
+                print('time=', t[i], end='')
+                print(' <header> ')
             if verbose:
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, str(self), repr(self.VoltFilter.AB2), repr(self.VoltFilter.Tustin))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
                 # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
-                self.TrackFilter.pp8()
+                # self.TrackFilter.pp8()
+                pass
 
         # Data
         if verbose:
@@ -235,10 +265,12 @@ class Sensors:
     def filter_eye(self, reset):
         self.eye_reset = reset or self.GlassesOffPer.calculate(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE,
                                                                Device.OFF_S, Device.OFF_R, self.T, reset)
-        self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset, min(self.T, Device.MAX_DT_EYE))
+        self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset,
+                                                     min(self.T, Device.MAX_DT_EYE))
         self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
                                                                 self.T, self.eye_reset)
         self.eye_buzz = self.eye_closed_confirmed
+        self.eye_rate = self.EyeRateFilt.calculate(self.eye_voltage_norm, reset, min(self.T, Device.MAX_DT_EYE))
 
     def filter_head(self, reset, delta_pitch=0., delta_roll=0.):
         # Gs
@@ -262,28 +294,48 @@ class Sensors:
         self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
         self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
-        self.TrackFilter.updateIMU(gyroscope=np.array([self.a_raw, self.b_raw, self.c_raw]),
+        self.TrackFilter.updateIMU(gyroscope_=np.array([self.a_raw, self.b_raw, self.c_raw]),
                                    accelerometer=np.array([self.x_raw, self.y_raw, self.z_raw]),
                                    sample_time=self.T, reset=reset)
+        self.roll_deg = self.TrackFilter.roll_deg
+        self.pitch_deg = self.TrackFilter.pitch_deg
+        self.yaw_deg = self.TrackFilter.yaw_deg
         self.roll_filt_python = self.TrackFilter.getRollDeg() + delta_roll
         self.pitch_filt_python = self.TrackFilter.getPitchDeg() + delta_pitch
         self.yaw_filt_python = self.TrackFilter.getYawDeg()
         self.G_QUIET_THR = Device.G_QUIET_THR
         self.O_QUIET_THR = Device.O_QUIET_THR
 
+        # Rates
+        self.roll_rate = self.RollRateFilt.calculate(self.roll_deg, reset, min(self.T, Device.MAX_DT_HEAD))
+        self.pitch_rate = self.PitchRateFilt.calculate(self.pitch_deg, reset, min(self.T, Device.MAX_DT_HEAD))
+        self.yaw_rate = self.YawRateFilt.calculate(self.yaw_deg, reset, min(self.T, Device.MAX_DT_HEAD))
+
         # Head nod
-        self.max_nod_f = max( abs(self.pitch_filt)- Device.pitch_thr_def_forte, abs(self.roll_filt) - Device.roll_thr_def_forte )
-        self.max_nod_p = max( abs(self.pitch_filt)- Device.pitch_thr_def_piano, abs(self.roll_filt) - Device.roll_thr_def_piano )
+        self.max_nod_f = max( abs(self.pitch_deg)- Device.pitch_thr_def_forte,
+                              abs(self.roll_deg) - Device.roll_thr_def_forte )
+        self.max_nod_p = max( abs(self.pitch_deg)- Device.pitch_thr_def_piano,
+                              abs(self.roll_deg) - Device.roll_thr_def_piano )
         self.head_reset = reset or self.HeadShakePer.calculate( not(self.o_is_quiet_sure and self.g_is_quiet_sure),
                                                                 Device.SHAKE_S, Device.SHAKE_R, self.T, reset )
-        self.max_nod_f_confirmed = self.HeadNodPerF.calculate( self.max_nod_f > 0 and not self.head_reset, Device.HEAD_S,
-                                                               Device.HEAD_R, self.T, reset)
-        self.max_nod_p_confirmed = self.HeadNodPerP.calculate( self.max_nod_p > 0 and not self.head_reset, Device.HEAD_S,
-                                                               Device.HEAD_R, self.T, reset)
+        self.max_nod_f_confirmed = self.HeadNodPerF.calculate( self.max_nod_f > 0 and not self.head_reset,
+                                                               Device.HEAD_S, Device.HEAD_R, self.T, reset)
+        self.max_nod_p_confirmed = self.HeadNodPerP.calculate( self.max_nod_p > 0 and not self.head_reset,
+                                                               Device.HEAD_S, Device.HEAD_R, self.T, reset)
 
         # Head buzz
         self.head_buzz_f = self.max_nod_f_confirmed
         self.head_buzz_p = self.max_nod_p_confirmed
+
+        # Yaw reset used to reset eye logic
+        yaw_rate_right = self.yaw_rate <= Device.YAW_RATE_LOW
+        yaw_rate_left = self.yaw_rate >= Device.YAW_RATE_HIGH
+        self.yaw_LRL = self.yaw_LRL_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_left,
+                                                     in_2=yaw_rate_right)
+        self.yaw_RLR = self.yaw_RLR_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_right,
+                                                     in_2=yaw_rate_left)
+        self.yaw_eye_reset = self.YawResetPer.calculate(self.yaw_LRL or self.yaw_RLR, Device.YAW_RESET_S,
+                                                        Device.YAW_RESET_R, self.T, reset)
 
     def save(self, time, dt):  # Filter
         """Log Sensors"""
@@ -321,10 +373,10 @@ class Sensors:
         self.saved.head_buzz_f.append(self.head_buzz_f)
         self.saved.head_buzz_p.append(self.head_buzz_p)
         self.saved.head_buzz.append(self.head_buzz_f)  # yes, that's right
-        self.saved.pitch_filt.append(self.pitch_filt)
+        self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.pitch_filt_python.append(self.pitch_filt_python)
         self.saved.yaw_filt_python.append(self.yaw_filt_python)
-        self.saved.roll_filt.append(self.roll_filt)
+        self.saved.roll_deg.append(self.roll_deg)
         self.saved.roll_filt_python.append(self.roll_filt_python)
         self.saved.cf.append(self.cf)
         self.saved.o_quiet.append(self.o_quiet)
@@ -335,9 +387,17 @@ class Sensors:
         self.saved.g_is_quiet_sure.append(self.g_is_quiet_sure)
         self.saved.G_QUIET_THR.append(self.G_QUIET_THR)
         self.saved.O_QUIET_THR.append(self.O_QUIET_THR)
+        self.saved.eye_rate.append(self.eye_rate)
+        self.saved.roll_rate.append(self.roll_rate)
+        self.saved.pitch_rate.append(self.pitch_rate)
+        self.saved.yaw_rate.append(self.yaw_rate)
+        self.saved.yaw_LRL.append(self.yaw_LRL)
+        self.saved.yaw_RLR.append(self.yaw_RLR)
+        self.saved.yaw_eye_reset.append(self.yaw_eye_reset)
 
     def __str__(self):
-        strg = "{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) + "{:9.3f}".format(self.eye_voltage_filt)
+        strg = ("{:9.3f}".format(self.time) + "{:9.3f}".format(self.eye_voltage_norm) +
+                "{:9.3f}".format(self.eye_voltage_filt))
         return strg
 
 class Saved:
@@ -377,9 +437,9 @@ class Saved:
         self.head_buzz_f = []
         self.head_buzz_p = []
         self.head_buzz = []
-        self.roll_filt = []
-        self.pitch_filt = []
-        self.yaw_filt = []
+        self.roll_deg = []
+        self.pitch_deg = []
+        self.yaw_deg = []
         self.roll_filt_python = []
         self.pitch_filt_python = []
         self.yaw_filt_python = []
@@ -392,4 +452,10 @@ class Saved:
         self.g_is_quiet_sure = []
         self.O_QUIET_THR = []
         self.G_QUIET_THR = []
-
+        self.eye_rate = []
+        self.roll_rate = []
+        self.pitch_rate = []
+        self.yaw_rate = []
+        self.yaw_LRL = []
+        self.yaw_RLR = []
+        self.yaw_eye_reset = []
