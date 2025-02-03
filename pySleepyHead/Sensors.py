@@ -30,12 +30,12 @@ class Device:
     MAX_DT_HEAD = 0.2  # Maximum filter update time in call to prevent aliasing, sec (0.2)
     HEAD_S = 0.04  # Persistence head sense set, sec (0.04)  Head needs little; heavily filtered by Mahony
     HEAD_R = 0.04  # Persistence head sense reset, sec (0.04)
-    TAU_ST = 0.1  # Short term filter time constant, sec (0.1)
-    TAU_LT = 20.  # Long term filter time constant, sec (20)
+    TAU_ST = 0.4  # Short term filter time constant, sec (0.4)
+    TAU_LT = 10.  # Long term filter time constant, sec (10.)
     FLT_THR_NEG = -1.3e6  # hardcoded in C++
     FRZ_THR_NEG = -0.3e6  # hardcoded in C++
-    FLT_THR_POS = 0.04  # LTST filter positive dltst fault threshold, v (0.04)
-    FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01)
+    FLT_THR_POS = 0.2  # LTST filter positive dltst fault threshold, v (0.2)
+    FRZ_THR_POS = 0.03  # LTST filter positive dltst freeze threshold, v (0.03)
     G_MAX = 4.  # Max G value, g's (4.)
     W_MAX = 34.9  # Max G value, g's (34.9)
     D_MAX = 2000.  # Max rotational value, deg/s (34.9*180/pi) limit of hardware
@@ -52,15 +52,13 @@ class Device:
     t_ki_def = 2.  # Integral gain Ki (2.0)
     G_QUIET_THR = 0.06  # g's quiet detection threshold, small is more sensitive (0.06)
     O_QUIET_THR = 45.8  # rps quiet detection threshold, small is more sensitive (0.4)
-    EYE_S = 1.5  # Persistence eye closed IR sense set, sec (1.5)
+    EYE_S = 1.7  # Persistence eye closed IR sense set, sec (1.7)
     EYE_R = 0.5  # Persistence eye closed IR sense reset, sec (0.5)
     OFF_S = 0.04  # Persistence glasses off IR sense set, sec (0.04)
     OFF_R = 8.  # Persistence glasses off IR sense reset, sec (8.0)
-    GLASSES_OFF_VOLTAGE = 2.5  # Glasses off voltage, V (2.5) above this value assumed off and reset until clear for 3 seconds (user reset)
+    GLASSES_OFF_VOLTAGE = 2.8  # Glasses off voltage, V (2.8) above this value assumed off and reset until clear for 3 seconds (user reset)
     SHAKE_S = 0.2  # Persistence head shake motion sense set, sec (0.2) update time is 0.1
     SHAKE_R = 4.0  # Persistence head shake motion sense reset, sec (4.0)
-    # FLT_THR_POS = 0.04  # LTST filter positive dltst fault threshold, v (0.04)  in data
-    # FRZ_THR_POS = 0.01  # LTST filter positive dltst freeze threshold, v (0.01) in data
     pitch_thr_def_forte = 17.   # Threshold sleep detect screech (17.), deg
     roll_thr_def_forte = 17.  # Threshold sleep detect screech (17.), deg
     pitch_thr_def_piano = 12.  # Threshold sleep detect buzz only (12.), deg
@@ -266,7 +264,7 @@ class Sensors:
         self.eye_reset = reset or self.GlassesOffPer.calculate(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE,
                                                                Device.OFF_S, Device.OFF_R, self.T, reset)
         self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset,
-                                                     min(self.T, Device.MAX_DT_EYE))
+                                                     min(self.T, Device.MAX_DT_EYE), -Device.FRZ_THR_POS)
         self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
                                                                 self.T, self.eye_reset)
         self.eye_buzz = self.eye_closed_confirmed

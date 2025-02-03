@@ -4,7 +4,7 @@ https://forum.allaboutcircuits.com/threads/how-to-setup-and-use-vs-code-windows-
   plug in a board and restart vscode
   have to 'Select Programmer' in bottom bar - nano is a SAM board
   I think you have to use Arduino IDE to install libraries and VS Code automatically finds them
-  to get squiggles working correctly (ctrl-alt-I ?) to run the intellisense tool
+  to get squiggles working correctly manually rebuild your IntelliSense configuration by running "Ctrl+Alt+I"
 
 
 Head nods past piano threshold in any direction a little, set just buzzer.  Past forte threshold set buzzer and speaker tone.
