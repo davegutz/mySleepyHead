@@ -17,6 +17,8 @@ __author__ = 'Dave Gutz <davegutz@alum.mit.edu>'
 __version__ = '$Revision: 1.1 $'
 __date__ = '$Date: 2022/06/10 13:15:02 $'
 
+from gc import freeze
+
 import numpy as np
 import os
 
@@ -646,14 +648,19 @@ class LongTermShortTermFilter:
         self.klt = self.dt / self.tau_lt
         self.kst = self.dt / self.tau_st
 
-    def calculate(self, in_, reset, dt):
+    def calculate(self, in_, reset, dt, lt_bias_init=0):
         self.reset = reset
         self.dt = dt
         self.input = in_
         self.assign_coeff(self.dt)
         if self.reset:
-            self.lt_state = self.input
+            self.lt_state = self.input + lt_bias_init
             self.st_state = self.input
+            self.dltst = 0.
+            self.cf = 1.
+            self.freeze = False
+            self.fault = False
+            return self.fault
         if not self.freeze:
             self.lt_state = self.input * self.klt + self.lt_state * (1. - self.klt)
         self.st_state = self.input * self.kst + self.st_state * (1. - self.kst)
