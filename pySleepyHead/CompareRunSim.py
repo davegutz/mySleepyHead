@@ -119,9 +119,9 @@ def main():
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rest_test_kitty2.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test_noreset.csv'
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test_head_shake.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/frequent_false_positive.csv'
     else:
-        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/rpy_test.csv'
+        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/frequent_false_positive.csv'
     # unit_key = 'v20250113_pro0n33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'

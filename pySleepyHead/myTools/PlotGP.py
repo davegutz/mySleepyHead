@@ -45,10 +45,10 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_list.append(plt.figure())  # GP 1
     plt.subplot(231)
     plt.title(plot_title + ' GP 1')
-    plq(plt, mo, 'time', mo, 'max_nod_f', color='red', linestyle='-', label='max_nod_f' + ref_str)
+    plq(plt, mo, 'time', mo, 'max_nod_f', color='black', linestyle='-', label='max_nod_f' + ref_str)
     plq(plt, mv, 'time', mv, 'max_nod_f', color='blue', linestyle='--', label='max_nod_f' + test_str)
-    plq(plt, mo, 'time', mo, 'max_nod_p', color='magenta', linestyle='-', label='max_nod_p' + ref_str)
-    plq(plt, mv, 'time', mv, 'max_nod_p', color='blue', linestyle='--', label='max_nod_p' + test_str)
+    plq(plt, mo, 'time', mo, 'max_nod_p', color='red', linestyle='-.', label='max_nod_p' + ref_str )
+    plq(plt, mv, 'time', mv, 'max_nod_p', color='orange', linestyle=':', label='max_nod_p' + test_str )
     plt.legend(loc=1)
     plt.subplot(232)
     plq(plt, mo, 'time', mo, 'eye_voltage_norm', color='black', linestyle='-', label='eye_voltage_norm' + ref_str)
