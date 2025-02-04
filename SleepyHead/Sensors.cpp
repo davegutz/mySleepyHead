@@ -38,7 +38,8 @@ void Sensors::filter_eye(const boolean reset)
     eye_reset_ = reset_ || GlassesOffPer->calculate( glasses_reset_, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE), -FRZ_THR_POS);
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
-    eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));     
+    eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));
+    // EyeRateFilt->repr();
 
     // Eye buzz
     eye_buzz_ = eye_closed_confirmed_;
@@ -586,6 +587,9 @@ void Sensors::sample_eye(const boolean reset, const unsigned long long time_eye_
 
     // IR Sensor
     eye_voltage_norm_ = analogRead(sensorPin_) * v3v3_nom / float(v3v3_units) - (v3v3_ - v3v3_nom) / D_EYE_VOLTAGE_D_VCC;
+    // // dag
+    // if ( reset ) eye_voltage_norm_ = 0.;
+    // else eye_voltage_norm_ = 1.;
     T_eye_ = double(time_eye_ms - time_eye_last_) / 1000.;
     time_eye_last_ = time_eye_ms_;
 

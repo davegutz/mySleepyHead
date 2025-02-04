@@ -266,6 +266,8 @@ class Sensors:
                                                                 self.T, self.eye_reset)
         self.eye_buzz = self.eye_closed_confirmed
         self.eye_rate = self.EyeRateFilt.calculate(self.eye_voltage_norm, reset, min(self.T, Device.MAX_DT_EYE))
+        # print("{:7.3f} ".format(self.eye_rate), end='')
+        # self.EyeRateFilt.__repr__()
 
     def filter_head(self, reset, delta_pitch=0., delta_roll=0.):
         # Gs

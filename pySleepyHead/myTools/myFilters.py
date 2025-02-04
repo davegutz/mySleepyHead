@@ -517,10 +517,23 @@ class RateLagExp(DiscreteFilter):
 
     def rate_state_(self, in_, dt):
         self.dt = dt
-        self.rate = max(min(self.c * (self.a * self.rstate + self.b * in_ - self.state), self.max), self.min)
+        self.rate = self.c * (self.a * self.rstate + self.b * in_ - self.state)
         self.rstate = in_
-        self.state += self.dt * self.rate
-        # print('in_', in_, 'rate', self.rate, 'state', self.state)
+        self.state = max(min(self.state + self.dt * self.rate, self.max), self.min)
+
+    def __repr__(self):
+        print("RateLagExp: tau_ = {:7.3f}".format(self.tau),
+        " T =  {:7.3f}".format(self.dt),
+        " min =  {:7.3f}".format(self.min),
+        " max =  {:7.3f}".format(self.max),
+        " a =  {:7.3f}".format(self.a),
+        " b =  {:7.3f}".format(self.b),
+        " c =  {:7.3f}".format(self.c),
+        " in =  {:7.3f}".format(self.in_),
+        " lstate =  {:7.3f}".format(self.state),
+        " rstate =  {:7.3f}".format(self.rstate),
+        " rate =  {:7.3f}".format(self.rate),
+              )
 
     def save(self, time):
         self.saved.time.append(time)

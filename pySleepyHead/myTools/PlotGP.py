@@ -227,5 +227,7 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
+    # print(mo.eye_rate)
+    # print(mv.eye_rate)
 
     return fig_list, fig_files

@@ -546,7 +546,7 @@ double RateLagExp::calculate(double in, int RESET, const double T)
 }
 void RateLagExp::rateState(double in)
 {
-  rate_ = fmax(fmin(c_ * (a_ * rstate_ + b_ * in - lstate_), max_), min_);
+  rate_ = c_ * (a_ * rstate_ + b_ * in - lstate_);
   rstate_ = in;
   lstate_ = fmax(fmin(lstate_ + T_ * rate_, max_), min_);
 }
@@ -555,6 +555,14 @@ void RateLagExp::rateState(double in, const double T)
   T_ = T;
   assignCoeff(tau_);
   rateState(in);
+}
+void RateLagExp::repr()
+{
+  Serial.print("RateLagExp: tau_ = "); Serial.print(tau_, 3);
+  Serial.print("\tT_ = "); Serial.print(T_, 3); Serial.print("\tmin_ = "); Serial.print(min_, 3); Serial.print("\tmax_ = "); Serial.print(max_, 3);
+  Serial.print("\ta_ = "); Serial.print(a_, 3); Serial.print("\tb_ = "); Serial.print(b_, 3); Serial.print("\tc_ = "); Serial.print(c_, 3);
+  Serial.print("\tlstate_ = "); Serial.print(lstate_, 3); Serial.print("\trstate_ = "); Serial.print(rstate_, 3);
+  Serial.print("\trate_ = "); Serial.println(rate_, 3);
 }
 void RateLagExp::assignCoeff(double tau)
 {

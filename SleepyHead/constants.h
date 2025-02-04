@@ -50,7 +50,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS  86400000UL      // Number of milliseconds in one day (24*60*60*1000)
 #define TALK_DELAY           313UL      // Talk wait, ms (313UL = 0.313 sec)
-#define EYE_DELAY             25UL      // Sensor read wait, ms (25UL = 0.025 sec)
+#define EYE_DELAY            100UL      // Sensor read wait, ms (100UL = 0.1 sec)
 #define HEAD_DELAY           100UL      // Sensor read wait, ms (100UL = 0.1 sec)
 #define CONTROL_DELAY        100UL      // Output read wait, ms (100UL = 0.1 sec)
 #define PUBLISH_DELAY        100UL      // Publish wait, ms (100UL = 0.1 sec)

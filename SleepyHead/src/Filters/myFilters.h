@@ -309,6 +309,7 @@ public:
   virtual void assignCoeff(double tau);
   virtual void rateState(double in);
   virtual void rateState(double in, const double T);
+  void repr();
   virtual double state(void);
   double a() { return (a_); };
   double b() { return (b_); };
