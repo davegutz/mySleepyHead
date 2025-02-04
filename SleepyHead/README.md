@@ -26,6 +26,6 @@ The head nod logic uses rapid head motion ('not quiet' indication) to reset
 
 All the various resets wash out over time.  This makes sense because the driver settles in.
 
-Practical way to test initialization:  set plot_num_def to 10 or 11 and capture stream.  Start serial monitor.  Clear it.  Reflash the device it (with no change except plot_num_def ) and run until satisfied then type pp99 to stop.  Ctrl-a to select all in serial monitor.  Paste into LibreOffice spreadsheet and save as a csv file in pySleepyHead/dataReduction.  Go to bottom of pySleepyHead/CompareRunSim.py and point to the file.  Run in pyCharm.
+Practical way to test initialization:  set plot_num_def to 10 or 11 and plotting_all=true to capture stream.  Start serial monitor.  Clear it.  Reflash the device it (with no change except plot_num_def ) and run until satisfied then type pp99 to stop.  Ctrl-a to select all in serial monitor.  Paste into LibreOffice spreadsheet and save as a csv file in pySleepyHead/dataReduction.  Go to bottom of pySleepyHead/CompareRunSim.py and point to the file.  Run in pyCharm.
 
 To capture stream:  start serial monitor, type pp<# of choice>.  Then type something like pp99 to stop.  Ctrl-a to select all in serial monitor...as above.

@@ -27,7 +27,7 @@
 
 uint8_t plot_num = plot_num_def;
 boolean monitoring = false;
-boolean plotting_all = false;
+boolean plotting_all = plotting_all_def;
 boolean enable_motor = true;
 Tone buzz = Tone(buzzerPin);
 CommandPars cp = CommandPars();       // Various control parameters commanding at system level.  Initialized on start up.  Not retained.
@@ -179,7 +179,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("H - print header and one line of data for the default data stream that starts automatically on startup");
           Serial.println("P? - Print stuff");
           Serial.println("\t PL - LTST Filter");
-          Serial.println("pp? - plot all version X");
+          Serial.print("pp? - plot all version ("); Serial.print(plot_num); Serial.println(")");
           Serial.println("\t pp-1 - stop plotting");
           Serial.println("\t pp0 - summ:      (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
           Serial.println("\t pp1 - acc:       (T_acc, x_filt, y_filt, z_filt, g_filt, g_is_quiet, g_is_quiet_sure)");

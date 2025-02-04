@@ -195,6 +195,7 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mv, 'time', mv, 'yaw_rate', slr=0, add=Device.YAW_RATE_HIGH/20., color='orange', linestyle='--', label='YAW_RATE_HIGH' + test_str + '/20')
     plq(plt, mo, 'time', mo, 'yaw_rate', slr=.05, color='red', linestyle='-', label='yaw_rate' + ref_str + '/20')
     plq(plt, mv, 'time', mv, 'yaw_rate', slr=.05, color='blue', linestyle='--', label='yaw_rate' + test_str + '/20')
+
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
@@ -216,8 +217,12 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mv, 'time', mv, 'frz_thr_pos', color='blue', linestyle='-.', label='frz_thr_pos' + test_str)
     plq(plt, mo, 'time', mo, 'FLT_THR_POS', color='orange', linestyle='--', label='FLT_THR_POS' + ref_str)
     plq(plt, mv, 'time', mv, 'flt_thr_pos', color='black', linestyle='-.', label='flt_thr_pos' + test_str)
-    plq(plt, mo, 'time', mo, 'eye_buzz', slr=0.25, add=0.75, color='red', linestyle='-', label='eye_buzz' + ref_str + '*.75+.25')
-    plq(plt, mv, 'time', mv, 'eye_buzz', slr=0.25, add=0.75, color='blue', linestyle='--', label='eye_buzz' + test_str + '*.75+.25')
+    plq(plt, mo, 'time', mo, 'eye_buzz', slr=0.25, add=0.75, color='red', linestyle='-', label='eye_buzz' + ref_str + '*.25+.75')
+    plq(plt, mv, 'time', mv, 'eye_buzz', slr=0.25, add=0.75, color='blue', linestyle='--', label='eye_buzz' + test_str + '*.25+.75')
+    plq(plt, mo, 'time', mo, 'eye_rate', add=-3, color='red', linestyle='-', label='eye_rate' + ref_str + '-3')
+    plq(plt, mv, 'time', mv, 'eye_rate', add=-3, color='blue', linestyle='--', label='eye_rate' + ref_str + '-3')
+    plq(plt, mo, 'time', mo, 'eye_reset', slr=0.25, add=2.75, color='red', linestyle='-', label='eye_reset' + ref_str + '*.25+2.75')
+    plq(plt, mv, 'time', mv, 'eye_reset', slr=0.25, add=2.75, color='blue', linestyle='--', label='eye_reset' + test_str + '*.25+2.75')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
