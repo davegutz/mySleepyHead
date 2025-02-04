@@ -298,8 +298,8 @@ class Sensors:
         self.roll_deg = self.TrackFilter.roll_deg + delta_roll
         self.pitch_deg = self.TrackFilter.pitch_deg + delta_pitch
         self.yaw_deg = self.TrackFilter.yaw_deg
-        self.roll_filt_python = self.TrackFilter.getRollDeg()
-        self.pitch_filt_python = self.TrackFilter.getPitchDeg()
+        self.roll_filt_python = self.TrackFilter.getRollDeg() + delta_roll
+        self.pitch_filt_python = self.TrackFilter.getPitchDeg() + delta_pitch
         self.yaw_filt_python = self.TrackFilter.getYawDeg()
         self.G_QUIET_THR = Device.G_QUIET_THR
         self.O_QUIET_THR = Device.O_QUIET_THR
