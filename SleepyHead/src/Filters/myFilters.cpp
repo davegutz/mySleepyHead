@@ -548,7 +548,7 @@ void RateLagExp::rateState(double in)
 {
   rate_ = fmax(fmin(c_ * (a_ * rstate_ + b_ * in - lstate_), max_), min_);
   rstate_ = in;
-  lstate_ += T_ * rate_;
+  lstate_ = fmax(fmin(lstate_ + T_ * rate_, max_), min_);
 }
 void RateLagExp::rateState(double in, const double T)
 {
@@ -559,9 +559,10 @@ void RateLagExp::rateState(double in, const double T)
 void RateLagExp::assignCoeff(double tau)
 {
   double eTt = exp(-T_ / tau_);
-  a_ = tau_ / T_ - eTt / (1 - eTt);
-  b_ = 1.0 / (1 - eTt) - tau_ / T_;
-  c_ = (1.0 - eTt) / T_;
+  double meTt = 1. - eTt;
+  a_ = tau_ / T_ - eTt / meTt;
+  b_ = 1.0 / meTt - tau_ / T_;
+  c_ = meTt / T_;
 }
 double RateLagExp::state(void) { return (lstate_); };
 

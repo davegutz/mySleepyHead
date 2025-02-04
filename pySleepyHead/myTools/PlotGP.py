@@ -220,25 +220,12 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     plq(plt, mo, 'time', mo, 'eye_buzz', slr=0.25, add=0.75, color='red', linestyle='-', label='eye_buzz' + ref_str + '*.25+.75')
     plq(plt, mv, 'time', mv, 'eye_buzz', slr=0.25, add=0.75, color='blue', linestyle='--', label='eye_buzz' + test_str + '*.25+.75')
     plq(plt, mo, 'time', mo, 'eye_rate', add=-3, color='red', linestyle='-', label='eye_rate' + ref_str + '-3')
-    plq(plt, mv, 'time', mv, 'eye_rate', add=-3, color='blue', linestyle='--', label='eye_rate' + ref_str + '-3')
+    plq(plt, mv, 'time', mv, 'eye_rate', add=-3, color='blue', linestyle='--', label='eye_rate' + test_str + '-3')
     plq(plt, mo, 'time', mo, 'eye_reset', slr=0.25, add=2.75, color='red', linestyle='-', label='eye_reset' + ref_str + '*.25+2.75')
     plq(plt, mv, 'time', mv, 'eye_reset', slr=0.25, add=2.75, color='blue', linestyle='--', label='eye_reset' + test_str + '*.25+2.75')
     plt.legend(loc=1)
     fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
-
-    fig_list.append(plt.figure())  # GP 7
-    plt.subplot(111)
-    plt.title(plot_title + ' Mahony 7')
-    plq(plt, mo, 'time', mo, 'twoKi', add= 0, color='red', linestyle='-', label='twoKi' + ref_str + '+0')
-    plq(plt, mv, 'time', mv, 'twoKi', add= 0, color='blue', linestyle='--', label='twoKi' + test_str + '+0')
-    plq(plt, mo, 'time', mo, 'twoKp', add= 0, color='red', linestyle='-', label='twoKp' + ref_str + '+0')
-    plq(plt, mv, 'time', mv, 'twoKp', add= 0, color='blue', linestyle='--', label='twoKp' + test_str + '+0')
-    plt.legend(loc=1)
-    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
-    fig_files.append(fig_file_name)
-    plt.savefig(fig_file_name, format="png")
-
 
     return fig_list, fig_files
