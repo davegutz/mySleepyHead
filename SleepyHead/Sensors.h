@@ -56,7 +56,7 @@ public:
     head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
     reset_(false), wn_q_filt_(0), glasses_off_(true), glasses_reset_(true)
   {};
-  Sensors(const unsigned long long time_now, const float two_kp, const float two_ki,
+  Sensors(const unsigned long long time_now, const float kp, const float ki,
     const int sensorPin, const String unit):
     a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
     x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
@@ -91,7 +91,7 @@ public:
     GQuietFilt = new General2_Pole(Tfilt_head_init, WN_Q_FILT, ZETA_Q_FILT, -G_MAX, G_MAX);  // actual update time provided run time
     GQuietRate = new RateLagExp(Tfilt_head_init, TAU_Q_FILT, -G_MAX, G_MAX);
     GQuietPer = new TFDelay(true, QUIET_S, QUIET_R, Tfilt_head_init);
-    TrackFilter = new Mahony(two_kp, two_ki);
+    TrackFilter = new Mahony(kp, ki);
     LTST_Filter = new LongTermShortTerm_ExpFilter(Tfilt_eye_init, TAU_LT, TAU_ST, -1.e6, -1.e5, FLT_THR_POS, FRZ_THR_POS, -v3v3_nom, v3v3_nom);
     HeadNodPerF = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
     HeadNodPerP = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);

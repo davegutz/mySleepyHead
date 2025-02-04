@@ -48,8 +48,8 @@ class Device:
     QUIET_S = 0.4  # Quiet set persistence, sec (0.4)
     R_SCL = 10.  # Quiet reset persistence scalar on QUIET_S ('up 1 down 10')
     QUIET_R = QUIET_S / R_SCL  # Quiet reset persistence, calculated
-    t_kp_def = 10.  # Proportional gain Kp (10.0)
-    t_ki_def = 2.  # Integral gain Ki (2.0)
+    kp_def = 10.  # Proportional gain Kp (10.0)
+    ki_def = 2.  # Integral gain Ki (2.0)
     G_QUIET_THR = 0.06  # g's quiet detection threshold, small is more sensitive (0.06)
     O_QUIET_THR = 45.8  # rps quiet detection threshold, small is more sensitive (0.4)
     EYE_S = 1.7  # Persistence eye closed IR sense set, sec (1.7)
@@ -97,8 +97,8 @@ class Sensors:
                                        min_=-Device.D_MAX, max_=Device.D_MAX)
         self.OQuietRate = RateLagExp(Device.NOMINAL_DT, Device.TAU_Q_FILT, -Device.D_MAX, Device.D_MAX)
         self.OQuietPer = TFDelay(True, Device.QUIET_S, Device.QUIET_R, Device.NOMINAL_DT)
-        self.TrackFilter = MahonyAHRS(self.Data, sample_period=Device.NOMINAL_DT, Kp=Device.t_kp_def,
-                                      Ki=Device.t_ki_def)
+        self.TrackFilter = MahonyAHRS(self.Data, sample_period=Device.NOMINAL_DT, Kp=Device.kp_def,
+                                      Ki=Device.ki_def)
         self.yaw_LRL_detect = Wag(init=False, nom_dt=Device.NOMINAL_DT, set_all=Device.YAW_SET,
                                     hold_1=Device.YAW_HOLD_1, hold_2=Device.YAW_HOLD_2, hold_3=Device.YAW_HOLD_3)
         self.yaw_RLR_detect = Wag(init=False, nom_dt=Device.NOMINAL_DT, set_all=Device.YAW_SET,
@@ -176,9 +176,6 @@ class Sensors:
         self.roll_deg = None
         self.pitch_deg = None
         self.yaw_deg = None
-        self.roll_filt_python = None
-        self.pitch_filt_python = None
-        self.yaw_filt_python = None
         self.G_QUIET_THR = None
         self.O_QUIET_THR = None
         self.eye_rate = None
@@ -298,9 +295,6 @@ class Sensors:
         self.roll_deg = self.TrackFilter.roll_deg + delta_roll
         self.pitch_deg = self.TrackFilter.pitch_deg + delta_pitch
         self.yaw_deg = self.TrackFilter.yaw_deg
-        self.roll_filt_python = self.TrackFilter.getRollDeg() + delta_roll
-        self.pitch_filt_python = self.TrackFilter.getPitchDeg() + delta_pitch
-        self.yaw_filt_python = self.TrackFilter.getYawDeg()
         self.G_QUIET_THR = Device.G_QUIET_THR
         self.O_QUIET_THR = Device.O_QUIET_THR
 
@@ -372,10 +366,7 @@ class Sensors:
         self.saved.head_buzz_p.append(self.head_buzz_p)
         self.saved.head_buzz.append(self.head_buzz_f)  # yes, that's right
         self.saved.pitch_deg.append(self.pitch_deg)
-        self.saved.pitch_filt_python.append(self.pitch_filt_python)
-        self.saved.yaw_filt_python.append(self.yaw_filt_python)
         self.saved.roll_deg.append(self.roll_deg)
-        self.saved.roll_filt_python.append(self.roll_filt_python)
         self.saved.cf.append(self.cf)
         self.saved.o_quiet.append(self.o_quiet)
         self.saved.o_is_quiet.append(self.o_is_quiet)
@@ -438,9 +429,6 @@ class Saved:
         self.roll_deg = []
         self.pitch_deg = []
         self.yaw_deg = []
-        self.roll_filt_python = []
-        self.pitch_filt_python = []
-        self.yaw_filt_python = []
         self.cf = []
         self.o_quiet = []
         self.o_is_quiet = []

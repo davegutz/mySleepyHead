@@ -128,4 +128,16 @@ def gp_plot(mo, mv, filename, fig_files=None, plot_title=None, fig_list=None, re
     fig_files.append(fig_file_name)
     plt.savefig(fig_file_name, format="png")
 
+    fig_list.append(plt.figure())  # Mahony 6
+    plt.subplot(111)
+    plt.title(plot_title + ' Mahony 6')
+    plq(plt, mo, 'time', mo, 'twoKi', add= 0, color='red', linestyle='-', label='twoKi' + ref_str + '+0')
+    plq(plt, mv, 'time', mv, 'twoKi', add= 0, color='blue', linestyle='--', label='twoKi' + test_str + '+0')
+    plq(plt, mo, 'time', mo, 'twoKp', add= 0, color='red', linestyle='-', label='twoKp' + ref_str + '+0')
+    plq(plt, mv, 'time', mv, 'twoKp', add= 0, color='blue', linestyle='--', label='twoKp' + test_str + '+0')
+    plt.legend(loc=1)
+    fig_file_name = filename + '_' + str(len(fig_list)) + ".png"
+    fig_files.append(fig_file_name)
+    plt.savefig(fig_file_name, format="png")
+
     return fig_list, fig_files
