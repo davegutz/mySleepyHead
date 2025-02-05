@@ -135,7 +135,6 @@ class SavedData:
             self.max_nod_p = None
             self.max_nod_p_confirmed = None
             self.delta_pitch = None
-            self.pitch_deg = None
             self.delta_roll = None
             self.roll_deg = None
             self.head_buzz_f = None
@@ -255,9 +254,7 @@ class SavedData:
             self.update_from_other(data, 'max_nod_p')
             self.update_from_other(data, 'max_nod_p_confirmed')
             self.update_from_other(data, 'delta_pitch')
-            self.update_from_other(data, 'pitch_deg')
             self.update_from_other(data, 'delta_roll')
-            self.update_from_other(data, 'roll_deg')
             self.update_from_other(data, 'head_buzz_f')
             self.update_from_other(data, 'head_buzz_p')
             self.update_from_other(data, 'eye_buzz')
@@ -274,7 +271,6 @@ class SavedData:
             self.update_from_other(data, 'g_quiet')
             self.update_from_other(data, 'g_is_quiet')
             self.update_from_other(data, 'g_is_quiet_sure')
-            self.update_from_other(data, 'yaw_deg')
             self.update_from_other(data, 'roll_rate')
             self.update_from_other(data, 'pitch_rate')
             self.update_from_other(data, 'yaw_rate')

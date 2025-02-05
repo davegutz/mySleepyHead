@@ -182,8 +182,8 @@ class Sensors:
         self.roll_rate = None
         self.pitch_rate = None
         self.yaw_rate = None
-        self.yaw_LRL = None
-        self.yaw_RLR = None
+        self.eye_reset_LRL = None
+        self.eye_reset_RLR = None
         self.yaw_eye_reset = None
         self.saved = Saved()  # for plots and prints
 
@@ -215,6 +215,7 @@ class Sensors:
             self.g_raw = np.sqrt(self.x_raw*self.x_raw + self.y_raw*self.y_raw + self.z_raw*self.z_raw)
             self.pitch_deg = self.Data.pitch_deg[i]
             self.roll_deg = self.Data.roll_deg[i]
+            self.yaw_deg = self.Data.yaw_deg[i]
 
             # Update time
             self.T = None
@@ -246,8 +247,9 @@ class Sensors:
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
                 # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
+                print("{:9.6}  ".format(self.time), "yaw_rate {:9.6f}".format(self.Data.yaw_rate[i]), "yaw_rate_ver {:9.6f}".format(self.yaw_rate))
                 # self.TrackFilter.pp8()
-                pass
+                # pass
 
         # Data
         if verbose:
@@ -258,8 +260,9 @@ class Sensors:
         return self.saved
 
     def filter_eye(self, reset):
-        self.eye_reset = reset or self.GlassesOffPer.calculate(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE,
-                                                               Device.OFF_S, Device.OFF_R, self.T, reset)
+        glasses_off = self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE
+        glasses_reset = glasses_off or self.eye_reset_RLR or self.eye_reset_LRL
+        self.eye_reset = reset or self.GlassesOffPer.calculate(glasses_reset, Device.OFF_S, Device.OFF_R, self.T, reset)
         self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset,
                                                      min(self.T, Device.MAX_DT_EYE), -Device.FRZ_THR_POS)
         self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
@@ -324,11 +327,11 @@ class Sensors:
         # Yaw reset used to reset eye logic
         yaw_rate_right = self.yaw_rate <= Device.YAW_RATE_LOW
         yaw_rate_left = self.yaw_rate >= Device.YAW_RATE_HIGH
-        self.yaw_LRL = self.yaw_LRL_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_left,
-                                                     in_2=yaw_rate_right)
-        self.yaw_RLR = self.yaw_RLR_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_right,
-                                                     in_2=yaw_rate_left)
-        self.yaw_eye_reset = self.YawResetPer.calculate(self.yaw_LRL or self.yaw_RLR, Device.YAW_RESET_S,
+        self.eye_reset_LRL = self.yaw_LRL_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_left,
+                                                           in_2=yaw_rate_right)
+        self.eye_reset_RLR = self.yaw_RLR_detect.calculate(reset=self.reset, dt=self.T, in_1=yaw_rate_right,
+                                                           in_2=yaw_rate_left)
+        self.yaw_eye_reset = self.YawResetPer.calculate(self.eye_reset_LRL or self.eye_reset_RLR, Device.YAW_RESET_S,
                                                         Device.YAW_RESET_R, self.T, reset)
 
     def save(self, time, dt):  # Filter
@@ -369,6 +372,7 @@ class Sensors:
         self.saved.head_buzz.append(self.head_buzz_f)  # yes, that's right
         self.saved.pitch_deg.append(self.pitch_deg)
         self.saved.roll_deg.append(self.roll_deg)
+        self.saved.yaw_deg.append(self.yaw_deg)
         self.saved.cf.append(self.cf)
         self.saved.o_quiet.append(self.o_quiet)
         self.saved.o_is_quiet.append(self.o_is_quiet)
@@ -382,8 +386,8 @@ class Sensors:
         self.saved.roll_rate.append(self.roll_rate)
         self.saved.pitch_rate.append(self.pitch_rate)
         self.saved.yaw_rate.append(self.yaw_rate)
-        self.saved.yaw_LRL.append(self.yaw_LRL)
-        self.saved.yaw_RLR.append(self.yaw_RLR)
+        self.saved.eye_reset_LRL.append(self.eye_reset_LRL)
+        self.saved.eye_reset_RLR.append(self.eye_reset_RLR)
         self.saved.yaw_eye_reset.append(self.yaw_eye_reset)
 
     def __str__(self):
@@ -444,6 +448,6 @@ class Saved:
         self.roll_rate = []
         self.pitch_rate = []
         self.yaw_rate = []
-        self.yaw_LRL = []
-        self.yaw_RLR = []
+        self.eye_reset_LRL = []
+        self.eye_reset_RLR = []
         self.yaw_eye_reset = []
