@@ -1,3 +1,7 @@
+
+
+
+
 //
 // MIT License
 //
@@ -154,6 +158,8 @@ public:
   void print_rapid_10_hdr();  // pp10
   void print_rapid_11(const float time_s);  // pp11
   void print_rapid_11_hdr();  // pp11
+  void print_yaw_rate_filt(){ YawRateFilt->repr(); }
+
   void quiet_decisions(const boolean reset, const float o_quiet_thr, const float g_quiet_thr);
   void sample_eye(const boolean reset, const unsigned long long time_eye_ms);
   void sample_head(const boolean reset, const unsigned long long time_now_ms, const unsigned long long time_start_ms, time_t now_hms);

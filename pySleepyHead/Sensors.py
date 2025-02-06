@@ -72,7 +72,8 @@ class Device:
     YAW_RATE_HIGH = 60.  # Yaw rat to declare left motion detected, deg/sec (25.)
     YAW_RESET_S = 0.2  # Persistence of reset flag to latch in, sec (0.2)
     YAW_RESET_R = 5.0  # Hold time of yaw head wag reset used to reset eye filters and silence alarm temporarily, sec (5.0)
-
+    YAW_WRAP_DETECT = 180.  # Abs value of yaw change since last update that indicates yaw_deg has wrapped around, deg (180.)
+    YAW_WRAP_MAG = 360.  # Abs value of wrap to apply when wrap detected.  If incoming signal is 0-360 this should be 360.  (360.)
 
 class Sensors:
     """Container of candidate filters"""
@@ -303,7 +304,9 @@ class Sensors:
         # Rates
         self.roll_rate = self.RollRateFilt.calculate(self.roll_deg, reset, min(self.T, Device.MAX_DT_HEAD))
         self.pitch_rate = self.PitchRateFilt.calculate(self.pitch_deg, reset, min(self.T, Device.MAX_DT_HEAD))
-        self.yaw_rate = self.YawRateFilt.calculate(self.yaw_deg, reset, min(self.T, Device.MAX_DT_HEAD))
+        self.yaw_rate = self.YawRateFilt.calculate(self.yaw_deg, reset, min(self.T, Device.MAX_DT_HEAD),
+                                                   wrap_detect=Device.YAW_WRAP_DETECT, wrap_mag_=Device.YAW_WRAP_MAG)
+        # print(self.YawRateFilt.__repr__())
 
         # Head nod
         self.max_nod_f = max( abs(self.pitch_deg)- Device.pitch_thr_def_forte,

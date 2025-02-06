@@ -460,6 +460,19 @@ class RateLagExp(DiscreteFilter):
         self.in_ = 0.
         self.out_ = 0.
 
+    def __repr__(self):
+        print("RateLagExp: tau_{:7.3f}".format(self.tau),
+        " T{:7.3f}".format(self.dt),
+        " min {:7.3f}".format(self.min),
+        " max {:7.3f}".format(self.max),
+        " a{:7.3f}".format(self.a),
+        " b{:7.3f}".format(self.b),
+        " c{:7.3f}".format(self.c),
+        " in {:7.3f}".format(self.in_),
+        " lstate {:7.3f}".format(self.state),
+        " rstate {:7.3f}".format(self.rstate),
+        " rate {:7.3f}".format(self.rate) )
+
     def __str__(self, prefix=''):
         s = prefix + "LagExp:"
         s += "\n  "
@@ -496,12 +509,21 @@ class RateLagExp(DiscreteFilter):
         self.assign_coeff(self.tau)
         self.calc_state_(in_)
 
-    def calculate(self, in_, reset, dt):
+    def calculate(self, in_, reset, dt, wrap_detect=None, wrap_mag_=0.):
         self.in_ = in_
         if reset:
             self.state = self.in_
             self.rstate = self.in_
-        self.rate_state_(self.in_, dt)
+        wrap_detected = False
+        wrap_mag = 0.
+        if wrap_detect is not None:
+            if self.in_ - self.rstate < -wrap_detect:
+                wrap_detected = True
+                wrap_mag = -wrap_mag_
+            elif self.in_ - self.rstate > wrap_detect:
+                wrap_detected = True
+                wrap_mag = wrap_mag_
+        self.rate_state_(self.in_, dt, wrap_detected=wrap_detected, wrap_mag=wrap_mag)
         self.out_ = self.rate
         return self.out_
 
@@ -515,25 +537,16 @@ class RateLagExp(DiscreteFilter):
         self.out_ = self.state
         return self.out_
 
-    def rate_state_(self, in_, dt):
+    def rate_state_(self, in_, dt, wrap_detected=False, wrap_mag=0.):
         self.dt = dt
+        if wrap_detected:
+            self.state += wrap_mag
+            self.state = max(min(self.state + self.dt * self.rate, self.max), self.min)
+            self.rstate = in_
+            return
         self.rate = self.c * (self.a * self.rstate + self.b * in_ - self.state)
         self.rstate = in_
         self.state = max(min(self.state + self.dt * self.rate, self.max), self.min)
-
-    def __repr__(self):
-        print("RateLagExp: tau_ = {:7.3f}".format(self.tau),
-        " T =  {:7.3f}".format(self.dt),
-        " min =  {:7.3f}".format(self.min),
-        " max =  {:7.3f}".format(self.max),
-        " a =  {:7.3f}".format(self.a),
-        " b =  {:7.3f}".format(self.b),
-        " c =  {:7.3f}".format(self.c),
-        " in =  {:7.3f}".format(self.in_),
-        " lstate =  {:7.3f}".format(self.state),
-        " rstate =  {:7.3f}".format(self.rstate),
-        " rate =  {:7.3f}".format(self.rate),
-              )
 
     def save(self, time):
         self.saved.time.append(time)

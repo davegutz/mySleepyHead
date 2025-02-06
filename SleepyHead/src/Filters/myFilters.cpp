@@ -544,15 +544,54 @@ double RateLagExp::calculate(double in, int RESET, const double T)
   RateLagExp::rateState(in, T);
   return (rate_);
 }
+double RateLagExp::calculate_wrap(double in, int RESET, const double T, const double wrap_detect, const double wrap_mag_)
+{
+  if (RESET > 0)
+  {
+    lstate_ = in;
+    rstate_ = in;
+  }
+
+  // Wrapping
+  boolean wrap_detected = false;
+  double wrap_mag = 0.;
+  if ( in - rstate_ <= -wrap_detect)
+  {
+    wrap_detected = true;
+    wrap_mag = -wrap_mag_;
+  }
+  else if ( in - rstate_ >= wrap_detect)
+  {
+    wrap_detected = true;
+    wrap_mag = wrap_mag_;
+  }
+
+  RateLagExp::rateState(in, T, wrap_detected, wrap_mag);
+
+  return (rate_);
+}
 void RateLagExp::rateState(double in)
 {
   rate_ = c_ * (a_ * rstate_ + b_ * in - lstate_);
-  rstate_ = in;
   lstate_ = fmax(fmin(lstate_ + T_ * rate_, max_), min_);
+  rstate_ = in;
 }
 void RateLagExp::rateState(double in, const double T)
 {
   T_ = T;
+  assignCoeff(tau_);
+  rateState(in);
+}
+void RateLagExp::rateState(double in, const double T, const boolean wrap_detected, const double wrap_mag)
+{
+  T_ = T;
+  if (wrap_detected)  // freeze rate (last good value) and update memory
+  {
+    lstate_ += wrap_mag;
+    lstate_ = fmax(fmin(lstate_ + T_ * rate_, max_), min_);
+    rstate_ = in;
+    return;
+  }
   assignCoeff(tau_);
   rateState(in);
 }

@@ -306,9 +306,11 @@ public:
   //functions
   virtual double calculate(double in, int RESET);
   virtual double calculate(double in, int RESET, const double T);
+  double calculate_wrap(double in, int RESET, const double T, const double wrap_detect, const double wrap_mag);
   virtual void assignCoeff(double tau);
   virtual void rateState(double in);
   virtual void rateState(double in, const double T);
+  virtual void rateState(double in, const double T, const boolean wrap_detected, const double wrap_mag);
   void repr();
   virtual double state(void);
   double a() { return (a_); };

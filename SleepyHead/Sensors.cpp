@@ -95,7 +95,8 @@ void Sensors::filter_head(const boolean reset, const boolean run)
     // Rates, deg/s
     roll_rate_ = RollRateFilt->calculate(roll_deg, reset, min(T_rot_, MAX_DT_HEAD));
     pitch_rate_ = PitchRateFilt->calculate(pitch_deg, reset, min(T_rot_, MAX_DT_HEAD));
-    yaw_rate_ = YawRateFilt->calculate(yaw_deg, reset, min(T_rot_, MAX_DT_HEAD));
+    yaw_rate_ = YawRateFilt->calculate_wrap(yaw_deg, reset, min(T_rot_, MAX_DT_HEAD), YAW_WRAP_DETECT, YAW_WRAP_MAG);
+    // Serial.print("YawRate: "); YawRateFilt->repr();
 
     // Head sensor
     max_nod_f_ = max( abs(pitch_deg)- pitch_thr_f_, abs(roll_deg) - roll_thr_f_ ) ;

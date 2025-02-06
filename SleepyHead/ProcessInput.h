@@ -179,6 +179,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("H - print header and one line of data for the default data stream that starts automatically on startup");
           Serial.println("P? - Print stuff");
           Serial.println("\t PL - LTST Filter");
+          Serial.println("\t PY - Yaw Rate Filter");
           Serial.print("pp? - plot all version ("); Serial.print(plot_num); Serial.println(")");
           Serial.println("\t pp-1 - stop plotting");
           Serial.println("\t pp0 - summ:      (g_raw, g_filt, g_quiet, q_is_quiet_sure, o_raw, o_filt, o_quiet, o_is_quiet_sure)");
@@ -211,6 +212,9 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
               break;
             case ( 'L' ):  // PL - Print LTST Filter
               Sen->LTST_Filter->pretty_print();
+              break;
+            case ( 'Y' ):  // PY - Print Yaw Rate Filter
+              Sen->print_yaw_rate_filt();
               break;
            default:
               Serial.print(letter_0); Serial.println(" unknown");

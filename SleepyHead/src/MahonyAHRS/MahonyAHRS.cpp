@@ -105,6 +105,7 @@ void Mahony::updateIMU(const float gx, const float gy, const float gz, const flo
 			gyr_z_ += integralFBz_;
 		} else {
 			integralFBx_ = 0.0f;	// prevent integral windup
+			
 			integralFBy_ = 0.0f;
 			integralFBz_ = 0.0f;
 		}
