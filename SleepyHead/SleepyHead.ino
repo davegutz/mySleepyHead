@@ -96,7 +96,10 @@ void loop()
   if ( S->read_eye() )
   {
     Sen->sample_eye(reset, millis());
-    Sen->filter_eye(reset);
+    static boolean reset_eye_filter = true;
+    if ( S->elapsed() > EYE_INIT_TIME) reset_eye_filter = false;
+    else reset_eye_filter = true;
+    Sen->filter_eye(reset_eye_filter, S->elapsed());
   }
   if ( S->read_head() )
   {

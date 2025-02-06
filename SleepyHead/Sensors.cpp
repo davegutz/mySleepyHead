@@ -29,13 +29,13 @@
 extern int debug;
 
 // Filter noise eye
-void Sensors::filter_eye(const boolean reset)
+void Sensors::filter_eye(const boolean reset, const float elapsed_time)
 {
-    reset_ = reset;
+    elapsed_time_ = elapsed_time;
     glasses_off_ = eye_voltage_norm_ > GLASSES_OFF_VOLTAGE;
     glasses_reset_ = glasses_off_ || eye_reset_RLR_ || eye_reset_LRL_;
     // IR Sensor
-    eye_reset_ = reset_ || GlassesOffPer->calculate( glasses_reset_, OFF_S, OFF_R, T_eye_, reset);
+    eye_reset_ = reset || GlassesOffPer->calculate( glasses_reset_, OFF_S, OFF_R, T_eye_, reset);
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE), -FRZ_THR_POS);
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
     eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));
@@ -48,72 +48,73 @@ void Sensors::filter_eye(const boolean reset)
 // Filter noise head
 void Sensors::filter_head(const boolean reset, const boolean run)
 {
-    static int count = 0;
-    static boolean turn = false;
+  reset_ = reset;
+  static int count = 0;
+  static boolean turn = false;
 
-    if ( reset || acc_available_ )
+  if ( reset || acc_available_ )
+  {
+      x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+      y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+      z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+      g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
+      g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_DT_HEAD));     
+      g_quiet = GQuietFilt->calculate(g_qrate, reset, wn_q_filt_, ZETA_Q_FILT, min(T_acc_, MAX_DT_HEAD));
+      static int count = 0;
+  }
+
+  if ( reset || rot_available_ )
+  {
+      a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+      b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+      c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+      o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
+      o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_DT_HEAD));     
+      o_quiet = OQuietFilt->calculate(o_qrate, reset, wn_q_filt_, ZETA_Q_FILT, min(T_rot_, MAX_DT_HEAD));
+  }
+
+  // Mahony Tracking Filter
+  if ( run )
+    TrackFilter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
+  else  // Manual testing
+  {
+    if ( turn )
     {
-        x_filt = X_Filt->calculate(x_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
-        y_filt = Y_Filt->calculate(y_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
-        z_filt = Z_Filt->calculate(z_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
-        g_filt = G_Filt->calculate(g_raw, reset, TAU_FILT, min(T_acc_, MAX_DT_HEAD));
-        g_qrate = GQuietRate->calculate(g_raw-1., reset, min(T_acc_, MAX_DT_HEAD));     
-        g_quiet = GQuietFilt->calculate(g_qrate, reset, wn_q_filt_, ZETA_Q_FILT, min(T_acc_, MAX_DT_HEAD));
-        static int count = 0;
+      TrackFilter->updateIMU(0, 0, 0, -0.679,  0.679,  0.281, T_acc_, reset);
     }
+    else
+      TrackFilter->updateIMU(0, 0, 0, 0, 0, 1, T_acc_, reset);
+    if ( ++count > 400 ) count = 0;
+    if ( count == 0 ) turn = !turn;
+  }
 
-    if ( reset || rot_available_ )
-    {
-        a_filt = A_Filt->calculate(a_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
-        b_filt = B_Filt->calculate(b_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
-        c_filt = C_Filt->calculate(c_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
-        o_filt = O_Filt->calculate(o_raw, reset, TAU_FILT, min(T_rot_, MAX_DT_HEAD));
-        o_qrate = OQuietRate->calculate(o_raw, reset, min(T_rot_, MAX_DT_HEAD));     
-        o_quiet = OQuietFilt->calculate(o_qrate, reset, wn_q_filt_, ZETA_Q_FILT, min(T_rot_, MAX_DT_HEAD));
-    }
+  // RPY
+  roll_deg = TrackFilter->getRollDeg() + delta_roll_;
+  pitch_deg = TrackFilter->getPitchDeg() + delta_pitch_;
+  yaw_deg = TrackFilter->getYawDeg();
 
-    // Mahony Tracking Filter
-    if ( run )
-      TrackFilter->updateIMU(a_raw, b_raw, c_raw, x_raw, y_raw, z_raw, T_acc_, reset);
-    else  // Manual testing
-    {
-      if ( turn )
-      {
-        TrackFilter->updateIMU(0, 0, 0, -0.679,  0.679,  0.281, T_acc_, reset);
-      }
-      else
-        TrackFilter->updateIMU(0, 0, 0, 0, 0, 1, T_acc_, reset);
-      if ( ++count > 400 ) count = 0;
-      if ( count == 0 ) turn = !turn;
-    }
+  // Rates, deg/s
+  roll_rate_ = RollRateFilt->calculate(roll_deg, reset, min(T_rot_, MAX_DT_HEAD));
+  pitch_rate_ = PitchRateFilt->calculate(pitch_deg, reset, min(T_rot_, MAX_DT_HEAD));
+  yaw_rate_ = YawRateFilt->calculate_wrap(yaw_deg, reset, min(T_rot_, MAX_DT_HEAD), YAW_WRAP_DETECT, YAW_WRAP_MAG);
+  // Serial.print("YawRate: "); YawRateFilt->repr();
 
-    // RPY
-    roll_deg = TrackFilter->getRollDeg() + delta_roll_;
-    pitch_deg = TrackFilter->getPitchDeg() + delta_pitch_;
-    yaw_deg = TrackFilter->getYawDeg();
+  // Head sensor
+  max_nod_f_ = max( abs(pitch_deg)- pitch_thr_f_, abs(roll_deg) - roll_thr_f_ ) ;
+  max_nod_p_ = max( abs(pitch_deg)- pitch_thr_p_, abs(roll_deg) - roll_thr_p_ ) ;
 
-    // Rates, deg/s
-    roll_rate_ = RollRateFilt->calculate(roll_deg, reset, min(T_rot_, MAX_DT_HEAD));
-    pitch_rate_ = PitchRateFilt->calculate(pitch_deg, reset, min(T_rot_, MAX_DT_HEAD));
-    yaw_rate_ = YawRateFilt->calculate_wrap(yaw_deg, reset, min(T_rot_, MAX_DT_HEAD), YAW_WRAP_DETECT, YAW_WRAP_MAG);
-    // Serial.print("YawRate: "); YawRateFilt->repr();
+  head_reset_ = reset || HeadShakePer->calculate(!(o_is_quiet_sure_ && g_is_quiet_sure_), SHAKE_S, SHAKE_R, T_acc_, reset);
 
-    // Head sensor
-    max_nod_f_ = max( abs(pitch_deg)- pitch_thr_f_, abs(roll_deg) - roll_thr_f_ ) ;
-    max_nod_p_ = max( abs(pitch_deg)- pitch_thr_p_, abs(roll_deg) - roll_thr_p_ ) ;
+  max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
+  max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
 
-    head_reset_ = reset || HeadShakePer->calculate(!(o_is_quiet_sure_ && g_is_quiet_sure_), SHAKE_S, SHAKE_R, T_acc_, reset);
+  // Head buzz
+  head_buzz_f_ = max_nod_f_confirmed_;
+  head_buzz_p_ = max_nod_p_confirmed_;
 
-    max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
-    max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
-
-    // Head buzz
-    head_buzz_f_ = max_nod_f_confirmed_;
-    head_buzz_p_ = max_nod_p_confirmed_;
-
-    // Yaw head wag to reset eye sensors
-    eye_reset_RLR_ = YawWagRLR->calculate(reset, T_rot_, yaw_rate_<=YAW_RATE_LOW, yaw_rate_>=YAW_RATE_HIGH);
-    eye_reset_LRL_ = YawWagLRL->calculate(reset, T_rot_, yaw_rate_>=YAW_RATE_HIGH, yaw_rate_<=YAW_RATE_LOW);
+  // Yaw head wag to reset eye sensors
+  eye_reset_RLR_ = YawWagRLR->calculate(reset, T_rot_, yaw_rate_<=YAW_RATE_LOW, yaw_rate_>=YAW_RATE_HIGH);
+  eye_reset_LRL_ = YawWagLRL->calculate(reset, T_rot_, yaw_rate_>=YAW_RATE_HIGH, yaw_rate_<=YAW_RATE_LOW);
 
 }
 
@@ -369,6 +370,7 @@ void Sensors::print_rapid_10_hdr()
 {
   Serial.print("key_Rapid,");
   Serial.print("reset,");
+  Serial.print("elapsed_time,");
   Serial.print("cTime,");
   Serial.print("head_reset,");
   Serial.print("eye_reset,");
@@ -420,6 +422,7 @@ void Sensors::print_rapid_10(const float time)  // pp10
 {
   Serial.print(unit_.c_str()); Serial.print(",");
   Serial.print(reset_); Serial.print(",");
+  Serial.print(elapsed_time_, 6); Serial.print(",");
   Serial.print(time, 6); Serial.print(",");
   Serial.print(head_reset_); Serial.print(",");
   Serial.print(eye_reset_); Serial.print(",");

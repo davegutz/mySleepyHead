@@ -54,7 +54,7 @@ public:
     Sync *Talk;
     boolean chitchat() { return chitchat_; }
     boolean control() { return control_; }
-    unsigned long long elapsed() { return elapsed_; }
+    float elapsed() { return float(elapsed_)/1000.; }
     boolean last_sync() { return last_sync_; }
     unsigned long long now_ms() { return now_ms_; }
     boolean publishing() { return publishing_; }

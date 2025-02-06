@@ -111,6 +111,7 @@ class SavedData:
         if data is None:
             self.i = 0
             self.reset = None
+            self.elapsed_time = None
             self.cTime = None
             self.head_reset = None
             self.eye_reset = None
@@ -232,6 +233,7 @@ class SavedData:
                     i_end = min(i_end, i_end_ekf)
                     self.zero_end = min(self.zero_end, i_end - 1)
             self.update_from_other(data, 'reset')
+            self.update_from_other(data, 'elapsed_time')
             self.cTime = self.cTime[:i_end]
             self.update_from_other(data, 'head_reset')
             self.update_from_other(data, 'eye_reset')

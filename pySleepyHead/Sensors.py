@@ -74,6 +74,8 @@ class Device:
     YAW_RESET_R = 5.0  # Hold time of yaw head wag reset used to reset eye filters and silence alarm temporarily, sec (5.0)
     YAW_WRAP_DETECT = 180.  # Abs value of yaw change since last update that indicates yaw_deg has wrapped around, deg (180.)
     YAW_WRAP_MAG = 360.  # Abs value of wrap to apply when wrap detected.  If incoming signal is 0-360 this should be 360.  (360.)
+    EYE_INIT_TIME = 20.  # Eye init time based on elapsed time, sec (20.)
+
 
 class Sensors:
     """Container of candidate filters"""
@@ -200,6 +202,7 @@ class Sensors:
         now = t[0]
         for i in range(t_len):
             now = t[i]
+            elapsed_time = self.Data.elapsed_time[i]
             self.reset = (t[i] <= init_time) or (t[i] < 0. and t[0] > init_time)
             self.Data.i = i
             self.time = now
@@ -228,11 +231,13 @@ class Sensors:
                     self.T = candidate_dt
                 else:
                     self.T = Device.NOMINAL_DT
-
+            reset_eye = True
+            if elapsed_time >= Device.EYE_INIT_TIME:
+                reset_eye = False
             # Run filters
             delta_pitch = self.Data.delta_pitch[i]
             delta_roll = self.Data.delta_roll[i]
-            self.filter_eye(self.reset)
+            self.filter_eye(reset_eye)
             self.filter_head(self.reset, delta_pitch, delta_roll)
             self.quiet_decisions(self.reset)
 

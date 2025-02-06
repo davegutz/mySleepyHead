@@ -58,7 +58,7 @@ public:
     pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
     eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
     head_reset_(true), head_set_time_(0), head_reset_time_(0), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
-    reset_(false), wn_q_filt_(0), glasses_off_(true), glasses_reset_(true)
+    reset_(false), wn_q_filt_(0), glasses_off_(true), glasses_reset_(true), elapsed_time_(0)
   {};
   Sensors(const unsigned long long time_now, const float kp, const float ki,
     const int sensorPin, const String unit):
@@ -74,7 +74,7 @@ public:
     unit_(unit), v3v3_(v3v3_nom), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
     eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
     head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
-    reset_(true), wn_q_filt_(WN_Q_FILT), glasses_off_(true), glasses_reset_(true)
+    reset_(true), wn_q_filt_(WN_Q_FILT), glasses_off_(true), glasses_reset_(true), elapsed_time_(0)
   {
     // Update time and time constant changed on the fly
     float Tfilt_head_init = HEAD_DELAY/1000.;
@@ -115,7 +115,7 @@ public:
 
   boolean both_are_quiet() { return o_is_quiet_sure_ && g_is_quiet_sure_; };
   boolean both_not_quiet() { return ( !o_is_quiet_sure_ && !g_is_quiet_sure_ ); };
-  void filter_eye(const boolean reset);
+  void filter_eye(const boolean reset, const float elapsed_time);
   void filter_head(const boolean reset, const boolean run);
   boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
   float get_delta_pitch() { return delta_pitch_; };
@@ -283,4 +283,5 @@ protected:
   boolean eye_reset_RLR_;  // Eye reset signal based off right-left-right yaw motion
   boolean glasses_off_;  // Eye glasses off signal
   boolean glasses_reset_;  // Eye glasses reset signal
+  float elapsed_time_;  // Time since power up, s
 };
