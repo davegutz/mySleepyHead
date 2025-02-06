@@ -247,9 +247,9 @@ class Sensors:
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltFilter.AB2))
                 # print('Sensors:  ', "{:8.6f}".format(T), "  ", self.reset, repr(self.VoltTripConf), "{:2d}".format(self.eye_closed_confirmed))
                 # print("{:9.6}  ".format(self.time), repr(self.LTST_Filter), "eye_closed {:d}".format(self.eye_closed))
-                print("{:9.6}  ".format(self.time), "yaw_rate {:9.6f}".format(self.Data.yaw_rate[i]), "yaw_rate_ver {:9.6f}".format(self.yaw_rate))
+                # print("{:9.6}  ".format(self.time), "yaw_rate {:9.6f}".format(self.Data.yaw_rate[i]), "yaw_rate_ver {:9.6f}".format(self.yaw_rate))
                 # self.TrackFilter.pp8()
-                # pass
+                pass
 
         # Data
         if verbose:

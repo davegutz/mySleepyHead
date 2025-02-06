@@ -77,8 +77,6 @@ void loop()
   static uint8_t last_plot_num = 126;
 
   // Sensors
-  boolean gyro_ready = false;
-  boolean accel_ready = false;
   static Sensors *Sen = new Sensors(millis(), kp_def, ki_def, sensorPin, unit_key + "_Rapid");
   boolean plotting = plotting_all_def;
   static boolean eye_closed = false;
@@ -86,7 +84,6 @@ void loop()
   static boolean buzz_en_grav = true;
   static float o_quiet_thr = O_QUIET_THR;
   static float g_quiet_thr = G_QUIET_THR;
-
 
   ///////////////////////////////////////////////////////////// Top of loop////////////////////////////////////////
 
@@ -106,8 +103,7 @@ void loop()
     Sen->sample_head(reset, millis(), time_start, now());
     Sen->filter_head(reset, run);
     Sen->quiet_decisions(reset, o_quiet_thr, g_quiet_thr);
-
-  }  // end read_head
+  }
 
   // Control
   if ( S->control() )
@@ -158,12 +154,10 @@ void loop()
     monitoring_past = monitoring;
   }
 
-  gyro_ready = false;
-  accel_ready = false;
-
   // Initialize complete once sensors and models started and summary written
   if ( S->read_head() ) reset = false;
 
+  // Interact with user over USB
   if ( S->chitchat() )
   {
     read_serial();  // returns one command at a time

@@ -34,8 +34,6 @@ void Sequence::calculate(unsigned long long *last_sync, unsigned long long *mill
     chitchat_ = Talk->update(millis(), reset);
     elapsed_ = ReadHead->now() - time_start_;
     control_ = ControlSync->update(millis(), reset);
-    blink_ = BlinkSync->update(millis(), reset);
-    active_ = ActiveSync->update(millis(), reset);
     publishing_ = Plotting->update(millis(), reset);
 }  
 

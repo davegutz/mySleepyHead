@@ -34,11 +34,9 @@
 class Sequence
 {
 public:
-    Sequence(void): active_(false), blink_(false), blink_on_(false), chitchat_(false), control_(false), elapsed_(0ULL),
-        last_sync_(true), now_ms_((unsigned long long) millis()),  publishing_(false), read_eye_(false), read_head_(false),
-        time_start_(millis())      
+    Sequence(void): chitchat_(false), control_(false), elapsed_(0ULL), last_sync_(true), now_ms_((unsigned long long) millis()),
+      publishing_(false), read_eye_(false), read_head_(false), time_start_(millis())      
     {
-        ActiveSync = new Sync(ACTIVE_DELAY);
         BlinkSync = new Sync(BLINK_DELAY);
         ControlSync = new Sync(CONTROL_DELAY);
         Plotting = new Sync(PUBLISH_DELAY);
@@ -48,16 +46,12 @@ public:
     }
     void calculate(unsigned long long *last_sync, unsigned long long *millis_flip, const boolean reset);
     void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip);
-    Sync *ActiveSync;
     Sync *BlinkSync;
     Sync *ControlSync;
     Sync *Plotting;
     Sync *ReadEye;
     Sync *ReadHead;
     Sync *Talk;
-    boolean active() { return active_; }
-    boolean blink() { return blink_; }
-    boolean blink_on() { return blink_on_; }
     boolean chitchat() { return chitchat_; }
     boolean control() { return control_; }
     unsigned long long elapsed() { return elapsed_; }
@@ -68,9 +62,6 @@ public:
     boolean read_head() { return read_head_; }
     unsigned long long time_start() { return time_start_; }
 protected:
-    boolean active_;
-    boolean blink_;
-    boolean blink_on_;
     boolean chitchat_;
     boolean control_;
     unsigned long long elapsed_;

@@ -55,7 +55,6 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define CONTROL_DELAY        100UL      // Output read wait, ms (100UL = 0.1 sec)
 #define PUBLISH_DELAY        100UL      // Publish wait, ms (100UL = 0.1 sec)
 #define BLINK_DELAY           80UL      // Blink wait, ms (80UL = 0.08 sec)
-#define ACTIVE_DELAY         200UL      // Active wait, ms (200UL = 0.2 sec)
 #define W_MAX                 34.9      // Max rotational value, rps (34.9) limit of hardware
 #define G_MAX                   4.      // Max G value, g's (4.) limit of hardware 
 #define D_MAX                2000.      // Max rotational value, deg/s (34.9*180/pi) limit of hardware
@@ -69,8 +68,6 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define QUIET_A                0.1      // Quiet set threshold, sec (0.1)
 #define O_QUIET_THR           45.8      // deg/s quiet detection threshold, small is more sensitive (4.)
 #define G_QUIET_THR           0.06      // g's quiet detection threshold, small is more sensitive (0.3)
-#define NDATUM                 560      // Number of datum entries to store (560)  varies depending on program size
-#define NHOLD                    5      // Number of precursor entries to store (5)
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
 #define DUTY_WARN               20      // Warning duty cycle for head piano case, % (20)
@@ -78,8 +75,8 @@ const float YAW_SET = 0.2;              // Persistence to detect yaw motion, sec
 const float YAW_HOLD_1 = 3.0;                // Persistence of first yaw motion in in_1 direction to allow others to set, sec (3.0)
 const float YAW_HOLD_2 = 2.0;                // Persistence of second yaw motion in in_2 direction to allow final to set, sec (2.0)
 const float YAW_HOLD_3 = 1.0;                // Persistence of final yaw motion in in_1 confirmation direction to allow downstream timers to set, sec (1.0)
-const float YAW_RATE_LOW = -60.;        // Yaw rate to declare right motion detected, deg/sec (-25.)
-const float YAW_RATE_HIGH = 60.;        // Yaw rat to declare left motion detected, deg/sec (25.)
+const float YAW_RATE_LOW = -60.;        // Yaw rate to declare right motion detected, deg/sec (-60.)
+const float YAW_RATE_HIGH = 60.;        // Yaw rat to declare left motion detected, deg/sec (60.)
 const float YAW_RESET_S = 0.2;          // Persistence of reset flag to latch in, sec (0.2)
 const float YAW_RESET_R = 5.0;          // Hold time of yaw head wag reset used to reset eye filters and silence alarm temporarily, sec (5.0)
 
