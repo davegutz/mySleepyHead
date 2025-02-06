@@ -378,8 +378,6 @@ void Sensors::print_rapid_10_hdr()
   Serial.print("x_raw,");
   Serial.print("y_raw,");
   Serial.print("z_raw,");
-  Serial.print("FLT_THR_POS,");
-  Serial.print("FRZ_THR_POS,");
   Serial.print("eye_closed,");
   Serial.print("eye_closed_confirmed,");
   Serial.print("max_nod_f,");
@@ -431,8 +429,6 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.print(x_raw, 6); Serial.print(",");
   Serial.print(y_raw, 6); Serial.print(",");
   Serial.print(z_raw, 6); Serial.print(",");
-  Serial.print(FLT_THR_POS, 4); Serial.print(",");
-  Serial.print(FRZ_THR_POS, 4); Serial.print(",");
   Serial.print(eye_closed_); Serial.print(",");
   Serial.print(eye_closed_confirmed_); Serial.print(",");
   Serial.print(max_nod_f_, 3); Serial.print(",");

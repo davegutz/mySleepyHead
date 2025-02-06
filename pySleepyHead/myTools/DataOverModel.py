@@ -126,8 +126,6 @@ class SavedData:
             self.g_raw = None
             self.o_raw = None
             self.unit = None  # text title
-            self.FLT_THR_POS = None
-            self.FRZ_THR_POS = None
             self.eye_closed = None
             self.eye_closed_confirmed = None
             self.max_nod_f = None
@@ -245,8 +243,6 @@ class SavedData:
             self.update_from_other(data, 'x_raw')
             self.update_from_other(data, 'y_raw')
             self.update_from_other(data, 'z_raw')
-            self.update_from_other(data, 'FLT_THR_POS')
-            self.update_from_other(data, 'FRZ_THR_POS')
             self.update_from_other(data, 'eye_closed')
             self.update_from_other(data, 'eye_closed_confirmed')
             self.update_from_other(data, 'max_nod_f')
