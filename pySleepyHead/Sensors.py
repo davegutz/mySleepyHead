@@ -231,8 +231,9 @@ class Sensors:
             # Run filters
             delta_pitch = self.Data.delta_pitch[i]
             delta_roll = self.Data.delta_roll[i]
-            self.filter_head(self.reset, delta_pitch, delta_roll)
             self.filter_eye(self.reset)
+            self.filter_head(self.reset, delta_pitch, delta_roll)
+            self.quiet_decisions(self.reset)
 
             # Log
             self.save(t[i], self.T)
@@ -281,8 +282,6 @@ class Sensors:
         # Cannot run these at 0.1 seconds.  They are run at 0.02 in application
         self.g_qrate = self.GQuietRate.calculate(self.g_raw-1., reset, min(self.T, Device.MAX_DT_HEAD))
         self.g_quiet = self.GQuietFilt.calculate(self.g_qrate, reset, min(self.T, Device.MAX_DT_HEAD))
-        self.g_is_quiet = abs(self.g_quiet) <= Device.G_QUIET_THR
-        self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
         # Angles
         self.a_filt = self.A_Filt.calculate_tau(self.a_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
@@ -291,8 +290,6 @@ class Sensors:
         self.o_filt = self.O_Filt.calculate_tau(self.o_raw, reset, Device.TAU_FILT, min(self.T, Device.MAX_DT_HEAD) )
         self.o_qrate = self.OQuietRate.calculate(self.o_raw-1., reset, min(self.T, Device.MAX_DT_HEAD))
         self.o_quiet = self.OQuietFilt.calculate(self.o_qrate, reset, min(self.T, Device.MAX_DT_HEAD))
-        self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
-        self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
         self.TrackFilter.updateIMU(gyroscope_=np.array([self.a_raw, self.b_raw, self.c_raw]),
                                    accelerometer=np.array([self.x_raw, self.y_raw, self.z_raw]),
@@ -333,6 +330,12 @@ class Sensors:
                                                            in_2=yaw_rate_left)
         self.yaw_eye_reset = self.YawResetPer.calculate(self.eye_reset_LRL or self.eye_reset_RLR, Device.YAW_RESET_S,
                                                         Device.YAW_RESET_R, self.T, reset)
+
+    def quiet_decisions(self, reset):
+        self.o_is_quiet = abs(self.o_quiet) <= Device.O_QUIET_THR
+        self.o_is_quiet_sure = self.OQuietPer.calculate(self.o_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
+        self.g_is_quiet = abs(self.g_quiet) <= Device.G_QUIET_THR
+        self.g_is_quiet_sure = self.GQuietPer.calculate(self.g_is_quiet, Device.QUIET_S, Device.QUIET_R, self.T, reset)
 
     def save(self, time, dt):  # Filter
         """Log Sensors"""
