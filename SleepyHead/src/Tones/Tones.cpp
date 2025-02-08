@@ -21,33 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-#include "../../constants.h"
+#include "Tones.h"
 
-
-// Generate tones
-class Tone
+void Tone::play_ready_chirp(const boolean play)
 {
-  public:
-    Tone(const int pin): buzzerPin_(pin), buzz_freq_grav_(buzz_freq_grav), buzz_freq_ir_(buzz_freq_ir), isPlaying_(false) {}
-    void begin()
+    static boolean last_play = false;
+    static uint8_t count = 0;
+    if ( count > 90 ) count = 0;
+    if (play)
     {
-      pinMode(buzzerPin_, OUTPUT);
-      digitalWrite(buzzerPin_, LOW);
+      Serial.println("playing_ready_chirp");
+      if ( count < DUTY_READY )
+          tone(buzzerPin_, buzz_freq_ir); //tone(buzzerPin_, buzz_freq_ready_chirp_); 
+      else
+          tone(buzzerPin_, 0); //tone(buzzerPin_, buzz_freq_ready_chirp_); 
+      count += 10;
     }
-    int gravityFreq() { return buzz_freq_grav_; }
-    void gravityFreq(const int inp) { buzz_freq_grav_ = inp; }
-    int irFreq() { return buzz_freq_ir_; }
-    void irFreq(const int inp) { buzz_freq_ir_ = inp; }
-    boolean isPlaying() { return isPlaying_; }
-    void play_ready_chirp(const boolean play);
-    void play_grav() { tone(buzzerPin_, buzz_freq_grav_); Serial.println("grav tone played"); isPlaying_ = true; }
-    void play_ir() { tone(buzzerPin_, buzz_freq_ir_); Serial.println("ir tone played"); isPlaying_ = true; }
-    void stop() { noTone(buzzerPin_); Serial.println("tone stopped"); isPlaying_ = false; }
+    else
+    {
+        count = 0;
+    }
+  }
 
-  private:
-    int buzzerPin_;
-    int buzz_freq_grav_;
-    int buzz_freq_ir_;
-    boolean isPlaying_;
-};
+// Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
+void setBuzzerVolume(int volume)
+{
+  analogWrite(buzzerPin, volume);
+}

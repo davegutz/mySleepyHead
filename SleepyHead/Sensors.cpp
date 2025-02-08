@@ -25,6 +25,7 @@
 #include "constants.h"
 #include "Sensors.h"
 #include "src/Time/TimeLib.h"
+#include "src/Tones/Tones.h"
 
 extern int debug;
 
@@ -39,6 +40,8 @@ void Sensors::filter_eye(const boolean reset, const float elapsed_time)
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE), -FRZ_THR_POS);
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
     eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));
+    boolean eye_ready_hold = EyeReadyHold->calculate(eye_reset_, OFF_S, EYE_READY_CHIRP_HOLD, T_eye_, eye_reset_);
+    eye_ready_chirp_ = !eye_reset_ && eye_ready_hold;
     // EyeRateFilt->repr();
 
     // Eye buzz
@@ -243,6 +246,7 @@ void Sensors::plot_eye_buzz()  // plot pp9
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
   Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
   Serial.print("\teye_reset+2:"); Serial.print(eye_reset_+2);
+  Serial.print("\teye_ready_chirp+2:"); Serial.print(eye_ready_chirp_+2);
   Serial.println("");
 }
 

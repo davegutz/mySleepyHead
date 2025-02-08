@@ -111,6 +111,7 @@ void loop()
   // Control
   if ( S->control() )
   {
+    buzz.play_ready_chirp(Sen->get_eye_ready_chirp());
     if ( Sen->eye_closed_sure() )
     {
       turn_on_motor_and_led(enable_motor, false);

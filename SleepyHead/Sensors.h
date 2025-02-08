@@ -100,6 +100,7 @@ public:
     HeadNodPerF = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
     HeadNodPerP = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
     EyeClosedPer = new TFDelay(false, EYE_S, EYE_R, Tfilt_eye_init); 
+    EyeReadyHold = new TFDelay(false, OFF_S, EYE_R, Tfilt_eye_init); 
     GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
     HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init);
     EyeRateFilt = new RateLagExp(Tfilt_head_init, TAU_E_FILT, -v3v3_nom, v3v3_nom);
@@ -120,6 +121,7 @@ public:
   boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
   float get_delta_pitch() { return delta_pitch_; };
   float get_delta_roll() { return delta_roll_; };
+  boolean get_eye_ready_chirp() { return eye_ready_chirp_; };
   float get_eye_reset_time() { return eye_reset_time_; };
   float get_eye_set_time() { return eye_set_time_; };
   float get_wn_q_filt() { return wn_q_filt_; };
@@ -226,6 +228,7 @@ protected:
   RateLagExp *YawRateFilt;    // Rate detector
   TFDelay *GQuietPer;     // Persistence ib quiet disconnect detection
   TFDelay *EyeClosedPer;  // Persistence eye closed detection
+  TFDelay *EyeReadyHold;  // Persistence eye ready detection
   TFDelay *HeadNodPerF;   // Persistence forte head nod detection
   TFDelay *HeadNodPerP;   // Persistence piano head nod detection
   TFDelay *GlassesOffPer; // Persistence eye glasses off detection, for reset of LTST filter
@@ -284,4 +287,5 @@ protected:
   boolean glasses_off_;  // Eye glasses off signal
   boolean glasses_reset_;  // Eye glasses reset signal
   float elapsed_time_;  // Time since power up, s
+  boolean eye_ready_chirp_;  // Eye ready signal
 };

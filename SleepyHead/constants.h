@@ -71,6 +71,8 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
 #define DUTY_WARN               20      // Warning duty cycle for head piano case, % (20)
+#define DUTY_READY              30      // Ready duty cycle for eye done resetting and ready to chirp, % (10)
+#define EYE_READY_CHIRP_HOLD     2.     // Eye ready chirp hold time, sec (2.)
 #define EYE_INIT_TIME           20.     // Eye init time based on elapsed time, sec (20.)
 const float YAW_WRAP_DETECT = 180.;     // Abs value of yaw change since last update that indicates yaw_deg has wrapped around, deg (180.)
 const float YAW_WRAP_MAG = 360.;        // Abs value of wrap to apply when wrap detected.  If incoming signal is 0-360 this should be 360.  (360.)
