@@ -105,6 +105,9 @@ void Sensors::filter_head(const boolean reset, const boolean run)
   max_nod_p_ = max( abs(pitch_deg)- pitch_thr_p_, abs(roll_deg) - roll_thr_p_ ) ;
 
   head_reset_ = reset || HeadShakePer->calculate(!(o_is_quiet_sure_ && g_is_quiet_sure_), SHAKE_S, SHAKE_R, T_acc_, reset);
+  boolean head_ready_hold = HeadReadyHold->calculate(head_reset_, HEAD_RESET_CHIRP_HOLD, HEAD_READY_CHIRP_HOLD, T_acc_, reset_);
+  head_ready_chirp_ = !head_reset_ && head_ready_hold;
+  head_reset_chirp_ = head_reset_ && !head_ready_hold;
 
   max_nod_f_confirmed_ = HeadNodPerF->calculate(max_nod_f_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);
   max_nod_p_confirmed_ = HeadNodPerP->calculate(max_nod_p_ > 0 && !head_reset_, head_set_time_, head_reset_time_, T_acc_, head_reset_);

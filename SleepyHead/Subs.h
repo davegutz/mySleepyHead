@@ -279,7 +279,7 @@ boolean turn_on_motor_and_led(const boolean enable, const boolean piano)
   if ( count > 90 ) count = 0;
   if ( enable )
   {
-    if ( count < DUTY_WARN || !piano)
+    if ( count < DUTY_HEAD_WARN || !piano)
       digitalWrite(motorPin, HIGH);
     else
       digitalWrite(motorPin, LOW);
@@ -289,3 +289,49 @@ boolean turn_on_motor_and_led(const boolean enable, const boolean piano)
   }
   else return false;
 }
+void play_head_ready_chirp(const boolean play)
+{
+  static boolean last_play = false;
+  static uint8_t count = 0;
+  if ( count > 90 ) count = 0;
+  if (play)
+  {
+    Serial.println("play_head_ready_chirp");
+    if ( count < DUTY_HEAD_READY )
+      digitalWrite(motorPin, HIGH);
+    else
+      digitalWrite(motorPin, LOW);
+    count += 10;
+  }
+  else
+  {
+      count = 0;
+  }
+}
+
+void play_head_reset_chirp(const boolean play)
+{
+  static boolean last_play = false;
+  static uint8_t count = 0;
+  if ( count > 90 ) count = 0;
+  if (play)
+  {
+    Serial.println("play_head_reset_chirp");
+    if ( count < DUTY_HEAD_RESET )
+      digitalWrite(motorPin, HIGH);
+    else
+      digitalWrite(motorPin, LOW);
+    count += 10;
+  }
+  else
+  {
+      count = 0;
+  }
+}
+  
+      // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
+void setBuzzerVolume(int volume)
+{
+  analogWrite(buzzerPin, volume);
+}
+

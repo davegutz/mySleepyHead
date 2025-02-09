@@ -101,6 +101,7 @@ public:
     HeadNodPerP = new TFDelay(true, EYE_S, EYE_R, Tfilt_head_init);
     EyeClosedPer = new TFDelay(false, EYE_S, EYE_R, Tfilt_eye_init); 
     EyeReadyHold = new TFDelay(false, OFF_S, EYE_R, Tfilt_eye_init); 
+    HeadReadyHold = new TFDelay(false, OFF_S, EYE_R, Tfilt_eye_init); 
     GlassesOffPer = new TFDelay(true, OFF_S, OFF_R, Tfilt_eye_init); 
     HeadShakePer = new TFDelay(false, SHAKE_S, SHAKE_R, Tfilt_eye_init);
     EyeRateFilt = new RateLagExp(Tfilt_head_init, TAU_E_FILT, -v3v3_nom, v3v3_nom);
@@ -125,6 +126,8 @@ public:
   boolean get_eye_reset_chirp() { return eye_reset_chirp_; };
   float get_eye_reset_time() { return eye_reset_time_; };
   float get_eye_set_time() { return eye_set_time_; };
+  boolean get_head_ready_chirp() { return head_ready_chirp_; };
+  boolean get_head_reset_chirp() { return head_reset_chirp_; };
   float get_wn_q_filt() { return wn_q_filt_; };
   boolean get_eye_reset_RLR() { return eye_reset_RLR_; };
   boolean get_eye_reset_LRL() { return eye_reset_LRL_; };
@@ -232,6 +235,7 @@ protected:
   TFDelay *EyeReadyHold;  // Persistence eye ready detection
   TFDelay *HeadNodPerF;   // Persistence forte head nod detection
   TFDelay *HeadNodPerP;   // Persistence piano head nod detection
+  TFDelay *HeadReadyHold; // Persistence head ready detection
   TFDelay *GlassesOffPer; // Persistence eye glasses off detection, for reset of LTST filter
   TFDelay *HeadShakePer;  // Persistence head shake detection
   Wag *YawWagRLR;         // Yaw wag detector for reset eye filters Right-Left-Right motion
@@ -290,4 +294,6 @@ protected:
   float elapsed_time_;  // Time since power up, s
   boolean eye_ready_chirp_;  // Eye ready signal
   boolean eye_reset_chirp_;  // Eye reset signal
+  boolean head_ready_chirp_; // Head ready signal
+  boolean head_reset_chirp_; // Head reset signal
 };
