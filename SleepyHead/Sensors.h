@@ -122,6 +122,7 @@ public:
   float get_delta_pitch() { return delta_pitch_; };
   float get_delta_roll() { return delta_roll_; };
   boolean get_eye_ready_chirp() { return eye_ready_chirp_; };
+  boolean get_eye_reset_chirp() { return eye_reset_chirp_; };
   float get_eye_reset_time() { return eye_reset_time_; };
   float get_eye_set_time() { return eye_set_time_; };
   float get_wn_q_filt() { return wn_q_filt_; };
@@ -288,4 +289,5 @@ protected:
   boolean glasses_reset_;  // Eye glasses reset signal
   float elapsed_time_;  // Time since power up, s
   boolean eye_ready_chirp_;  // Eye ready signal
+  boolean eye_reset_chirp_;  // Eye reset signal
 };

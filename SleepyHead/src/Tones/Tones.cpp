@@ -31,7 +31,7 @@ void Tone::play_ready_chirp(const boolean play)
     if (play)
     {
       Serial.println("playing_ready_chirp");
-      if ( count < DUTY_READY )
+      if ( count < DUTY_EYE_READY )
           tone(buzzerPin_, buzz_freq_ir); //tone(buzzerPin_, buzz_freq_ready_chirp_); 
       else
           tone(buzzerPin_, 0); //tone(buzzerPin_, buzz_freq_ready_chirp_); 
@@ -43,7 +43,27 @@ void Tone::play_ready_chirp(const boolean play)
     }
   }
 
-// Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
+  void Tone::play_reset_chirp(const boolean play)
+  {
+      static boolean last_play = false;
+      static uint8_t count = 0;
+      if ( count > 90 ) count = 0;
+      if (play)
+      {
+        Serial.println("playing_reset_chirp");
+        if ( count < DUTY_EYE_RESET )
+            tone(buzzerPin_, buzz_freq_ir_reset); //tone(buzzerPin_, buzz_freq_ready_chirp_); 
+        else
+            tone(buzzerPin_, 0); //tone(buzzerPin_, buzz_freq_ready_chirp_); 
+        count += 10;
+      }
+      else
+      {
+          count = 0;
+      }
+    }
+  
+  // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
 void setBuzzerVolume(int volume)
 {
   analogWrite(buzzerPin, volume);

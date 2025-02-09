@@ -41,6 +41,7 @@ class Tone
     void irFreq(const int inp) { buzz_freq_ir_ = inp; }
     boolean isPlaying() { return isPlaying_; }
     void play_ready_chirp(const boolean play);
+    void play_reset_chirp(const boolean play);
     void play_grav() { tone(buzzerPin_, buzz_freq_grav_); Serial.println("grav tone played"); isPlaying_ = true; }
     void play_ir() { tone(buzzerPin_, buzz_freq_ir_); Serial.println("ir tone played"); isPlaying_ = true; }
     void stop() { noTone(buzzerPin_); Serial.println("tone stopped"); isPlaying_ = false; }

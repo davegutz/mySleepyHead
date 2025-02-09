@@ -29,7 +29,7 @@
 
 extern int debug;
 
-// Filter noise eye
+// Filter and calculate eye shut
 void Sensors::filter_eye(const boolean reset, const float elapsed_time)
 {
     elapsed_time_ = elapsed_time;
@@ -40,11 +40,9 @@ void Sensors::filter_eye(const boolean reset, const float elapsed_time)
     eye_closed_ = LTST_Filter->calculate(eye_voltage_norm_, eye_reset_, min(T_eye_, MAX_DT_EYE), -FRZ_THR_POS);
     eye_closed_confirmed_ = EyeClosedPer->calculate(eye_closed_, eye_set_time_, eye_reset_time_, T_eye_, eye_reset_);
     eye_rate_ = EyeRateFilt->calculate(eye_voltage_norm_, reset, min(T_eye_, MAX_DT_EYE));
-    boolean eye_ready_hold = EyeReadyHold->calculate(eye_reset_, OFF_S, EYE_READY_CHIRP_HOLD, T_eye_, eye_reset_);
+    boolean eye_ready_hold = EyeReadyHold->calculate(eye_reset_, EYE_RESET_CHIRP_HOLD, EYE_READY_CHIRP_HOLD, T_eye_, reset_);
     eye_ready_chirp_ = !eye_reset_ && eye_ready_hold;
-    // EyeRateFilt->repr();
-
-    // Eye buzz
+    eye_reset_chirp_ = eye_reset_ && !eye_ready_hold;
     eye_buzz_ = eye_closed_confirmed_;
 }
 
@@ -246,7 +244,8 @@ void Sensors::plot_eye_buzz()  // plot pp9
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
   Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
   Serial.print("\teye_reset+2:"); Serial.print(eye_reset_+2);
-  Serial.print("\teye_ready_chirp+2:"); Serial.print(eye_ready_chirp_+2);
+  Serial.print("\teye_ready_chirp+4:"); Serial.print(eye_ready_chirp_+4);
+  Serial.print("\teye_reset_chirp+4:"); Serial.print(eye_reset_chirp_+4);
   Serial.println("");
 }
 
