@@ -318,7 +318,7 @@ class Sensors:
                               abs(self.roll_deg) - Device.roll_thr_def_forte )
         self.max_nod_p = max( abs(self.pitch_deg)- Device.pitch_thr_def_piano,
                               abs(self.roll_deg) - Device.roll_thr_def_piano )
-        self.head_reset = reset or self.HeadShakePer.calculate( not(self.o_is_quiet_sure and self.g_is_quiet_sure),
+        self.head_reset = reset or self.HeadShakePer.calculate( (not self.o_is_quiet_sure and not self.g_is_quiet_sure),
                                                                 Device.SHAKE_S, Device.SHAKE_R, self.T, reset )
         self.max_nod_f_confirmed = self.HeadNodPerF.calculate( self.max_nod_f > 0 and not self.head_reset,
                                                                Device.HEAD_S, Device.HEAD_R, self.T, reset)

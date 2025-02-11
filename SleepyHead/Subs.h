@@ -291,7 +291,6 @@ boolean turn_on_motor_and_led(const boolean enable, const boolean piano)
 }
 void play_head_ready_chirp(const boolean play)
 {
-  static boolean last_play = false;
   static uint8_t count = 0;
   if ( count > 90 ) count = 0;
   if (play)
@@ -311,7 +310,6 @@ void play_head_ready_chirp(const boolean play)
 
 void play_head_reset_chirp(const boolean play)
 {
-  static boolean last_play = false;
   static uint8_t count = 0;
   if ( count > 90 ) count = 0;
   if (play)
