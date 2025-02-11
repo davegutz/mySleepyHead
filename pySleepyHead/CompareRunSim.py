@@ -124,9 +124,9 @@ def main():
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/road_test.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/home_test.csv'
         # path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/road_test2.csv'
-        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/head_set_new_data.csv'
+        path_to_data = 'C:/Users/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/head_set_new_data_road.csv'
     else:
-        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/road_test.csv'
+        path_to_data = '/home/daveg/Documents/GitHub/mySleepyHead/pySleepyHead/dataReduction/head_set_new_data_road.csv'
     # unit_key = 'v20250113_pro0n33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
     # unit_key = 'v20250113_wearDn33iot_Rapid'
