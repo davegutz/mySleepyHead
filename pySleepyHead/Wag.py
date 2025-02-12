@@ -47,17 +47,17 @@ class Wag:
         return s
 
     def calculate(self, reset, dt, in_1, in_2):
-            self.reset = reset
-            self.T = dt
-            self.in_by_2 = in_1
-            self.in_by_1 = in_2
-            self.state_1 = self.timer_1.calculate(in_=self.in_by_2, t_true=self.time_set, t_false=self.time_reset_1,
-                                                  reset=self.reset, dt=self.T)
-            self.state_2 = self.timer_2.calculate(in_=(self.state_1 and self.in_by_1), t_true=self.time_set,
-                                                  t_false=self.time_reset_2, reset=self.reset, dt=self.T)
-            self.output = self.timer_3.calculate(in_=(self.state_2 and self.in_by_2), t_true=self.time_set,
-                                                 t_false=self.time_reset_3, reset=self.reset, dt=self.T)
-            return self.output
+        self.reset = reset
+        self.T = dt
+        self.in_by_2 = in_1
+        self.in_by_1 = in_2
+        self.state_1 = self.timer_1.calculate(in_=self.in_by_2, t_true=self.time_set, t_false=self.time_reset_1,
+                                              reset=self.reset, dt=self.T)
+        self.state_2 = self.timer_2.calculate(in_=(self.state_1 and self.in_by_1), t_true=self.time_set,
+                                              t_false=self.time_reset_2, reset=self.reset, dt=self.T)
+        self.output = self.timer_3.calculate(in_=(self.state_2 and self.in_by_2), t_true=self.time_set,
+                                             t_false=self.time_reset_3, reset=self.reset, dt=self.T)
+        return self.output
 
 
 def main(dt=0.1, set_all=0.2, hold_1=3., hold_2=2., hold_3=5.):

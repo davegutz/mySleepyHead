@@ -35,6 +35,7 @@ if sys.platform == 'darwin':
     matplotlib.use('tkagg')
 plt.rcParams.update({'figure.max_open_warning': 0})
 
+
 def plq(plt_, sx, st, sy, yt, slr=1., add=0., color='black', linestyle='-', label=None, marker=None,
         markersize=None, markevery=None):
     if (sx is not None and sy is not None and hasattr(sx, st) and hasattr(sy, yt) and
@@ -221,7 +222,7 @@ class SavedData:
                     self.c_time_e = np.array(ekf.c_time) - self.time_ref
                     i_end = min(i_end, len(self.c_time_e))
             else:
-                i_end = np.where(self.time <= time_end)[0][-1] + 1
+                i_end = np.where(self.time <= time_end)[0][-1] + 2
                 if sel is not None:
                     self.c_time_s = np.array(sel.c_time) - self.time_ref
                     i_end_sel = np.where(self.c_time_s <= time_end)[0][-1] + 1
@@ -232,65 +233,65 @@ class SavedData:
                     i_end_ekf = np.where(self.c_time_e <= time_end)[0][-1] + 1
                     i_end = min(i_end, i_end_ekf)
                     self.zero_end = min(self.zero_end, i_end - 1)
-            self.update_from_other(data, 'reset')
-            self.update_from_other(data, 'elapsed_time')
+            self.update_from_other(data, 'reset', i_end)
+            self.update_from_other(data, 'elapsed_time', i_end)
             self.cTime = self.cTime[:i_end]
-            self.update_from_other(data, 'head_reset')
-            self.update_from_other(data, 'eye_reset')
-            self.time = np.array(self.time[:i_end])
-            self.update_from_other(data, 'eye_voltage_norm')
-            self.update_from_other(data, 'a_raw')
-            self.update_from_other(data, 'b_raw')
-            self.update_from_other(data, 'c_raw')
-            self.update_from_other(data, 'x_raw')
-            self.update_from_other(data, 'y_raw')
-            self.update_from_other(data, 'z_raw')
-            self.update_from_other(data, 'eye_closed')
-            self.update_from_other(data, 'eye_closed_confirmed')
-            self.update_from_other(data, 'max_nod_f')
-            self.update_from_other(data, 'max_nod_f_confirmed')
-            self.update_from_other(data, 'max_nod_p')
-            self.update_from_other(data, 'max_nod_p_confirmed')
-            self.update_from_other(data, 'delta_pitch')
-            self.update_from_other(data, 'delta_roll')
-            self.update_from_other(data, 'head_buzz_f')
-            self.update_from_other(data, 'head_buzz_p')
-            self.update_from_other(data, 'eye_buzz')
-            self.update_from_other(data, 'lt_state')
-            self.update_from_other(data, 'st_state')
-            self.update_from_other(data, 'dltst')
-            self.update_from_other(data, 'cf')
-            self.update_from_other(data, 'freeze')
-            self.update_from_other(data, 'v3v3')
-            self.update_from_other(data, 'head_buzz')
-            self.update_from_other(data, 'o_quiet')
-            self.update_from_other(data, 'o_is_quiet')
-            self.update_from_other(data, 'o_is_quiet_sure')
-            self.update_from_other(data, 'g_quiet')
-            self.update_from_other(data, 'g_is_quiet')
-            self.update_from_other(data, 'g_is_quiet_sure')
-            self.update_from_other(data, 'roll_rate')
-            self.update_from_other(data, 'pitch_rate')
-            self.update_from_other(data, 'yaw_rate')
-            self.update_from_other(data, 'eye_rate')
-            self.update_from_other(data, 'halfex')
-            self.update_from_other(data, 'halfey')
-            self.update_from_other(data, 'halfez')
-            self.update_from_other(data, 'halfvx')
-            self.update_from_other(data, 'halfvy')
-            self.update_from_other(data, 'halfvz')
-            self.update_from_other(data, 'ifb_x')
-            self.update_from_other(data, 'ifb_y')
-            self.update_from_other(data, 'ifb_z')
-            self.update_from_other(data, 'q0')
-            self.update_from_other(data, 'q1')
-            self.update_from_other(data, 'q2')
-            self.update_from_other(data, 'q3')
-            self.update_from_other(data, 'roll_deg')
-            self.update_from_other(data, 'pitch_deg')
-            self.update_from_other(data, 'yaw_deg')
-            self.update_from_other(data, 'twoKi')
-            self.update_from_other(data, 'twoKp')
+            self.update_from_other(data, 'head_reset', i_end)
+            self.update_from_other(data, 'eye_reset', i_end)
+            self.time = self.time[:i_end]
+            self.update_from_other(data, 'eye_voltage_norm', i_end)
+            self.update_from_other(data, 'a_raw', i_end)
+            self.update_from_other(data, 'b_raw', i_end)
+            self.update_from_other(data, 'c_raw', i_end)
+            self.update_from_other(data, 'x_raw', i_end)
+            self.update_from_other(data, 'y_raw', i_end)
+            self.update_from_other(data, 'z_raw', i_end)
+            self.update_from_other(data, 'eye_closed', i_end)
+            self.update_from_other(data, 'eye_closed_confirmed', i_end)
+            self.update_from_other(data, 'max_nod_f', i_end)
+            self.update_from_other(data, 'max_nod_f_confirmed', i_end)
+            self.update_from_other(data, 'max_nod_p', i_end)
+            self.update_from_other(data, 'max_nod_p_confirmed', i_end)
+            self.update_from_other(data, 'delta_pitch', i_end)
+            self.update_from_other(data, 'delta_roll', i_end)
+            self.update_from_other(data, 'head_buzz_f', i_end)
+            self.update_from_other(data, 'head_buzz_p', i_end)
+            self.update_from_other(data, 'eye_buzz', i_end)
+            self.update_from_other(data, 'lt_state', i_end)
+            self.update_from_other(data, 'st_state', i_end)
+            self.update_from_other(data, 'dltst', i_end)
+            self.update_from_other(data, 'cf', i_end)
+            self.update_from_other(data, 'freeze', i_end)
+            self.update_from_other(data, 'v3v3', i_end)
+            self.update_from_other(data, 'head_buzz', i_end)
+            self.update_from_other(data, 'o_quiet', i_end)
+            self.update_from_other(data, 'o_is_quiet', i_end)
+            self.update_from_other(data, 'o_is_quiet_sure', i_end)
+            self.update_from_other(data, 'g_quiet', i_end)
+            self.update_from_other(data, 'g_is_quiet', i_end)
+            self.update_from_other(data, 'g_is_quiet_sure', i_end)
+            self.update_from_other(data, 'roll_rate', i_end)
+            self.update_from_other(data, 'pitch_rate', i_end)
+            self.update_from_other(data, 'yaw_rate', i_end)
+            self.update_from_other(data, 'eye_rate', i_end)
+            self.update_from_other(data, 'halfex', i_end)
+            self.update_from_other(data, 'halfey', i_end)
+            self.update_from_other(data, 'halfez', i_end)
+            self.update_from_other(data, 'halfvx', i_end)
+            self.update_from_other(data, 'halfvy', i_end)
+            self.update_from_other(data, 'halfvz', i_end)
+            self.update_from_other(data, 'ifb_x', i_end)
+            self.update_from_other(data, 'ifb_y', i_end)
+            self.update_from_other(data, 'ifb_z', i_end)
+            self.update_from_other(data, 'q0', i_end)
+            self.update_from_other(data, 'q1', i_end)
+            self.update_from_other(data, 'q2', i_end)
+            self.update_from_other(data, 'q3', i_end)
+            self.update_from_other(data, 'roll_deg', i_end)
+            self.update_from_other(data, 'pitch_deg', i_end)
+            self.update_from_other(data, 'yaw_deg', i_end)
+            self.update_from_other(data, 'twoKi', i_end)
+            self.update_from_other(data, 'twoKp', i_end)
 
         if sel is None:
             self.c_time_s = None
@@ -326,11 +327,15 @@ class SavedData:
             if not attr_name.startswith('__') and hasattr(self, attr_name):
                 setattr(self, attr_name, getattr(other, attr_name))
 
-    def update_from_other(self, other, attr_name):
+    def update_from_other(self, other, attr_name, i_end=None):
         # if not attr_name.startswith('__') and hasattr(self, attr_name):
         #     setattr(self, attr_name, getattr(other, attr_name))
-        if not attr_name.startswith('__') and hasattr(other, attr_name):
-            setattr(self, attr_name, getattr(other, attr_name))
+        if i_end is not None:
+            if not attr_name.startswith('__') and hasattr(other, attr_name):
+                setattr(self, attr_name, getattr(other, attr_name)[:i_end])
+        else:
+            if not attr_name.startswith('__') and hasattr(other, attr_name):
+                setattr(self, attr_name, getattr(other, attr_name))
 
 
 if __name__ == '__main__':

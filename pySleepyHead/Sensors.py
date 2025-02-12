@@ -190,7 +190,7 @@ class Sensors:
         self.yaw_eye_reset = None
         self.saved = Saved()  # for plots and prints
 
-    def calculate(self, init_time=-4., verbose=True, t_max=None):
+    def calculate(self, init_time=-4., verbose=True, t_max=None, use_eye_reset_in=False):
         """Filter data set and calculate candidate filter"""
         t = self.Data.time
         if t_max is not None:
@@ -237,7 +237,10 @@ class Sensors:
             # Run filters
             delta_pitch = self.Data.delta_pitch[i]
             delta_roll = self.Data.delta_roll[i]
-            self.filter_eye(reset_eye)
+            if use_eye_reset_in is True:
+                self.filter_eye(reset_eye, self.Data.eye_reset[i])
+            else:
+                self.filter_eye(reset_eye)
             self.filter_head(self.reset, delta_pitch, delta_roll)
             self.quiet_decisions(self.reset)
 
@@ -257,6 +260,13 @@ class Sensors:
                 # print("{:9.6}  ".format(self.time), "yaw_rate {:9.6f}".format(self.Data.yaw_rate[i]), "yaw_rate_ver {:9.6f}".format(self.yaw_rate))
                 # self.TrackFilter.pp8()
                 pass
+                # print("{:9.6}  ".format(self.time),
+                #       "voltage {:f} {:f}".format(self.Data.eye_voltage_norm[i], self.eye_voltage_norm),
+                #       "yaw_rate {:f} {:f}".format(self.Data.yaw_rate[i], self.yaw_rate),
+                #       "glasses_off_ver {:d}".format(self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE),
+                #       "reset_RLR_ver {:d}".format(self.eye_reset_RLR),
+                #       "reset_LRL_ver {:d}".format(self.eye_reset_LRL),
+                #       "eye_reset {:d} {:d}".format(int(self.Data.eye_reset[i]), self.eye_reset))
 
         # Data
         if verbose:
@@ -266,10 +276,16 @@ class Sensors:
 
         return self.saved
 
-    def filter_eye(self, reset):
+    def filter_eye(self, reset, eye_reset_in=None):
         glasses_off = self.eye_voltage_norm > Device.GLASSES_OFF_VOLTAGE
-        glasses_reset = glasses_off or self.eye_reset_RLR or self.eye_reset_LRL
-        self.eye_reset = reset or self.GlassesOffPer.calculate(glasses_reset, Device.OFF_S, Device.OFF_R, self.T, reset)
+        if glasses_off or self.eye_reset_RLR or self.eye_reset_LRL:
+            glasses_reset = True
+        else:
+            glasses_reset = False
+        if eye_reset_in is None:
+            self.eye_reset = reset or self.GlassesOffPer.calculate(glasses_reset, Device.OFF_S, Device.OFF_R, self.T, reset)
+        else:
+            self.eye_reset = bool(eye_reset_in)
         self.eye_closed = self.LTST_Filter.calculate(self.eye_voltage_norm, self.eye_reset,
                                                      min(self.T, Device.MAX_DT_EYE), -Device.FRZ_THR_POS)
         self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
