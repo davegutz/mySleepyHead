@@ -77,8 +77,8 @@ public:
     reset_(true), wn_q_filt_(WN_Q_FILT), glasses_off_(true), glasses_reset_(true), elapsed_time_(0)
   {
     // Update time and time constant changed on the fly
-    float Tfilt_head_init = HEAD_DELAY/1000.;
-    float Tfilt_eye_init = EYE_DELAY/1000.;
+    float Tfilt_head_init = READ_AND_CALC_DELAY/1000.;
+    float Tfilt_eye_init = READ_AND_CALC_DELAY/1000.;
     
     A_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);
     B_Filt = new LagExp(Tfilt_head_init, TAU_FILT, -D_MAX, D_MAX);

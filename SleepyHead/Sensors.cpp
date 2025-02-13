@@ -583,7 +583,7 @@ void Sensors::sample_eye(const boolean reset, const unsigned long long time_eye_
     // Reset
     if ( reset )
     {
-        time_eye_last_ = time_eye_ms_ - EYE_DELAY;
+        time_eye_last_ = time_eye_ms_ - READ_AND_CALC_DELAY;
     }
 
     // Half v3v3_nom = 3.3; v3v3_units = 4095;
@@ -609,8 +609,8 @@ void Sensors::sample_head(const boolean reset, const unsigned long long time_now
     // Reset
     if ( reset )
     {
-        time_rot_last_ = time_head_ms_ - HEAD_DELAY;
-        time_acc_last_ = time_head_ms_ - HEAD_DELAY;
+        time_rot_last_ = time_head_ms_ - READ_AND_CALC_DELAY;
+        time_acc_last_ = time_head_ms_ - READ_AND_CALC_DELAY;
     }
 
     // Accelerometer

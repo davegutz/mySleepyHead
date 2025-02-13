@@ -1,9 +1,7 @@
 /*
   Uses LSM6DS3 in Arduino Nano 33 IoT
   This unit is reported to have BLE but I have not confirmed.
-  This unit requires special EEPROM handling using FlashStorage library.  But not used SleepyHead
-
-  The circuit:
+  This unit requires special EEPROM handling using FlashStorage library.  But not used SleepyHeadl
   - Arduino Uno WiFi Rev 2 or Arduino Nano 33 IoT
   - USB for monitor and power
 
@@ -93,16 +91,13 @@ void loop()
   S->calculate(&last_sync, &millis_flip, reset);
 
   // Read sensors
-  if ( S->read_eye() )
+  if ( S->read_and_calc() )
   {
     Sen->sample_eye(reset, millis());
     static boolean reset_eye_filter = true;
     if ( S->elapsed() > EYE_INIT_TIME) reset_eye_filter = false;
     else reset_eye_filter = true;
     Sen->filter_eye(reset_eye_filter, S->elapsed());
-  }
-  if ( S->read_head() )
-  {
     Sen->sample_head(reset, millis(), time_start, now());
     Sen->filter_head(reset, run);
     Sen->quiet_decisions(reset, o_quiet_thr, g_quiet_thr);
@@ -162,7 +157,7 @@ void loop()
   }
 
   // Initialize complete once sensors and models started and summary written
-  if ( S->read_head() ) reset = false;
+  if ( S->read_and_calc() ) reset = false;
 
   // Interact with user over USB
   if ( S->chitchat() )

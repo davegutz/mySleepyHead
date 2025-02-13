@@ -35,13 +35,12 @@ class Sequence
 {
 public:
     Sequence(void): chitchat_(false), control_(false), elapsed_(0ULL), last_sync_(true), now_ms_((unsigned long long) millis()),
-      publishing_(false), read_eye_(false), read_head_(false), time_start_(millis())      
+      publishing_(false), read_and_calc_(false), time_start_(millis())      
     {
         BlinkSync = new Sync(BLINK_DELAY);
         ControlSync = new Sync(CONTROL_DELAY);
         Plotting = new Sync(PUBLISH_DELAY);
-        ReadEye = new Sync(EYE_DELAY);
-        ReadHead = new Sync(HEAD_DELAY);
+        ReadAndCalculate = new Sync(READ_AND_CALC_DELAY);
         Talk = new Sync(TALK_DELAY);
     }
     void calculate(unsigned long long *last_sync, unsigned long long *millis_flip, const boolean reset);
@@ -49,8 +48,7 @@ public:
     Sync *BlinkSync;
     Sync *ControlSync;
     Sync *Plotting;
-    Sync *ReadEye;
-    Sync *ReadHead;
+    Sync *ReadAndCalculate;
     Sync *Talk;
     boolean chitchat() { return chitchat_; }
     boolean control() { return control_; }
@@ -58,8 +56,7 @@ public:
     boolean last_sync() { return last_sync_; }
     unsigned long long now_ms() { return now_ms_; }
     boolean publishing() { return publishing_; }
-    boolean read_eye() { return read_eye_; }
-    boolean read_head() { return read_head_; }
+    boolean read_and_calc() { return read_and_calc_; }
     unsigned long long time_start() { return time_start_; }
 protected:
     boolean chitchat_;
@@ -68,7 +65,6 @@ protected:
     boolean last_sync_;
     unsigned long long now_ms_;
     boolean publishing_;
-    boolean read_eye_;
-    boolean read_head_;
+    boolean read_and_calc_;
     unsigned long long time_start_;
 };
