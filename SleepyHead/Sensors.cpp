@@ -25,7 +25,6 @@
 #include "constants.h"
 #include "Sensors.h"
 #include "src/Time/TimeLib.h"
-#include "src/Tones/Tones.h"
 
 extern int debug;
 
@@ -43,7 +42,7 @@ void Sensors::filter_eye(const boolean reset, const float elapsed_time)
     boolean eye_ready_hold = EyeReadyHold->calculate(eye_reset_, EYE_RESET_CHIRP_HOLD, EYE_READY_CHIRP_HOLD, T_eye_, reset_);
     eye_ready_chirp_ = !eye_reset_ && eye_ready_hold;
     eye_reset_chirp_ = eye_reset_ && !eye_ready_hold;
-    eye_buzz_ = eye_closed_confirmed_;
+    eye_tone_ = eye_closed_confirmed_;
 }
 
 // Filter noise head
@@ -228,13 +227,13 @@ void Sensors::plot_head_buzz()  // plot pp8
   Serial.print("\thead_buzz_f:"); Serial.print(head_buzz_f_);
   Serial.print("\thead_buzz_p:"); Serial.print(head_buzz_p_);
   Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
-  Serial.print("\teye_buzz+5:"); Serial.print(eye_buzz_+5);
+  Serial.print("\teye_tone+5:"); Serial.print(eye_tone_+5);
   // Serial.print("\t HeadShakePer:"); HeadShakePer->repr();
   Serial.println("");
 }
 
 // Plot pp9
-void Sensors::plot_eye_buzz()  // plot pp9
+void Sensors::plot_eye_tone()  // plot pp9
 {
   Serial.print("eye_voltage:"); Serial.print(eye_voltage_norm_, 3);
   Serial.print("\tltstate:"); Serial.print(LTST_Filter->lt_state(), 3);
@@ -242,7 +241,7 @@ void Sensors::plot_eye_buzz()  // plot pp9
   Serial.print("\tdltst:"); Serial.print(LTST_Filter->dltst(), 3);
   Serial.print("\teye_closed:"); Serial.print(eye_closed_);
   Serial.print("\tconf:"); Serial.print(eye_closed_confirmed_);
-  Serial.print("\teye_buzz+5:"); Serial.print(eye_buzz_+5);
+  Serial.print("\teye_tone+5:"); Serial.print(eye_tone_+5);
   Serial.print("\tnod_f/10:"); Serial.print(max_nod_f_/10., 3);
   Serial.print("\tnod_p/10:"); Serial.print(max_nod_p_/10., 3);
   Serial.print("\teye_cf+3:"); Serial.print(LTST_Filter->cf()+3, 3);
@@ -400,7 +399,7 @@ void Sensors::print_rapid_10_hdr()
   Serial.print("yaw_deg,");
   Serial.print("head_buzz_f,");
   Serial.print("head_buzz_p,");
-  Serial.print("eye_buzz,");
+  Serial.print("eye_tone,");
   Serial.print("lt_state,");
   Serial.print("st_state,");
   Serial.print("dltst,");
@@ -452,7 +451,7 @@ void Sensors::print_rapid_10(const float time)  // pp10
   Serial.print(yaw_deg, 5); Serial.print(",");
   Serial.print(head_buzz_f_); Serial.print(",");
   Serial.print(head_buzz_p_); Serial.print(",");
-  Serial.print(eye_buzz_); Serial.print(",");
+  Serial.print(eye_tone_); Serial.print(",");
   Serial.print(LTST_Filter->lt_state(), 5); Serial.print(",");
   Serial.print(LTST_Filter->st_state(), 5); Serial.print(",");
   Serial.print(LTST_Filter->dltst(), 5); Serial.print(",");

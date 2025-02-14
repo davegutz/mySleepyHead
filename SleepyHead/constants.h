@@ -42,9 +42,9 @@ const double MAX_DT_HEAD = 0.2;     // Maximum filter update time in call to pre
 const float deg_to_rps = 0.0174533;
 
 // Hardware pins
-const int sensorPin = 20;     // Pin connected to the IR sensor (or eye detection sensor)
-const int buzzerPin = A3;     // Pin connected to the buzzer
-const int motorPin = 21;     // Pin connected to the buzzer
+const int sensorPin = 20;    // Pin connected to the IR sensor (or eye detection sensor)
+const int tonePin = A3;      // Pin connected to the buzzer
+const int motorPin = 21;     // Pin connected to the motor
 
 
 // Constants; anything numeric (adjustable)
@@ -70,6 +70,7 @@ const int motorPin = 21;     // Pin connected to the buzzer
 #define ARBITRARY_TIME  1704067196      // 1/1/2024 at ~12:00:00 AM
 #define D_EYE_VOLTAGE_D_VCC 0.7614      // Sensitivity of eye voltage to VCC, V/V (0.7614)
 #define DUTY_HEAD_WARN          50      // Warning duty cycle for head piano case, % (20)
+#define DUTY_EYE_WARN          100      // Warning duty cycle for eye closed, % (100)
 #define DUTY_EYE_READY          30      // Ready duty cycle for eye done resetting and ready to chirp, % (30)
 #define DUTY_EYE_RESET          20      // Ready duty cycle for eye left ready and now resetting, % (20)
 #define EYE_READY_CHIRP_HOLD     2.     // Eye ready chirp hold time, sec (2.)
@@ -115,14 +116,14 @@ const float SHAKE_S = 0.2;               // Persistence head shake motion sense 
 const float SHAKE_R = 4.0;               // Persistence head shake motion sense reset, sec (4.0)
 
 // Buzzer Pui 24a
-// const int   buzz_freq_grav = 3500;       // Buzzer frequency when gravity detected, Hz (2000)
-// const int   buzz_freq_ir = 3800;        // Buzzer frequency when IR detected, Hz (3000) 
+// const int   tone_freq_grav = 3500;      // Buzzer frequency when gravity detected, Hz (2000)
+// const int   tone_freq_ir = 3800;        // Buzzer frequency when IR detected, Hz (3000) 
 
 // Buzzer Pui x4033
-const int   buzz_freq_grav = 2800;       // Buzzer frequency when gravity detected, Hz (2800)
-const int   buzz_freq_ir = 3300;         // Buzzer frequency when IR detected, Hz (3300) 
-const int   buzz_freq_ir_reset = 1500;   // Buzzer frequency when IR resetting, Hz (1500) 
+const int   tone_freq_grav = 2800;       // Buzzer frequency when gravity detected, Hz (2800)
+const int   tone_freq_ir = 3300;         // Buzzer frequency when IR detected, Hz (3300) 
+const int   tone_freq_ir_reset = 1500;   // Buzzer frequency when IR resetting, Hz (1500) 
 
 // Analog sensor definitions
-const float v3v3_nom = 3.3;                 // IR detector power supply, v (3.3)
+const float v3v3_nom = 3.3;             // IR detector power supply, v (3.3)
 const int v3v3_units = 4095;            // A/D range, units (1023)

@@ -26,7 +26,7 @@
 class CommandPars
 {
 public:
-  CommandPars()
+  CommandPars() : inp_token(false), tone_token(false), motor_token(false), led_token(false)
   {
     inp_str = "";
   }
@@ -34,6 +34,9 @@ public:
   // Small static value area for 'retained'
   String inp_str;           // Hold incoming data queue
   boolean inp_token;        // Whether inp_str is complete
+  boolean tone_token;       // Permission to buzz
+  boolean motor_token;      // Permission to run motor
+  boolean led_token;        // Permission to run led
 
   void pretty_print(void)
   {

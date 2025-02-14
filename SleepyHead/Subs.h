@@ -38,10 +38,11 @@ void delay_no_block(const unsigned long long interval)
 }
 
 // Buzzer
-boolean init_buzzer()
+boolean init_tone()
 {
-  Serial.print("Buzzer starting at pin "); Serial.print(buzzerPin); Serial.print("...");
-  buzz.begin();
+  Serial.print("Tone starting at pin "); Serial.print(tonePin); Serial.print("...");
+  pinMode(tonePin, OUTPUT);
+  digitalWrite(tonePin, LOW);
   Serial.println(" done");
   delay(5);
   return true;
@@ -213,7 +214,7 @@ void request_plot(const uint8_t plot_num, const boolean print_hdr, Sensors *Sen,
       Sen->plot_head_buzz();  // pp8
       break;
     case 9:
-      Sen->plot_eye_buzz();  // pp9
+      Sen->plot_eye_tone();  // pp9
       break;
     case 10:
       Sen->print_rapid(print_hdr, Sen->time_eye_s());  // pp10
@@ -225,7 +226,7 @@ void request_plot(const uint8_t plot_num, const boolean print_hdr, Sensors *Sen,
       Sen->plot_yaw_reset();  // pp12
       break;
     default:
-      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_buzz), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
+      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_tone), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
       break;
   }
   last_plot_num = plot_num;
@@ -264,72 +265,9 @@ void sync_time(unsigned long long *last_sync, unsigned long long *millis_flip)
   }
 }
 
-// Motor off
-boolean turn_off_motor_and_led()
-{
-  digitalWrite(motorPin, LOW);
-  digitalWrite(LED_BUILTIN, LOW);
-  return true;
-}
-
-// Motor on
-boolean turn_on_motor_and_led(const boolean enable, const boolean piano)
-{
-  static uint8_t count = 0;
-  if ( count > 90 ) count = 0;
-  if ( enable )
-  {
-    if ( count < DUTY_HEAD_WARN || !piano)
-      digitalWrite(motorPin, HIGH);
-    else
-      digitalWrite(motorPin, LOW);
-    count += 10;
-    digitalWrite(LED_BUILTIN, HIGH);
-    return true;
-  }
-  else return false;
-}
-void play_head_ready_chirp(const boolean play)
-{
-  static uint8_t count = 0;
-  if ( count > 90 ) count = 0;
-  if (play)
-  {
-    Serial.println("play_head_ready_chirp");
-    if ( count < DUTY_HEAD_READY )
-      digitalWrite(motorPin, HIGH);
-    else
-      digitalWrite(motorPin, LOW);
-    count += 10;
-  }
-  else
-  {
-      count = 0;
-  }
-}
-
-void play_head_reset_chirp(const boolean play)
-{
-  static uint8_t count = 0;
-  if ( count > 90 ) count = 0;
-  if (play)
-  {
-    Serial.println("play_head_reset_chirp");
-    if ( count < DUTY_HEAD_RESET )
-      digitalWrite(motorPin, HIGH);
-    else
-      digitalWrite(motorPin, LOW);
-    count += 10;
-  }
-  else
-  {
-      count = 0;
-  }
-}
-  
-      // Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
+// Set buzzer volume (0-255 for variable PWM dutry cycle based on 'volume')
 void setBuzzerVolume(int volume)
 {
-  analogWrite(buzzerPin, volume);
+  analogWrite(tonePin, volume);
 }
 

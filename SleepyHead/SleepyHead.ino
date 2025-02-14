@@ -38,6 +38,7 @@
 // Global variables and user includes
 #include "SleepyHead.h"
 #include "ProcessInput.h"
+#include "ProcessOutput.h"
 #include "Subs.h"
 extern CommandPars cp;            // Various parameters shared at system level
 extern int debug;
@@ -54,7 +55,7 @@ void setup()
 
   init_imu();
 
-  init_buzzer();
+  init_tone();
 
   init_IR();
 
@@ -73,13 +74,16 @@ void loop()
   static unsigned long long time_start = millis();
   static boolean monitoring_past = monitoring;
   static uint8_t last_plot_num = 126;
+  static ProcessPinOutput *LED = new ProcessPinOutput(LED_BUILTIN, &cp.led_token, String("LED"));
+  static ProcessPinOutput *MOT = new ProcessPinOutput(motorPin, &cp.motor_token, String("MOT"));
+  static ProcessToneOutput *TON = new ProcessToneOutput(tonePin, &cp.tone_token, String("TON"));
 
   // Sensors
   static Sensors *Sen = new Sensors(millis(), kp_def, ki_def, sensorPin, unit_key + "_Rapid");
   boolean plotting = plotting_all_def;
   static boolean eye_closed = false;
-  static boolean buzz_en_ir = true;
-  static boolean buzz_en_grav = true;
+  static boolean enable_tone_ir = true;
+  static boolean enable_tone_grav = true;
   static float o_quiet_thr = O_QUIET_THR;
   static float g_quiet_thr = G_QUIET_THR;
 
@@ -106,33 +110,40 @@ void loop()
   // Control
   if ( S->control() )
   {
-    buzz.play_eye_ready_chirp(Sen->get_eye_ready_chirp());
-    buzz.play_eye_reset_chirp(Sen->get_eye_reset_chirp());
+    if ( Sen->get_eye_ready() && enable_motor ) TON->write_duty(tone_freq_ir, DUTY_EYE_READY);
+    if ( Sen->get_eye_reset() && enable_motor ) TON->write_duty(tone_freq_ir, DUTY_EYE_RESET);
     if ( Sen->eye_closed_sure() )
     {
-      turn_on_motor_and_led(enable_motor, false);
-      if ( buzz_en_ir )
+      if ( enable_motor )
+        MOT->write_duty(100);
+      if ( enable_tone_ir )
       {
-        if ( !buzz.isPlaying() ) buzz.play_ir();
+        LED->write_duty(100);
+        TON->write_duty(tone_freq_ir, DUTY_EYE_WARN);
       }
     }
     else
     {
       if ( Sen->head_buzz_p() > 0 )
       {
-        turn_on_motor_and_led(enable_motor, true);
-        if ( buzz_en_grav && Sen->head_buzz_f() > 0 )
+        if ( enable_motor ) MOT->write_duty(DUTY_HEAD_WARN);
+        if ( Sen->head_buzz_f() > 0 )
         {
-          turn_on_motor_and_led(enable_motor, false);
-          if ( !buzz.isPlaying() ) buzz.play_grav();
+          if ( enable_motor ) MOT->write_duty(100);
+          if ( enable_tone_grav )
+          {
+            LED->write_duty(100);
+            TON->write_duty(tone_freq_grav, DUTY_HEAD_WARN);
+          }
         }
       }
       else
       {
-        turn_off_motor_and_led();
-        play_head_ready_chirp(Sen->get_head_ready_chirp());
-        play_head_reset_chirp(Sen->get_head_reset_chirp());
-        if ( buzz.isPlaying() ) buzz.stop();
+        MOT->write_duty(0);
+        LED->write_duty(0);
+        TON->write_duty(tone_freq_ir, 0);
+        if ( Sen->get_head_ready() && enable_motor )  MOT->write_duty(DUTY_HEAD_READY);
+        if ( Sen->get_head_reset() && enable_motor )  MOT->write_duty(DUTY_HEAD_RESET);
       }
     }
   }

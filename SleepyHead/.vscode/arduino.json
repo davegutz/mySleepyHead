@@ -1,17 +1,3 @@
 {
-    "port": "COM3",
-    "output": "build",
-    "board": "arduino:samd:nano_33_iot",
-    "programmer": "arduino:sam_ice",
-    "useProgrammer": false,
-    "configurationRequired": false,
-    "monitorPortSettings": {
-        "port": "",
-        "baudRate": 115200,
-        "lineEnding": "\r\n",
-        "dataBits": 8,
-        "parity": "none",
-        "stopBits": "one"
-    },
-    "sketch": "SleepyHead.ino"
+    "port": "/dev/ttyACM0"
 }

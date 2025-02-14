@@ -34,11 +34,9 @@
 #include "Sequence.h"
 #include "src/Filters/myFilters.h"
 #include "src/Time/TimeLib.h"
-#include "src/Tones/Tones.h"  // depends on some things above
 #include <HardwareSerial.h>
 #include "Sensors.h"
 #include "command.h"
-#include "src/Tones/Tones.h"
 #include "ProcessInput.h"
 String serial_str;
 String unit;

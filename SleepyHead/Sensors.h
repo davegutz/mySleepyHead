@@ -53,7 +53,7 @@ public:
     time_acc_last_(0ULL), time_eye_last_(0LL), time_rot_last_(0ULL),
     o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
     roll_deg(0), pitch_deg(0), yaw_deg(0),
-    eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_buzz_(false),
+    eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(0), eye_tone_(false),
     head_buzz_f_(false), head_buzz_p_(false),
     pitch_thr_f_(0), roll_thr_f_(0), eye_voltage_norm_(0), v3v3_(0),
     eye_reset_(true), eye_set_time_(0), eye_reset_time_(0),
@@ -67,7 +67,7 @@ public:
     time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
     o_is_quiet_(true), o_is_quiet_sure_(true), g_is_quiet_(true), g_is_quiet_sure_(true),
     roll_deg(0), pitch_deg(0), yaw_deg(0),
-    eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_buzz_(false),
+    eye_closed_(false), eye_closed_confirmed_(false), sensorPin_(sensorPin), eye_tone_(false),
     head_buzz_f_(false), head_buzz_p_(false),
     pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
     pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
@@ -122,12 +122,12 @@ public:
   boolean g_is_quiet_sure() { return g_is_quiet_sure_; };
   float get_delta_pitch() { return delta_pitch_; };
   float get_delta_roll() { return delta_roll_; };
-  boolean get_eye_ready_chirp() { return eye_ready_chirp_; };
-  boolean get_eye_reset_chirp() { return eye_reset_chirp_; };
+  boolean get_eye_ready() { return eye_ready_chirp_; };
+  boolean get_eye_reset() { return eye_reset_chirp_; };
   float get_eye_reset_time() { return eye_reset_time_; };
   float get_eye_set_time() { return eye_set_time_; };
-  boolean get_head_ready_chirp() { return head_ready_chirp_; };
-  boolean get_head_reset_chirp() { return head_reset_chirp_; };
+  boolean get_head_ready() { return head_ready_chirp_; };
+  boolean get_head_reset() { return head_reset_chirp_; };
   float get_wn_q_filt() { return wn_q_filt_; };
   boolean get_eye_reset_RLR() { return eye_reset_RLR_; };
   boolean get_eye_reset_LRL() { return eye_reset_LRL_; };
@@ -148,7 +148,7 @@ public:
   void plot_all_rot();  // pp2
   void plot_all_rpy();  // pp7
   void plot_all_sum();  // pp0
-  void plot_eye_buzz();  // pp9
+  void plot_eye_tone();  // pp9
   void plot_head_buzz();  // pp8
   void plot_quiet();  // pp4
   void plot_quiet_raw();  // pp5
@@ -257,7 +257,7 @@ protected:
   boolean eye_closed_;  // Eye closed detected
   boolean eye_closed_confirmed_;  // Eye closed detected and persistent
   int sensorPin_;  // Pin connected to the IR sensor
-  boolean eye_buzz_;  // Declaring a buzz to wake driver
+  boolean eye_tone_;  // Declaring a buzz to wake driver
   boolean head_buzz_f_;  // Declaring a buzz to wake driver
   boolean head_buzz_p_;  // Declaring a buzz to wake driver
   // in deg for forte signal
