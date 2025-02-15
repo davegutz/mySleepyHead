@@ -43,31 +43,51 @@ protected:
 };
 
 
-// Buzzer output
+// Tone output
 class ProcessToneOutput : public ProcessOutput
 {
 public:
     ProcessToneOutput(const unsigned int pin,  boolean *token, String name) : ProcessOutput(pin, token, name) {};
+    void turn_off();
     void write_duty(const int freq, const uint8_t duty);
 };
 
 
-// Buzzer duty cycle control
+// Tone off
+void ProcessToneOutput::turn_off()
+{
+
+    // Wrap.  Allow calling procedure to decide how to renew cycling by giving up tokens each cycle
+    duty_count_ = 0;
+    *token_ = false;
+    if ( have_tokens_ )
+    {
+        have_tokens_ = false;
+        Serial.print("released "); Serial.println(name_);
+    }
+    noTone(pin_);
+
+}
+
+// Tone duty cycle control.  Set duty = 0 to turn everything off for sure.
 void ProcessToneOutput::write_duty(const int freq, const uint8_t duty)
 {
 
   // Wrap.  Allow calling procedure to decide how to renew cycling by giving up tokens each cycle
-  if ( duty_count_ > 90 )
+  if ( duty_count_ > 90 || duty == 0 )
   {
     duty_count_ = 0;
     *token_ = false;
     have_tokens_ = false;
     noTone(pin_);
-    Serial.print("released "); Serial.println(name_);
+    if ( duty != 0 )
+    {
+        Serial.print("released "); Serial.println(name_);
+    }
 }
 
   // Grab tokens and initialize duty
-  if ( !*token_ )
+  if ( !*token_  && duty != 0 )
   {
     *token_ = true;
     have_tokens_ = true;
@@ -94,25 +114,45 @@ class ProcessPinOutput : public ProcessOutput
 {
 public:
     ProcessPinOutput(const unsigned int pin, boolean *token, String name) : ProcessOutput(pin, token, name) {};
+    void turn_off();
     void write_duty(const uint8_t duty);
 };
 
-// Pin duty cycle control
+// Pin off
+void ProcessPinOutput::turn_off()
+{
+
+    // Wrap.  Allow calling procedure to decide how to renew cycling by giving up tokens each cycle
+    duty_count_ = 0;
+    *token_ = false;
+    if ( have_tokens_ )
+    {
+        have_tokens_ = false;
+        Serial.print("released "); Serial.println(name_);
+    }
+    digitalWrite(pin_, LOW);
+
+}
+
+// Pin duty cycle control.  Set duty = 0 to turn everything off for sure.
 void ProcessPinOutput::write_duty(const uint8_t duty)
 {
 
   // Wrap.  Allow calling procedure to decide how to renew cycling by giving up tokens each cycle
-  if ( duty_count_ > 90 )
+  if ( duty_count_ > 90 || duty == 0 )
   {
     duty_count_ = 0;
     *token_ = false;
     have_tokens_ = false;
     digitalWrite(pin_, LOW);
-    Serial.print("released "); Serial.println(name_);
+    if ( duty != 0 )
+    {
+        Serial.print("released "); Serial.println(name_);
+    }
   }
 
   // Grab tokens and initialize duty
-  if ( !*token_ )
+  if ( !*token_  && duty != 0 )
   {
     *token_ = true;
     have_tokens_ = true;

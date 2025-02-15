@@ -110,16 +110,30 @@ void loop()
   // Control
   if ( S->control() )
   {
-    if ( Sen->get_eye_ready() && enable_motor ) TON->write_duty(tone_freq_ir, DUTY_EYE_READY);
-    if ( Sen->get_eye_reset() && enable_motor ) TON->write_duty(tone_freq_ir, DUTY_EYE_RESET);
+    if ( Sen->get_eye_ready() && enable_motor )
+    {
+      TON->write_duty(tone_freq_ir, DUTY_EYE_READY);
+      LED->write_duty(DUTY_EYE_READY);
+    }
+    else if ( Sen->get_eye_reset() && enable_motor )
+    {
+      TON->write_duty(tone_freq_ir, DUTY_EYE_RESET);
+      LED->write_duty(DUTY_EYE_RESET);
+    }
+    else
+    {
+      TON->turn_off();
+      LED->turn_off();
+    }
+
     if ( Sen->eye_closed_sure() )
     {
       if ( enable_motor )
         MOT->write_duty(100);
       if ( enable_tone_ir )
       {
-        LED->write_duty(100);
         TON->write_duty(tone_freq_ir, DUTY_EYE_WARN);
+        LED->write_duty(DUTY_EYE_WARN);
       }
     }
     else
@@ -132,18 +146,16 @@ void loop()
           if ( enable_motor ) MOT->write_duty(100);
           if ( enable_tone_grav )
           {
-            LED->write_duty(100);
             TON->write_duty(tone_freq_grav, DUTY_HEAD_WARN);
+            LED->write_duty(DUTY_HEAD_WARN);
           }
         }
       }
       else
       {
-        MOT->write_duty(0);
-        LED->write_duty(0);
-        TON->write_duty(tone_freq_ir, 0);
         if ( Sen->get_head_ready() && enable_motor )  MOT->write_duty(DUTY_HEAD_READY);
-        if ( Sen->get_head_reset() && enable_motor )  MOT->write_duty(DUTY_HEAD_RESET);
+        else if ( Sen->get_head_reset() && enable_motor )  MOT->write_duty(DUTY_HEAD_RESET);
+        else  MOT->turn_off();
       }
     }
   }
