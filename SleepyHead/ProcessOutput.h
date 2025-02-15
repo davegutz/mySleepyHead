@@ -29,6 +29,7 @@ extern CommandPars cp;
 
 // Class to manage and coordinate multiple output devices
 // Duty cycle in increments of 10 0 - 90 for 10 x 0.1 seconds = 1 second cycle
+// Capable of changing tones on the fly (results in ugly repeated code)
 class ProcessOutput
 {
 public:
@@ -63,7 +64,7 @@ void ProcessToneOutput::turn_off()
     if ( have_tokens_ )
     {
         have_tokens_ = false;
-        Serial.print("released "); Serial.println(name_);
+        // Serial.print("released "); Serial.println(name_);
     }
     noTone(pin_);
 
@@ -80,10 +81,10 @@ void ProcessToneOutput::write_duty(const int freq, const uint8_t duty)
     *token_ = false;
     have_tokens_ = false;
     noTone(pin_);
-    if ( duty != 0 )
-    {
-        Serial.print("released "); Serial.println(name_);
-    }
+    // if ( duty != 0 )
+    // {
+    //     Serial.print("released "); Serial.println(name_);
+    // }
 }
 
   // Grab tokens and initialize duty
@@ -93,7 +94,7 @@ void ProcessToneOutput::write_duty(const int freq, const uint8_t duty)
     have_tokens_ = true;
     duty_count_ = 0;
     noTone(pin_);
-    Serial.print("grabbed "); Serial.println(name_);
+    // Serial.print("grabbed "); Serial.println(name_);
 }
 
   // Play
@@ -128,7 +129,7 @@ void ProcessPinOutput::turn_off()
     if ( have_tokens_ )
     {
         have_tokens_ = false;
-        Serial.print("released "); Serial.println(name_);
+        // Serial.print("released "); Serial.println(name_);
     }
     digitalWrite(pin_, LOW);
 
@@ -145,10 +146,10 @@ void ProcessPinOutput::write_duty(const uint8_t duty)
     *token_ = false;
     have_tokens_ = false;
     digitalWrite(pin_, LOW);
-    if ( duty != 0 )
-    {
-        Serial.print("released "); Serial.println(name_);
-    }
+    // if ( duty != 0 )
+    // {
+        // Serial.print("released "); Serial.println(name_);
+    // }
   }
 
   // Grab tokens and initialize duty
@@ -158,7 +159,7 @@ void ProcessPinOutput::write_duty(const uint8_t duty)
     have_tokens_ = true;
     duty_count_ = 0;
     digitalWrite(pin_, LOW);
-    Serial.print("grabbed "); Serial.println(name_);
+    // Serial.print("grabbed "); Serial.println(name_);
  }
 
   // Play
