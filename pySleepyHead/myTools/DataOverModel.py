@@ -139,7 +139,7 @@ class SavedData:
             self.roll_deg = None
             self.head_buzz_f = None
             self.head_buzz_p = None
-            self.eye_buzz = None
+            self.eye_tone = None
             self.lt_state = None
             self.st_state = None
             self.dltst = None
@@ -256,7 +256,7 @@ class SavedData:
             self.update_from_other(data, 'delta_roll', i_end)
             self.update_from_other(data, 'head_buzz_f', i_end)
             self.update_from_other(data, 'head_buzz_p', i_end)
-            self.update_from_other(data, 'eye_buzz', i_end)
+            self.update_from_other(data, 'eye_tone', i_end)
             self.update_from_other(data, 'lt_state', i_end)
             self.update_from_other(data, 'st_state', i_end)
             self.update_from_other(data, 'dltst', i_end)

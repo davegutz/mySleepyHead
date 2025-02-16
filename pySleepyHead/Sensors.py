@@ -166,7 +166,7 @@ class Sensors:
         self.eye_closed = None
         self.eye_closed_confirmed = None
         self.flt_LTST = None
-        self.eye_buzz = None
+        self.eye_tone = None
         self.cf = 1.
         self.dltst = None
         self.fault = False
@@ -290,7 +290,7 @@ class Sensors:
                                                      min(self.T, Device.MAX_DT_EYE), -Device.FRZ_THR_POS)
         self.eye_closed_confirmed = self.EyeClosedPer.calculate(self.eye_closed, Device.EYE_S, Device.EYE_R,
                                                                 self.T, self.eye_reset)
-        self.eye_buzz = self.eye_closed_confirmed
+        self.eye_tone = self.eye_closed_confirmed
         self.eye_rate = self.EyeRateFilt.calculate(self.eye_voltage_norm, reset, min(self.T, Device.MAX_DT_EYE))
         # print("{:7.3f} ".format(self.eye_rate), end='')
         # self.EyeRateFilt.__repr__()
@@ -381,7 +381,7 @@ class Sensors:
         self.saved.eye_voltage_flt.append(self.eye_voltage_flt)
         self.saved.eye_closed.append(self.eye_closed)
         self.saved.eye_closed_confirmed.append(self.eye_closed_confirmed)
-        self.saved.eye_buzz.append(self.eye_buzz)
+        self.saved.eye_tone.append(self.eye_tone)
         self.saved.flt_LTST.append(self.flt_LTST)
         self.saved.cf.append(self.LTST_Filter.cf)
         self.saved.dltst.append(self.LTST_Filter.dltst)
@@ -443,7 +443,7 @@ class Saved:
         self.eye_voltage_flt = []
         self.eye_closed = []
         self.eye_closed_confirmed = []
-        self.eye_buzz = []
+        self.eye_tone = []
         self.flt_LTST = []
         self.cf = []
         self.dltst = []
