@@ -47,7 +47,9 @@ extern int debug;
 void setup()
 {
   setTime(time_initial);
-  unit = version.c_str(); unit  += "_"; unit += HDWE_UNIT.c_str();
+
+  cp.config = init_config_pins();
+  cp.initialize();
 
   init_serial(SERIAL_BAUD);
 
@@ -79,7 +81,7 @@ void loop()
   static ProcessToneOutput *TON = new ProcessToneOutput(tonePin, &cp.tone_token, String("TON"));
 
   // Sensors
-  static Sensors *Sen = new Sensors(millis(), kp_def, ki_def, sensorPin, unit_key + "_Rapid");
+  static Sensors *Sen = new Sensors(millis(), kp_def, ki_def, sensorPin);
   boolean plotting = plotting_all_def;
   static boolean eye_closed = false;
   static boolean enable_tone_ir = true;

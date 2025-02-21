@@ -151,6 +151,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
           Serial.println("h - this help");
           Serial.println("H - print header and one line of data for the default data stream that starts automatically on startup");
           Serial.println("P? - Print stuff");
+          Serial.println("\t PC - command parameters");
           Serial.println("\t PL - LTST Filter");
           Serial.println("\t PY - Yaw Rate Filter");
           Serial.print("pp? - plot all version ("); Serial.print(plot_num); Serial.println(")");
@@ -180,6 +181,9 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
         case ( 'P' ):  // P - print
           switch ( letter_1 )
           {
+            case ( 'C' ):  // PC - Print Command Parameters
+              cp.pretty_print();
+              break;
             case ( 'H' ):  // PH - Print Head data
               Sen->pretty_print_head();
               break;
@@ -206,7 +210,7 @@ void process_input_str(Sensors *Sen, float *g_quiet_thr, float *o_quiet_thr, boo
                   monitoring = false;
                   break;
                 default:
-                  Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_tone), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
+                  Serial.print("plot number "); Serial.print(plot_num); Serial.println(" unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_tone), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
                   plotting_all = false;
                   break;
               }

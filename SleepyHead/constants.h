@@ -33,19 +33,12 @@
 
 // Setup
 #include "local_config.h"
-const String unit_key = version + "_" + HDWE_UNIT;
-const uint8_t plot_num_def = 10;
+const uint8_t plot_num_def = 99;  // set to 10 to startup in data streaming mode so can debug an initialization error
 const boolean plotting_all_def = true;
 
 const double MAX_DT_EYE = 0.1;      // Maximum filter update time in call to prevent aliasing, sec (0.1)
 const double MAX_DT_HEAD = 0.2;     // Maximum filter update time in call to prevent aliasing, sec (0.2)
 const float deg_to_rps = 0.0174533;
-
-// Hardware pins
-const int sensorPin = 20;    // Pin connected to the IR sensor (or eye detection sensor)
-const int tonePin = A3;      // Pin connected to the buzzer
-const int motorPin = 21;     // Pin connected to the motor
-
 
 // Constants; anything numeric (adjustable)
 #define ONE_DAY_MILLIS  86400000UL      // Number of milliseconds in one day (24*60*60*1000)

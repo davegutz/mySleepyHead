@@ -39,7 +39,9 @@
 #include "src/MahonyAHRS/MahonyAHRS.h"
 #include "src/Filters/myFilters.h"
 #include "src/Filters/Wag.h"
+#include "command.h"
 
+extern CommandPars cp;            // Various parameters shared at system level
 extern int debug;
 
 
@@ -61,7 +63,7 @@ public:
     reset_(false), wn_q_filt_(0), glasses_off_(true), glasses_reset_(true), elapsed_time_(0)
   {};
   Sensors(const unsigned long long time_now, const float kp, const float ki,
-    const int sensorPin, const String unit):
+    const int sensorPin):
     a_raw(0), b_raw(0), c_raw(0), o_raw(0), a_filt(0), b_filt(0), c_filt(0), o_filt(0),
     x_raw(0), y_raw(0), z_raw(0), g_raw(1), x_filt(0), y_filt(0), z_filt(0), g_filt(0),
     time_acc_last_(time_now), time_eye_last_(time_now), time_rot_last_(time_now),
@@ -71,7 +73,7 @@ public:
     head_buzz_f_(false), head_buzz_p_(false),
     pitch_thr_f_(pitch_thr_def_forte), roll_thr_f_(roll_thr_def_forte),
     pitch_thr_p_(pitch_thr_def_piano), roll_thr_p_(roll_thr_def_piano), eye_voltage_norm_(0),
-    unit_(unit), v3v3_(v3v3_nom), delta_pitch_(delta_pitch_def), delta_roll_(delta_roll_def),
+    unit_(cp.unit), v3v3_(v3v3_nom), delta_pitch_(cp.delta_pitch_def), delta_roll_(cp.delta_roll_def),
     eye_reset_(true), eye_set_time_(EYE_S), eye_reset_time_(EYE_R),
     head_reset_(true), head_set_time_(HEAD_S), head_reset_time_(HEAD_R), max_nod_f_confirmed_(false), max_nod_p_confirmed_(false),
     reset_(true), wn_q_filt_(WN_Q_FILT), glasses_off_(true), glasses_reset_(true), elapsed_time_(0)

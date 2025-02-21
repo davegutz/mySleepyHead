@@ -22,6 +22,19 @@
 // SOFTWARE.
 
 #pragma once
+#include "version.h"
+// #include "command.h"
 
-// #include "pro0n33iot.h"  // prototype board
-#include "wearDn33iot.h"  // worn on D (Dave)
+// Hardware pins
+const int sensorPin = 20;    // Pin connected to the IR sensor (or eye detection sensor)
+const int tonePin = A3;      // Pin connected to the buzzer
+const int motorPin = 21;     // Pin connected to the motor
+const int configPin0 = 15;   // Pin connected to the config bit 0
+const int configPin1 = 16;   // Pin connected to the config bit 1
+
+// Built-in configs
+const String HDWE_UNIT[4]       = {"wearDn33iot",   "prototype",    "prototype",    "prototype"};
+const float delta_pitch[4]  = {13.,             0.,             0.,             0.};
+const float delta_roll[4]   = {5.,              0.,             0.,             0.};
+
+#define USE_ARDUINO

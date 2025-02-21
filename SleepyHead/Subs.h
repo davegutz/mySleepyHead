@@ -37,7 +37,20 @@ void delay_no_block(const unsigned long long interval)
   }
 }
 
-// Buzzer
+// Config pins
+uint8_t init_config_pins()
+{
+    Serial.print("Config pin 0 starting at pin "); Serial.print(configPin0); Serial.print("...");
+    pinMode(configPin0, INPUT);   // Set configPin0 as an INPUT
+    Serial.print("Config pin 1 starting at pin "); Serial.print(configPin1); Serial.print("...");
+    pinMode(configPin1, INPUT);   // Set configPin1 as an INPUT
+    Serial.println(" done");
+    delay(5);
+    uint8_t config = (digitalRead(configPin0) << 1) | digitalRead(configPin1);
+    Serial.print("Reading config pins and setting config = "); Serial.println(config);
+    return config;
+}
+
 boolean init_tone()
 {
   Serial.print("Tone starting at pin "); Serial.print(tonePin); Serial.print("...");
@@ -226,7 +239,6 @@ void request_plot(const uint8_t plot_num, const boolean print_hdr, Sensors *Sen,
       Sen->plot_yaw_reset();  // pp12
       break;
     default:
-      Serial.println("plot number unknown enter plot number e.g. pp0 (sum), pp1 (acc), pp2 (rot), pp3 (all), pp4 (quiet), pp5 (quiet raw), pp6 (total), pp7 (roll-pitch-yaw), pp8 (head_buzz), pp9 (eye_tone), pp10 (stream), pp11 (Mahony), pp12 (yaw reset)");
       break;
   }
   last_plot_num = plot_num;

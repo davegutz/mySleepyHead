@@ -39,7 +39,6 @@
 #include "command.h"
 #include "ProcessInput.h"
 String serial_str;
-String unit;
 boolean string_cpt = false;
 time_t time_initial = ARBITRARY_TIME;
 unsigned long long millis_flip = millis(); // Timekeeping
