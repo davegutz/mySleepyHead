@@ -46,7 +46,7 @@ uint8_t init_config_pins()
     pinMode(configPin1, INPUT);   // Set configPin1 as an INPUT
     Serial.println(" done");
     delay(5);
-    uint8_t config = (digitalRead(configPin0) << 1) | digitalRead(configPin1);
+    uint8_t config = (digitalRead(configPin1) << 1) | digitalRead(configPin0);
     Serial.print("Reading config pins and setting config = "); Serial.println(config);
     return config;
 }
