@@ -48,10 +48,10 @@ void setup()
 {
   setTime(time_initial);
 
+  init_serial(SERIAL_BAUD);
+
   cp.config = init_config_pins();
   cp.initialize();
-
-  init_serial(SERIAL_BAUD);
 
   init_LED();
 
